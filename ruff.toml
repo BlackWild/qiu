@@ -1,0 +1,49 @@
+[lint.per-file-ignores]
+"**/__init__.py" = [
+  "I", # don't auto-sort imports in `__init__.py` files to avoid circular imports
+]
+
+[lint]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+  # pydoclint
+  "DOC",
+  # pydocstyle
+  "D",
+  # type-checking
+  "TC",
+]
+ignore = [
+  "E501", # line too long
+  "D202", # No blank lines allowed after function docstring
+]
+
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = [
+  "F401", # 'imported but unused'
+]
+
+# Specify the docstring style to be used for linting.
+pydocstyle.convention = "google"
+
+# longer line limit for comments
+# pycodestyle.max-line-length = 100
+
+[format]
+# Enable auto-formatting of code examples in docstrings.
+docstring-code-format = true
+# Specify the line ending for formatting.
+line-ending = "lf"

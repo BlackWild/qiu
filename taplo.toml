@@ -1,0 +1,3 @@
+
+# exclude auto formatting pyproject.toml because it is managed by uv
+exclude = ["**/pyproject.toml"]
