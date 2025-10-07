@@ -311,6 +311,16 @@ source = { editable = "packages/qiskit-phase-propagator" }
 name = "qiskit-signals"
 version = "0.1.0"
 source = { editable = "packages/qiskit-signals" }
+dependencies = [
+    { name = "qiskit" },
+    { name = "qiskit-encore" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "qiskit", specifier = ">=2.2.1" },
+    { name = "qiskit-encore", editable = "packages/qiskit-encore" },
+]
 
 [[package]]
 name = "rustworkx"
