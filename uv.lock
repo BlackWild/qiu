@@ -9,7 +9,10 @@ resolution-markers = [
 
 [manifest]
 members = [
+    "qiskit-aer-encore",
     "qiskit-encore",
+    "qiskit-phase-propagator",
+    "qiskit-signals",
 ]
 
 [[package]]
@@ -197,6 +200,11 @@ wheels = [
 ]
 
 [[package]]
+name = "qiskit-aer-encore"
+version = "0.1.0"
+source = { editable = "packages/qiskit-aer-encore" }
+
+[[package]]
 name = "qiskit-encore"
 version = "0.1.0"
 source = { editable = "packages/qiskit-encore" }
@@ -211,6 +219,16 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "qiskit", specifier = ">=2.2.1" },
 ]
+
+[[package]]
+name = "qiskit-phase-propagator"
+version = "0.1.0"
+source = { editable = "packages/qiskit-phase-propagator" }
+
+[[package]]
+name = "qiskit-signals"
+version = "0.1.0"
+source = { editable = "packages/qiskit-signals" }
 
 [[package]]
 name = "rustworkx"
