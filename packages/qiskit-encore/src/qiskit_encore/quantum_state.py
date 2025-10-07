@@ -1,58 +1,53 @@
-"""QuantumState."""
+"""Module for quantum states that can be prepared by quantum circuits."""
 
-import numpy as np
-import numpy.typing as npt
-from qiskit import QuantumCircuit
+from functools import cached_property
+
+from qiskit.circuit import Gate
+from qiskit.quantum_info import Statevector
+
+from qiskit_encore.helper_types import QiskitStatevectorDataType
+from qiskit_encore.initializer import InitializerType, ideal_state_initializer
 
 
-class QuantumState:
-    """Represents a quantum state."""
+class PreparableStatevector(Statevector):
+    """A Statevector that can be prepared by a quantum circuit."""
 
-    wavefunction: npt.NDArray[np.complex128]
-    """The wavefunction of the quantum state."""
+    initializer_generator: InitializerType
+    """The function that generates the initializer circuit."""
 
-    initializer_circuit: QuantumCircuit | None
-    """The initializer circuit for the quantum state."""
-    de_initializer_circuit: QuantumCircuit | None
-    """The de-initializer circuit for the quantum state."""
+    de_initializer_generator: InitializerType | None
 
-    def __init__(self, wavefunction: npt.ArrayLike, normalize: bool = False) -> None:
-        """Initializes the QuantumState with the given wavefunction.
+    def __init__(
+        self,
+        data: QiskitStatevectorDataType,
+        initializer_generator: InitializerType,
+        de_initializer_generator: InitializerType | None = None,
+    ) -> None:
+        """Initializes the PreparableStatevector with the given wavefunction."""
+        super().__init__(data)
+        self.initializer_generator = initializer_generator
+        self.de_initializer_generator = de_initializer_generator
 
-        Args:
-            wavefunction (npt.ArrayLike): The wavefunction of the quantum state.
-            normalize (bool, optional): Whether to normalize the wavefunction if it is not normalized. Defaults to False.
-        """
-        normalization_factor = np.linalg.norm(self.wavefunction)
+    @cached_property
+    def initializer_gate(self) -> Gate:
+        """The initializer gate for the quantum state."""
+        return self.initializer_generator(self)
 
-        if normalize and not np.isclose(normalization_factor, 1.0):
-            self.wavefunction = (
-                np.array(wavefunction, dtype=np.complex128) / normalization_factor
-            )
+    @cached_property
+    def de_initializer_gate(self) -> Gate:
+        """The de-initializer gate for the quantum state."""
+        if self.de_initializer_generator is not None:
+            return self.de_initializer_generator(self)
         else:
-            raise ValueError(
-                "The provided wavefunction is not normalized. Set `normalize=True` to force the normalization of the wavefunction."
-            )
+            return self.initializer_gate.inverse()  # type: ignore
 
-    @property
-    def size(self) -> int:
-        """The dimension of the quantum state."""
-        return self.wavefunction.size
 
-    @property
-    def qubits_size(self) -> int:
-        """The number of qubits required to represent the quantum state."""
-        return np.log2(self.size).astype(int)
+class IdealPreparableStatevector(PreparableStatevector):
+    """A PreparableStatevector that uses the ideal state initializer."""
 
-    # def generate_mps_initializer_circuit(
-    #     self, number_of_layers: int
-    # ) -> qiskit.circuit.QuantumCircuit:
-    #     """Generates the MPS initializer circuit for the quantum state.
-
-    #     Returns:
-    #         QuantumCircuit: The MPS initializer circuit for the quantum state as a qiskit circuit.
-    #     """
-    #     circuit, _ = multi_layered_circuit_for_non_approximated(
-    #         self.wavefunction, max_number_of_layers=number_of_layers
-    #     )
-    #     return circuit
+    def __init__(
+        self,
+        data: QiskitStatevectorDataType,
+    ) -> None:
+        """Initializes the IdealPreparableStatevector with the given wavefunction."""
+        super().__init__(data, initializer_generator=ideal_state_initializer)
