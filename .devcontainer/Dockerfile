@@ -10,7 +10,7 @@ ENV UV_CACHE_DIR=/vscode/.cache/uv
 # Prefer using Python versions managed by uv
 ENV UV_PYTHON_PREFERENCE=only-managed
 # Use copy mode for uv link to avoid issues with bind mounts on some systems
-# ENV UV_LINK_MODE=copy
+ENV UV_LINK_MODE=copy
 
 ENV RUFF_CACHE_DIR=/vscode/.cache/ruff
 # ENV MYPY_CACHE_DIR=/home/vscode/.cache/mypy
