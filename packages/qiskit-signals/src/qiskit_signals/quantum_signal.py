@@ -16,16 +16,34 @@ from qiskit_encore.quantum_state import (
 class GenericQuantumSignal:
     """A generic quantum signal having no specific structure imposed on it. It is used to be exported to other signal types such as a LinearSignal, QuadraticSignal, etc."""
 
-    _data: npt.ArrayLike
+    _data: npt.NDArray[np.float64]
     """The data of the quantum signal."""
 
     def __init__(self, data: npt.ArrayLike) -> None:
         """Initializes the GenericQuantumSignal with the given data."""
-        self._data = data
+        self._data = np.asarray(data, dtype=np.float64)
 
     def to_quadratic(self) -> "QuadraticQuantumSignal":
         """Converts the generic quantum signal to a quadratic quantum signal."""
         return QuadraticQuantumSignal.from_data(self._data)
+    
+    def __mul__(self, other: int | float) -> "GenericQuantumSignal":
+        """Defines the multiplication of the GenericQuantumSignal with a scalar."""
+        if isinstance(other, int | float):  # type: ignore
+            new_data = self._data * other
+            return GenericQuantumSignal(new_data)
+        else:
+            raise ValueError("Multiplication is only defined for scalars.")
+        
+    def __add__(self, other: "GenericQuantumSignal") -> "GenericQuantumSignal":
+        """Defines the addition of two GenericQuantumSignal objects."""
+        if isinstance(other, GenericQuantumSignal):
+            if self._data.shape != other._data.shape:
+                raise ValueError("Signals must have the same shape to be added.")
+            new_data = self._data + other._data
+            return GenericQuantumSignal(new_data)
+        else:
+            raise ValueError("Addition is only defined between GenericQuantumSignal objects.")
 
 
 class QuadraticQuantumSignal():
