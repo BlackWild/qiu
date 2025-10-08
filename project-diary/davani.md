@@ -1,3 +1,7 @@
+### Log 08.10.2025
+
+- I think `BlueprintCircuit` object is supposed to be used in cases the circuit initialization is costly and you are just gonna wait until its first application to initialize it. Which in general means that you can change the internal parameters before the first usage and the parameters will be validated before the build.
+
 ### Log 07.10.2025 later the same day
 
 - The previous point is not entirely true. The reason is that `Gate` does not support classical bits, while `QuantumCircuit` does. So if you need classical bits, you have to use `QuantumCircuit`.
