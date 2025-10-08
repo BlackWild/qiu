@@ -91,6 +91,8 @@ class PotentialEvolutionSampleBased(QuantumCircuit):
         self,
         V: RealSignalType,
         x: npt.NDArray | list[float],
+        t: float,
+        hbar: float,
         max_delta: float,
     ) -> None:
         """Initializes the PotentialEvolution with the given circuit."""
@@ -102,7 +104,7 @@ class PotentialEvolutionSampleBased(QuantumCircuit):
         super().__init__(psi_reg, phi_reg, success_flag, name="Potential Evolution")
 
         x_array = np.asarray(x, dtype=np.float64)
-        signal_data = V(x_array)
+        signal_data = -1 / hbar * V(x_array) * t
         signal = QuadraticQuantumSignal.from_data(signal_data)
 
         propagator = QuadraticSignalSampleBasedPhasePropagator(
@@ -113,24 +115,39 @@ class PotentialEvolutionSampleBased(QuantumCircuit):
         self.compose(propagator, inplace=True)
 
 
-# def generate_potential_exponential_operator(
-#     V: GenericQuantumSignal,
-#     delta_t: float,
-#     max_delta: float,
-#     hbar: float,
-# ) -> QuantumCircuit:
-#     ### apply e^{-iV delta_t /hbar} to the register for a given delta_t with a given maximum delta parameter
+class KineticEvolutionSampleBased(QuantumCircuit):
+    """A quantum circuit representing the evolution under a kinetic energy operator."""
 
-#     total_phase = V * (-1 * delta_t / hbar)
+    def __init__(
+        self,
+        T: RealSignalType,
+        p: npt.NDArray | list[float],
+        t: float,
+        hbar: float,
+        max_delta: float,
+    ) -> None:
+        """Initializes the KineticEvolution with the given circuit."""
+        n = int(np.ceil(np.log2(len(p))))
+        psi_reg = QuantumRegister(n, name=r"\psi")
+        phi_reg = QuantumRegister(n, name=r"\phi")
+        success_flag = ClassicalRegister(n, name="success_flag")
 
-#     circuit = generate_total_phase_propagator_circuit(total_phase, max_delta)
+        super().__init__(psi_reg, phi_reg, success_flag, name="Kinetic Evolution")
 
-#     circuit.name = (
-#         r"$e^{-i \hat{V} \Delta t / \hbar}$"
-#         + "\n"
-#         + rf"$\Delta t={delta_t}$,"
-#         + "\n"
-#         + f"{len(circuit.cregs)} iterations"
-#     )
+        p_array = np.asarray(p, dtype=np.float64)
+        signal_data = -1 / hbar * T(p_array) * t
+        signal = QuadraticQuantumSignal.from_data(signal_data)
 
-#     return circuit
+        qft = QFTGate(signal.num_qubits)
+        iqft = qft.inverse()
+
+        self.append(qft)
+
+        propagator = QuadraticSignalSampleBasedPhasePropagator(
+            signal=signal,
+            max_delta=max_delta,
+        )
+
+        self.append(iqft)
+
+        self.compose(propagator, inplace=True)
