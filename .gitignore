@@ -6,6 +6,10 @@ dist/
 wheels/
 *.egg-info
 
+# pytest generated files
+.pytest_cache/
+.hypothesis/
+
 # Virtual environments
 .venv
 
