@@ -3,6 +3,7 @@ qiskit-encore = { workspace = true }
 qiskit-signals = { workspace = true }
 qiskit-aer-encore = { workspace = true }
 qiskit-phase-propagator = { workspace = true }
+qiskit-hamiltonian-simulation = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*", "projects/*"]

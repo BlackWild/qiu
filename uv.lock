@@ -11,6 +11,7 @@ resolution-markers = [
 members = [
     "qiskit-aer-encore",
     "qiskit-encore",
+    "qiskit-hamiltonian-simulation",
     "qiskit-phase-propagator",
     "qiskit-signals",
 ]
@@ -1502,6 +1503,21 @@ dependencies = [
 requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "qiskit", specifier = ">=2.2.1" },
+]
+
+[[package]]
+name = "qiskit-hamiltonian-simulation"
+version = "0.1.0"
+source = { editable = "packages/qiskit-hamiltonian-simulation" }
+dependencies = [
+    { name = "qiskit-phase-propagator" },
+    { name = "qiskit-signals" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "qiskit-phase-propagator", editable = "packages/qiskit-phase-propagator" },
+    { name = "qiskit-signals", editable = "packages/qiskit-signals" },
 ]
 
 [[package]]

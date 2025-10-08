@@ -68,6 +68,11 @@ class QuadraticQuantumSignal:
         )
         return cls(alpha, state)
 
+    @property
+    def num_qubits(self) -> int:
+        """Returns the number of qubits required to represent the statevector."""
+        return 0 if self.statevector.num_qubits is None else self.statevector.num_qubits
+
 
 def extract_alpha_and_state_from_generic_signal(
     signal: npt.NDArray[np.float64], power: int

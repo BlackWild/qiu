@@ -120,7 +120,7 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
         )
 
 
-class QuadraticSignalPhasePropagator(QuantumCircuit):
+class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
     """A quadratic signal phase propagator.
 
     This class implements a quadratic signal phase propagator as a QuantumCircuit.
@@ -143,8 +143,13 @@ class QuadraticSignalPhasePropagator(QuantumCircuit):
             signal (QuadraticQuantumSignal): The quadratic quantum signal containing alpha and statevector.
             max_delta (float): The maximum delta value for slicing the alpha value.
         """
-
-        super().__init__(name="Quadratic signal phase propagator")
+        n = signal.num_qubits
+        psi_reg = QuantumRegister(n, name=r"\psi")
+        phi_reg = QuantumRegister(n, name=r"\phi")
+        success_flag = ClassicalRegister(n, name="success_flag")
+        super().__init__(
+            psi_reg, phi_reg, success_flag, name="Quadratic signal phase propagator"
+        )
 
         alpha, state = signal.alpha, signal.statevector
         deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
