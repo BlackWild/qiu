@@ -1,7 +1,14 @@
-from qiskit.circuit import QuantumCircuit, Gate, QuantumRegister, ClassicalRegister
+"""Module for sample-based phase propagators."""
+
 import numpy as np
 import numpy.typing as npt
+from qiskit.circuit import ClassicalRegister, Gate, QuantumCircuit, QuantumRegister
 from qiskit_encore.quantum_state import PreparableStatevector
+from qiskit_signals.quantum_signal import (
+    IdealPreparableStatevector,
+    QuadraticQuantumSignal,
+)
+
 
 class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
     """A generic iterative sample-based phase propagator.
@@ -12,11 +19,10 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
     If only one cycle is needed, you can only pass one delta value in the list of deltas.
 
     Attributes:
-        n (int): The number of qubits in the main register.
-        number_of_cycles (int): The number of propagation cycles to perform.
         deltas (list[float]): A list of delta values for each cycle.
         U_phi (Gate): The gate representing the unitary operation U_phi.
         U_phi_dagger (Gate): The gate representing the adjoint of U_phi.
+        take_snapshot (bool): Whether to take snapshots of the wavefunction at each cycle. Default is False. If True, the statevector is saved at each cycle with the label being the cycle index.
     """
 
     def __init__(
@@ -24,6 +30,7 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
         deltas: npt.NDArray | list[float],
         U_phi: Gate,
         U_phi_dagger: Gate,
+        take_snapshot: bool = False,
     ) -> None:
         """Initializes the GenericIterativeSampleBasedPhasePropagator with the given parameters.
 
@@ -31,6 +38,7 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
             deltas (deltas: npt.NDArray | list[float]): A list of delta values for each cycle.
             U_phi (Gate): The gate representing the unitary operation U_phi.
             U_phi_dagger (Gate): The gate representing the adjoint of U_phi.
+            take_snapshot (bool, optional): Whether to take snapshots of the wavefunction at each cycle. Default is False. If True, the statevector is saved at each cycle with the label being the cycle index.
         """
         n = U_phi.num_qubits
 
@@ -38,24 +46,14 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
         phi_reg = QuantumRegister(n, name=r"\phi")
         success_flag = ClassicalRegister(n, name="success_flag")
 
-
-        super().__init__(psi_reg, phi_reg, success_flag, name="Iterative phase propagator")
+        super().__init__(
+            psi_reg, phi_reg, success_flag, name="Iterative phase propagator"
+        )
 
         number_of_cycles = len(deltas)
 
-        if len(deltas) != number_of_cycles:
-            raise ValueError("Length of deltas must be equal to number_of_cycles.")
-
-        # self.n = n
-        # self.number_of_cycles = number_of_cycles
-        # self.deltas = deltas
-        # self.U_phi = U_phi
-        # self.U_phi_dagger = U_phi_dagger
-
         for r in range(number_of_cycles):
-
-            with self.if_test((success_flag, 0)) as else_:
-                
+            with self.if_test((success_flag, 0)) as else_:  # noqa: F841, TODO: remove if not used
                 delta = deltas[r]
 
                 # Step 1: initializing the |phi> register
@@ -85,7 +83,8 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
                 self.reset(phi_reg)
 
                 # Take a snapshot of the wavefunction at this point
-                # self.save_statevector(f"{r}") # type: ignore
+                if take_snapshot:
+                    self.save_statevector(f"{r}")  # type: ignore
 
             # with else_:
             #     self.metadata["failed_at_cycle"] = r
@@ -97,14 +96,15 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
             #     "phi_normalized": phi,
             # }
 
-
-
     @classmethod
-    def from_state(cls, state: PreparableStatevector, deltas: npt.NDArray | list[float]) -> "GenericIterativeSampleBasedPhasePropagator":
+    def from_state(
+        cls, state: PreparableStatevector, deltas: npt.NDArray | list[float]
+    ) -> "GenericIterativeSampleBasedPhasePropagator":
         """Creates a GenericIterativeSampleBasedPhasePropagator from a given state.
 
         Args:
             state (PreparableStatevector): The preparable statevector representing the initial state.
+            deltas (npt.NDArray | list[float]): A list of delta values for each cycle.
 
         Returns:
             GenericIterativeSampleBasedPhasePropagator: An instance of the propagator initialized with the given state.
@@ -118,3 +118,89 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
             U_phi=state.initializer_gate,
             U_phi_dagger=state.de_initializer_gate,
         )
+
+
+class QuadraticSignalPhasePropagator(QuantumCircuit):
+    """A quadratic signal phase propagator.
+
+    This class implements a quadratic signal phase propagator as a QuantumCircuit.
+    It applies a series of quantum operations to simulate the evolution of the phase of a quantum state using a quadratic signal approach.
+
+    Attributes:
+        delta (float): The delta value for the propagation.
+        U_phi (Gate): The gate representing the unitary operation U_phi.
+        U_phi_dagger (Gate): The gate representing the adjoint of U_phi.
+    """
+
+    def __init__(
+        self,
+        signal: QuadraticQuantumSignal,
+        max_delta: float,
+    ) -> None:
+        """Initializes the QuadraticSignalPhasePropagator with the given parameters.
+
+        Args:
+            signal (QuadraticQuantumSignal): The quadratic quantum signal containing alpha and statevector.
+            max_delta (float): The maximum delta value for slicing the alpha value.
+        """
+
+        super().__init__(name="Quadratic signal phase propagator")
+
+        alpha, state = signal.alpha, signal.statevector
+        deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
+
+        prepareable_state = IdealPreparableStatevector(state.data, normalize=True)
+
+        propagator = GenericIterativeSampleBasedPhasePropagator.from_state(
+            state=prepareable_state, deltas=deltas
+        )
+
+        self.compose(propagator, inplace=True)
+
+
+def slice_alpha_to_deltas(alpha: float, delta: float) -> npt.NDArray:
+    """Slices the alpha value into a list of deltas, each with a value of delta except possibly the last one.
+
+    Args:
+        alpha (float): The total alpha value to be sliced.
+        delta (float): The maximum value for each delta slice.
+
+    Returns:
+        npt.NDArray: An array of delta values that sum up to alpha.
+    """
+
+    # assure delta is positive
+    if delta <= 0:
+        raise ValueError("The delta must be positive.")
+
+    delta *= np.sign(alpha)
+
+    full_deltas = alpha // delta
+    remaining_alpha = alpha - int(full_deltas) * delta
+    deltas = np.concatenate((delta * np.ones(int(full_deltas)), [remaining_alpha]))
+
+    return deltas
+
+
+def slice_alpha_to_deltas_evenly(alpha: float, max_delta: float) -> npt.NDArray:
+    """Slices the alpha value into a list of deltas, each with a maximum value of max_delta.
+
+    Args:
+        alpha (float): The total alpha value to be sliced.
+        max_delta (float): The maximum value for each delta slice.
+
+    Returns:
+        npt.NDArray: An array of delta values that sum up to alpha.
+    """
+
+    # assure delta is positive
+    if max_delta <= 0:
+        raise ValueError("The max_delta must be positive.")
+
+    max_delta *= np.sign(alpha)
+
+    number_of_deltas = int(np.ceil(np.abs(alpha / max_delta)))
+    delta = alpha / number_of_deltas
+    deltas = delta * np.ones(number_of_deltas)
+
+    return deltas

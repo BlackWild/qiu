@@ -5,7 +5,6 @@ from functools import cached_property
 import numpy as np
 import numpy.typing as npt
 from qiskit.quantum_info import Statevector
-
 from qiskit_encore.helper_types import QiskitStatevectorDataType
 from qiskit_encore.quantum_state import (
     IdealPreparableStatevector,
@@ -26,7 +25,7 @@ class GenericQuantumSignal:
     def to_quadratic(self) -> "QuadraticQuantumSignal":
         """Converts the generic quantum signal to a quadratic quantum signal."""
         return QuadraticQuantumSignal.from_data(self._data)
-    
+
     def __mul__(self, other: int | float) -> "GenericQuantumSignal":
         """Defines the multiplication of the GenericQuantumSignal with a scalar."""
         if isinstance(other, int | float):  # type: ignore
@@ -34,7 +33,7 @@ class GenericQuantumSignal:
             return GenericQuantumSignal(new_data)
         else:
             raise ValueError("Multiplication is only defined for scalars.")
-        
+
     def __add__(self, other: "GenericQuantumSignal") -> "GenericQuantumSignal":
         """Defines the addition of two GenericQuantumSignal objects."""
         if isinstance(other, GenericQuantumSignal):
@@ -43,10 +42,12 @@ class GenericQuantumSignal:
             new_data = self._data + other._data
             return GenericQuantumSignal(new_data)
         else:
-            raise ValueError("Addition is only defined between GenericQuantumSignal objects.")
+            raise ValueError(
+                "Addition is only defined between GenericQuantumSignal objects."
+            )
 
 
-class QuadraticQuantumSignal():
+class QuadraticQuantumSignal:
     """A quadratic quantum signal. Also called an intensity signal."""
 
     alpha: float
@@ -62,9 +63,11 @@ class QuadraticQuantumSignal():
     @classmethod
     def from_data(cls, data: npt.ArrayLike) -> "QuadraticQuantumSignal":
         """Creates a QuadraticQuantumSignal from raw data."""
-        alpha, state = extract_alpha_and_state_from_generic_signal(np.asarray(data), power=2)
+        alpha, state = extract_alpha_and_state_from_generic_signal(
+            np.asarray(data), power=2
+        )
         return cls(alpha, state)
-    
+
 
 def extract_alpha_and_state_from_generic_signal(
     signal: npt.NDArray[np.float64], power: int
@@ -73,7 +76,10 @@ def extract_alpha_and_state_from_generic_signal(
 
     # check if all elements of signal have the same sign
     if not all(
-        [np.sign(signal[0]) == np.sign(signal[i]) or np.isclose(signal[i], 0) for i in range(len(signal))]
+        [
+            np.sign(signal[0]) == np.sign(signal[i]) or np.isclose(signal[i], 0)
+            for i in range(len(signal))
+        ]
     ):
         raise ValueError("All elements of the signal vector must have the same sign.")
 

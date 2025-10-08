@@ -13,4 +13,5 @@ dev = [
     "ipykernel>=6.30.1",
     "pytest>=8.4.2",
     "qiskit[visualization]>=2.2.1",
+    "ruff>=0.14.0",
 ]
