@@ -13,6 +13,7 @@ members = [
     "qiskit-encore",
     "qiskit-hamiltonian-simulation",
     "qiskit-phase-propagator",
+    "qiskit-pytest-helper",
     "qiskit-signals",
 ]
 
@@ -22,6 +23,7 @@ dev = [
     { name = "ipykernel", specifier = ">=6.30.1" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "qiskit", extras = ["visualization"], specifier = ">=2.2.1" },
+    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
     { name = "ruff", specifier = ">=0.14.0" },
 ]
 
@@ -1530,6 +1532,11 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [{ name = "qiskit-signals", editable = "packages/qiskit-signals" }]
+
+[[package]]
+name = "qiskit-pytest-helper"
+version = "0.1.0"
+source = { editable = "dev-packages/qiskit-pytest-helper" }
 
 [[package]]
 name = "qiskit-signals"
