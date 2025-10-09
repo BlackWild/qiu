@@ -1,9 +1,9 @@
 """Module for quantum states that can be prepared by quantum circuits."""
 
 from functools import cached_property
+
 import numpy as np
 import numpy.typing as npt
-
 from qiskit.circuit import Gate
 from qiskit.quantum_info import Statevector
 
@@ -21,7 +21,7 @@ class PreparableStatevector(Statevector):
 
     def __init__(
         self,
-        data: npt.ArrayLike, # TODO: data: QiskitStatevectorDataType ?????,
+        data: npt.ArrayLike,  # TODO: data: QiskitStatevectorDataType ?????,
         initializer_generator: InitializerType,
         de_initializer_generator: InitializerType | None = None,
         normalize: bool = False,
@@ -57,4 +57,11 @@ class IdealPreparableStatevector(PreparableStatevector):
         normalize: bool = False,
     ) -> None:
         """Initializes the IdealPreparableStatevector with the given wavefunction."""
-        super().__init__(data, initializer_generator=ideal_state_initializer, normalize=normalize)
+        super().__init__(
+            data, initializer_generator=ideal_state_initializer, normalize=normalize
+        )
+
+    @classmethod
+    def from_statevector(cls, statevector: Statevector) -> "IdealPreparableStatevector":
+        """Creates an IdealPreparableStatevector from a Qiskit Statevector."""
+        return cls(statevector.data, normalize=False)

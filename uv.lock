@@ -1501,11 +1501,19 @@ dependencies = [
     { name = "qiskit" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "qiskit-pytest-helper" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "qiskit", specifier = ">=2.2.1" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" }]
 
 [[package]]
 name = "qiskit-hamiltonian-simulation"
