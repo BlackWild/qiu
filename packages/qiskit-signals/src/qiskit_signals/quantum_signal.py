@@ -1,95 +1,159 @@
 """Collection of tools to represent quantum signals."""
 
+from functools import cached_property
+
 import numpy as np
 import numpy.typing as npt
-from qiskit.quantum_info import Statevector
+
+from qiskit_signals.helper_types import SignalFunctionType
+from qiskit_signals.quantum_axis import GenericAxis
 
 
 class GenericQuantumSignal:
-    """A generic quantum signal having no specific structure imposed on it. It is used to be exported to other signal types such as a LinearSignal, QuadraticSignal, etc."""
+    axis: GenericAxis
+    signal_function: SignalFunctionType
 
-    _data: npt.NDArray[np.float64]
-    """The data of the quantum signal."""
+    def __init__(self, axis: GenericAxis, signal_function: SignalFunctionType) -> None:
+        """Initializes the GenericQuantumSignal with the given axis and signal function."""
+        self.axis = axis
+        self.signal_function = signal_function
 
-    def __init__(self, data: npt.ArrayLike) -> None:
-        """Initializes the GenericQuantumSignal with the given data."""
-        self._data = np.asarray(data, dtype=np.float64)
-
-    def to_quadratic(self) -> "QuadraticQuantumSignal":
-        """Converts the generic quantum signal to a quadratic quantum signal."""
-        return QuadraticQuantumSignal.from_data(self._data)
-
-    def __mul__(self, other: int | float) -> "GenericQuantumSignal":
-        """Defines the multiplication of the GenericQuantumSignal with a scalar."""
-        if isinstance(other, int | float):  # type: ignore
-            new_data = self._data * other
-            return GenericQuantumSignal(new_data)
-        else:
-            raise ValueError("Multiplication is only defined for scalars.")
-
-    def __add__(self, other: "GenericQuantumSignal") -> "GenericQuantumSignal":
-        """Defines the addition of two GenericQuantumSignal objects."""
-        if isinstance(other, GenericQuantumSignal):
-            if self._data.shape != other._data.shape:
-                raise ValueError("Signals must have the same shape to be added.")
-            new_data = self._data + other._data
-            return GenericQuantumSignal(new_data)
-        else:
-            raise ValueError(
-                "Addition is only defined between GenericQuantumSignal objects."
-            )
+    @cached_property
+    def data(self) -> npt.NDArray[np.float64]:
+        """Returns the data of the quantum signal."""
+        return self.signal_function(self.axis.axis_values)
 
 
-class QuadraticQuantumSignal:
-    """A quadratic quantum signal. Also called an intensity signal."""
+class PolynomialQuantumSignal:
+    """A polynomial quantum signal."""
 
+    axis: GenericAxis
+    """The axis of the quantum signal."""
     alpha: float
-    """The alpha parameter of the quadratic quantum signal."""
-    statevector: Statevector
-    """Returns the statevector representation of the quantum signal."""
+    """The coefficient parameter of the polynomial quantum signal."""
+    power: int
+    """The power of the polynomial quantum signal."""
 
-    def __init__(self, alpha: float, statevector: Statevector) -> None:
-        """Initializes the QuadraticQuantumSignal."""
+    def __init__(self, axis: GenericAxis, alpha: float, power: int) -> None:
+        """Initializes the PolynomialQuantumSignal."""
+        self.axis = axis
         self.alpha = alpha
-        self.statevector = statevector
+        self.power = power
 
-    @classmethod
-    def from_data(cls, data: npt.ArrayLike) -> "QuadraticQuantumSignal":
-        """Creates a QuadraticQuantumSignal from raw data."""
-        alpha, state = extract_alpha_and_state_from_generic_signal(
-            np.asarray(data), power=2
-        )
-        return cls(alpha, state)
+    @cached_property
+    def data(self) -> npt.NDArray[np.float64]:
+        """Returns the data of the quantum signal."""
+        return self.alpha * self.axis.axis_values**self.power
+
+
+class QuadraticQuantumSignal(PolynomialQuantumSignal):
+    """A quadratic quantum signal. Also called an intensity signal.
+
+    Assumes the signal has the form f(x) = alpha * x^2 where x are the axis values.
+    """
+
+    axis: GenericAxis
+    alpha: float
+
+    power: int = 2
+    """The power of the polynomial quantum signal, fixed to 2."""
+
+    def __init__(self, axis: GenericAxis, alpha: float) -> None:
+        """Initializes the QuadraticQuantumSignal."""
+        self.axis = axis
+        self.alpha = alpha
 
     @property
-    def num_qubits(self) -> int:
-        """Returns the number of qubits required to represent the statevector."""
-        return 0 if self.statevector.num_qubits is None else self.statevector.num_qubits
+    def effective_alpha(self) -> float:
+        """Returns the effective alpha coefficient taking into account the quadratic nature of the signal."""
+        return self.alpha * self.axis.period**2
 
 
-def extract_alpha_and_state_from_generic_signal(
-    signal: npt.NDArray[np.float64], power: int
-) -> tuple[float, Statevector]:
-    """Extracts the alpha and the state from the generic signal."""
+# class GenericQuantumSignal:
+#     """A generic quantum signal having no specific structure imposed on it. It is used to be exported to other signal types such as a LinearSignal, QuadraticSignal, etc."""
 
-    # check if all elements of signal have the same sign
-    if not all(
-        [
-            np.sign(signal[0]) == np.sign(signal[i]) or np.isclose(signal[i], 0)
-            for i in range(len(signal))
-        ]
-    ):
-        raise ValueError("All elements of the signal vector must have the same sign.")
+#     _data: npt.NDArray[np.float64]
+#     """The data of the quantum signal."""
 
-    # normalization factor
-    alpha = np.sum(signal)
+#     def __init__(self, data: npt.ArrayLike) -> None:
+#         """Initializes the GenericQuantumSignal with the given data."""
+#         self._data = np.asarray(data, dtype=np.float64)
 
-    # normalized signal
-    normalized_signal = signal / alpha
+#     def to_quadratic(self) -> "QuadraticQuantumSignal":
+#         """Converts the generic quantum signal to a quadratic quantum signal."""
+#         return QuadraticQuantumSignal.from_data(self._data)
 
-    # corresponding wavefunction
-    state_data = normalized_signal ** (1 / power)
+#     def __mul__(self, other: int | float) -> "GenericQuantumSignal":
+#         """Defines the multiplication of the GenericQuantumSignal with a scalar."""
+#         if isinstance(other, int | float):  # type: ignore
+#             new_data = self._data * other
+#             return GenericQuantumSignal(new_data)
+#         else:
+#             raise ValueError("Multiplication is only defined for scalars.")
 
-    state = Statevector(state_data)
+#     def __add__(self, other: "GenericQuantumSignal") -> "GenericQuantumSignal":
+#         """Defines the addition of two GenericQuantumSignal objects."""
+#         if isinstance(other, GenericQuantumSignal):
+#             if self._data.shape != other._data.shape:
+#                 raise ValueError("Signals must have the same shape to be added.")
+#             new_data = self._data + other._data
+#             return GenericQuantumSignal(new_data)
+#         else:
+#             raise ValueError(
+#                 "Addition is only defined between GenericQuantumSignal objects."
+#             )
 
-    return alpha, state
+
+# class QuadraticQuantumSignal:
+#     """A quadratic quantum signal. Also called an intensity signal."""
+
+#     alpha: float
+#     """The alpha parameter of the quadratic quantum signal."""
+#     statevector: Statevector
+#     """Returns the statevector representation of the quantum signal."""
+
+#     def __init__(self, alpha: float, statevector: Statevector) -> None:
+#         """Initializes the QuadraticQuantumSignal."""
+#         self.alpha = alpha
+#         self.statevector = statevector
+
+#     @classmethod
+#     def from_data(cls, data: npt.ArrayLike) -> "QuadraticQuantumSignal":
+#         """Creates a QuadraticQuantumSignal from raw data."""
+#         alpha, state = extract_alpha_and_state_from_generic_signal(
+#             np.asarray(data), power=2
+#         )
+#         return cls(alpha, state)
+
+#     @property
+#     def num_qubits(self) -> int:
+#         """Returns the number of qubits required to represent the statevector."""
+#         return 0 if self.statevector.num_qubits is None else self.statevector.num_qubits
+
+
+# def extract_alpha_and_state_from_generic_signal(
+#     signal: npt.NDArray[np.float64], power: int
+# ) -> tuple[float, Statevector]:
+#     """Extracts the alpha and the state from the generic signal."""
+
+#     # check if all elements of signal have the same sign
+#     if not all(
+#         [
+#             np.sign(signal[0]) == np.sign(signal[i]) or np.isclose(signal[i], 0)
+#             for i in range(len(signal))
+#         ]
+#     ):
+#         raise ValueError("All elements of the signal vector must have the same sign.")
+
+#     # normalization factor
+#     alpha = np.sum(signal)
+
+#     # normalized signal
+#     normalized_signal = signal / alpha
+
+#     # corresponding wavefunction
+#     state_data = normalized_signal ** (1 / power)
+
+#     state = Statevector(state_data)
+
+#     return alpha, state
