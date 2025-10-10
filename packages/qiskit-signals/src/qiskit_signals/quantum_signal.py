@@ -1,15 +1,8 @@
 """Collection of tools to represent quantum signals."""
 
-from functools import cached_property
-
 import numpy as np
 import numpy.typing as npt
 from qiskit.quantum_info import Statevector
-from qiskit_encore.helper_types import QiskitStatevectorDataType
-from qiskit_encore.quantum_state import (
-    IdealPreparableStatevector,
-    PreparableStatevector,
-)
 
 
 class GenericQuantumSignal:

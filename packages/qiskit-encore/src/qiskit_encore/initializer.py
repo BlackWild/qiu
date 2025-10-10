@@ -52,4 +52,4 @@ def ideal_state_init_de_init_pair(
     )
 
 
-# # def mps_based_initializer(state: Statevector) -> Gate:
+# # def mps_based_initializer(state: Statevector) -> QuantumCircuit:

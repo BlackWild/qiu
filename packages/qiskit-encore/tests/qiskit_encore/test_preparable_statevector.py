@@ -39,7 +39,7 @@ class TestIdeallyPreparableStatevector:
         state = IdeallyPreparableStatevector.from_statevector(statevector)
         circuit = QuantumCircuit(state.num_qubits)
         circuit.initialize(state.data.tolist(), circuit.qubits)
-        circuit.compose(state.de_initializer_circuit, circuit.qubits)
+        circuit.compose(state.de_initializer_circuit, circuit.qubits, inplace=True)
 
         de_initialized_state = Statevector(circuit)
 
@@ -62,7 +62,7 @@ class TestIdeallyPreparableStatevector:
         """Test that the initializer gate can be simulated in Aer."""
         state = IdeallyPreparableStatevector.from_statevector(statevector)
         circuit = QuantumCircuit(state.num_qubits)
-        circuit.compose(state.initializer_circuit, circuit.qubits)
+        circuit.compose(state.initializer_circuit, circuit.qubits, inplace=True)
 
         simulator = AerSimulator()
         transpiled = transpile(circuit, simulator) if transpilation else circuit
@@ -82,7 +82,7 @@ class TestIdeallyPreparableStatevector:
         """Test that the de-initializer gate can be simulated in Aer."""
         state = IdeallyPreparableStatevector.from_statevector(statevector)
         circuit = QuantumCircuit(state.num_qubits)
-        circuit.compose(state.de_initializer_circuit, circuit.qubits)
+        circuit.compose(state.de_initializer_circuit, circuit.qubits, inplace=True)
 
         simulator = AerSimulator()
         transpiled = transpile(circuit, simulator) if transpilation else circuit

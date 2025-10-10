@@ -22,8 +22,8 @@ class TestIdealStateInitializer:
         self, statevector: Statevector
     ) -> None:
         """Test the ideal_state_initializer function without transpilation of the state initializer."""
-        gate = ideal_state_initializer(statevector)
-        generated_state = Statevector(gate)
+        prep_circuit = ideal_state_initializer(statevector)
+        generated_state = Statevector(prep_circuit)
         assert state_fidelity(generated_state, statevector) >= 1.0 - FIDELITY_TOLERANCE
 
     @given(valid_qiskit_statevector(min_qubits=MIN_QUBITS, max_qubits=MAX_QUBITS))
@@ -31,8 +31,8 @@ class TestIdealStateInitializer:
         self, statevector: Statevector
     ) -> None:
         """Test the ideal_state_initializer function with transpilation of the state initializer."""
-        gate = ideal_state_initializer(statevector)
-        generated_state = Statevector(gate)
+        prep_circuit = ideal_state_initializer(statevector)
+        generated_state = Statevector(prep_circuit)
         assert (
             state_fidelity(generated_state, statevector) >= 1.0 - FIDELITY_TOLERANCE
         ), f"Got {generated_state.data}"
@@ -44,8 +44,8 @@ class TestIdealStateInitializer:
         """Test the ideal_state_de_initializer function without transpilation of the state de-initializer."""
         circuit = QuantumCircuit(statevector.num_qubits)
         circuit.initialize(statevector.data.tolist(), circuit.qubits)
-        gate = ideal_state_de_initializer(statevector)
-        circuit.append(gate, circuit.qubits)
+        prep_circuit = ideal_state_de_initializer(statevector)
+        circuit.compose(prep_circuit, circuit.qubits, inplace=True)
         de_initialized_state = Statevector(circuit)
         assert abs(de_initialized_state.data[0]) >= 1.0 - FIDELITY_TOLERANCE
 
@@ -56,8 +56,8 @@ class TestIdealStateInitializer:
         """Test the ideal_state_de_initializer function with transpilation of the state de-initializer."""
         circuit = QuantumCircuit(statevector.num_qubits)
         circuit.initialize(statevector.data.tolist(), circuit.qubits)
-        gate = ideal_state_de_initializer(statevector)
-        circuit.append(gate, circuit.qubits)
+        prep_circuit = ideal_state_de_initializer(statevector)
+        circuit.compose(prep_circuit, circuit.qubits, inplace=True)
         de_initialized_state = Statevector(circuit)
         if abs(de_initialized_state.data[0]) < 1.0 - FIDELITY_TOLERANCE:
             circuit.draw()
