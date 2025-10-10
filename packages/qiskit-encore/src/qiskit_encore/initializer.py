@@ -1,55 +1,55 @@
 """Initializers."""
 
-from collections.abc import Callable
-
-from qiskit import QuantumCircuit, transpile
-from qiskit.circuit import Gate
-from qiskit.circuit.library import StatePreparation
+from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import Statevector
-from qiskit_aer import AerSimulator
 
-InitializerType = Callable[[Statevector], Gate]
-"""Type alias for a quantum state initializer function."""
+from qiskit_encore.state_preparation import StatePreparationCircuit
 
 
-def ideal_state_initializer(state: Statevector, force_transpile: bool = False) -> Gate:
+def ideal_state_initializer(state: Statevector) -> QuantumCircuit:
     """Generate a quantum circuit that initializes a quantum state to the given state.
 
     Args:
         state (Statevector): The target quantum state as a state vector.
-        force_transpile (bool): If True, transpile the circuit to use only 'cx' and 'u' gates. Default is False.
 
     Returns:
-        Gate: A quantum gate that initializes a quantum state to the given state.
+        QuantumCircuit: A quantum circuit that initializes a quantum state to the given state.
     """
-    state_preparation = StatePreparation(state)
-    if force_transpile:
-        qc = QuantumCircuit(state.num_qubits)
-        qc.append(state_preparation, qc.qubits)
-        return transpile(qc, basis_gates=["cx", "u"]).to_gate()
-
-    return state_preparation
+    circ = StatePreparationCircuit(state)
+    return circ
 
 
-# TODO: THE DEFAULT SHOULD NOT BE TRUE
-def ideal_state_de_initializer(
-    state: Statevector, force_transpile: bool = True
-) -> Gate:
+def ideal_state_de_initializer(state: Statevector) -> QuantumCircuit:
     """Generate a quantum circuit that de-initializes a quantum state from the given state.
 
     Args:
         state (Statevector): The target quantum state as a state vector.
-        force_transpile (bool): If True, transpile the circuit to use only 'cx' and 'u' gates. Default is False.
 
     Returns:
-        Gate: A quantum gate that de-initializes a quantum state from the given state.
+        QuantumCircuit: A quantum circuit that de-initializes a quantum state from the given state.
     """
-    state_preparation = StatePreparation(state, inverse=True)
-    if force_transpile:
-        qc = QuantumCircuit(state.num_qubits)
-        qc.append(state_preparation, qc.qubits)
-        return transpile(qc, basis_gates=["cx", "u"]).to_gate()
-    return state_preparation
+    circ = StatePreparationCircuit(state, inverse=True)
+
+    return circ
 
 
-# def mps_based_initializer(state: Statevector) -> Gate:
+def ideal_state_init_de_init_pair(
+    state: Statevector,
+) -> tuple[QuantumCircuit, QuantumCircuit]:
+    """Generate a pair of quantum circuits that initialize and de-initialize a quantum state.
+
+    Args:
+        state (Statevector): The target quantum state as a state vector.
+
+    Returns:
+        tuple[QuantumCircuit, QuantumCircuit]: A tuple containing two quantum circuits: the first initializes a quantum state to the given state, and the second de-initializes a quantum state from the given state.
+    """
+    initializer = ideal_state_initializer(state)
+    de_initializer = initializer.inverse()
+    return (
+        initializer,
+        de_initializer,
+    )
+
+
+# # def mps_based_initializer(state: Statevector) -> Gate:

@@ -1,15 +1,12 @@
-"""Module for quantum states that can be prepared by quantum circuits."""
-
 from functools import cached_property
 
 import numpy as np
 import numpy.typing as npt
-from qiskit.circuit import Gate
+from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
+from qiskit_encore.helper_types import InitializerType
 from qiskit_encore.initializer import (
-    InitializerType,
-    ideal_state_de_initializer,
     ideal_state_initializer,
 )
 
@@ -43,20 +40,20 @@ class PreparableStatevector(Statevector):
         self.de_initializer_generator = de_initializer_generator
 
     @cached_property
-    def initializer_gate(self) -> Gate:
-        """The initializer gate for the quantum state."""
+    def initializer_circuit(self) -> QuantumCircuit:
+        """The initializer circuit for the quantum state."""
         return self.initializer_generator(self)
 
     @cached_property
-    def de_initializer_gate(self) -> Gate:
-        """The de-initializer gate for the quantum state."""
+    def de_initializer_circuit(self) -> QuantumCircuit:
+        """The de-initializer circuit for the quantum state."""
         if self.de_initializer_generator is not None:
             return self.de_initializer_generator(self)
         else:
-            return self.initializer_gate.inverse()  # type: ignore
+            return self.initializer_circuit.inverse()  # type: ignore
 
 
-class IdealPreparableStatevector(PreparableStatevector):
+class IdeallyPreparableStatevector(PreparableStatevector):
     """A PreparableStatevector that uses the ideal state initializer."""
 
     def __init__(
@@ -68,11 +65,12 @@ class IdealPreparableStatevector(PreparableStatevector):
         super().__init__(
             data,
             initializer_generator=ideal_state_initializer,
-            de_initializer_generator=ideal_state_de_initializer,
             normalize=normalize,
         )
 
     @classmethod
-    def from_statevector(cls, statevector: Statevector) -> "IdealPreparableStatevector":
+    def from_statevector(
+        cls, statevector: Statevector
+    ) -> "IdeallyPreparableStatevector":
         """Creates an IdealPreparableStatevector from a Qiskit Statevector."""
         return cls(statevector.data, normalize=False)
