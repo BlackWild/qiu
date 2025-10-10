@@ -31,8 +31,9 @@ def ideal_state_initializer(state: Statevector, force_transpile: bool = False) -
     return state_preparation
 
 
+# TODO: THE DEFAULT SHOULD NOT BE TRUE
 def ideal_state_de_initializer(
-    state: Statevector, force_transpile: bool = False
+    state: Statevector, force_transpile: bool = True
 ) -> Gate:
     """Generate a quantum circuit that de-initializes a quantum state from the given state.
 

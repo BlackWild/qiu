@@ -7,8 +7,11 @@ import numpy.typing as npt
 from qiskit.circuit import Gate
 from qiskit.quantum_info import Statevector
 
-from qiskit_encore.helper_types import QiskitStatevectorDataType
-from qiskit_encore.initializer import InitializerType, ideal_state_initializer
+from qiskit_encore.initializer import (
+    InitializerType,
+    ideal_state_de_initializer,
+    ideal_state_initializer,
+)
 
 
 class PreparableStatevector(Statevector):
@@ -18,6 +21,11 @@ class PreparableStatevector(Statevector):
     """The function that generates the initializer circuit."""
 
     de_initializer_generator: InitializerType | None
+
+    @property
+    def num_qubits(self) -> int:
+        """The number of qubits in the quantum state."""
+        return int(np.log2(len(self.data)))
 
     def __init__(
         self,
@@ -58,7 +66,10 @@ class IdealPreparableStatevector(PreparableStatevector):
     ) -> None:
         """Initializes the IdealPreparableStatevector with the given wavefunction."""
         super().__init__(
-            data, initializer_generator=ideal_state_initializer, normalize=normalize
+            data,
+            initializer_generator=ideal_state_initializer,
+            de_initializer_generator=ideal_state_de_initializer,
+            normalize=normalize,
         )
 
     @classmethod
