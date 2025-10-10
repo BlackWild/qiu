@@ -5,8 +5,11 @@ import numpy as np
 import numpy.typing as npt
 from hypothesis.extra.numpy import arrays
 from qiskit.quantum_info import Statevector
+from qiskit_signals.helper_types import EncodingType
+from qiskit_signals.quantum_axis import PositionAxis
 
 from qiskit_pytest_helper.constants import (
+    DEFAULT_ENCODING,
     MAX_MAGNITUDE,
     MAX_QUBITS,
     MIN_MAGNITUDE,
@@ -141,3 +144,23 @@ def state_pairs_with_equal_qubits(
         )
     )
     return Statevector(state1), Statevector(state2)
+
+
+@st.composite
+def position_axis(
+    draw,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    encoding: EncodingType = DEFAULT_ENCODING,
+) -> PositionAxis:
+    """A strategy for generating PositionAxis objects."""
+    num_qubits = draw(st.integers(min_qubits, max_qubits))
+    delta_x = draw(
+        st.floats(
+            min_value=MIN_MAGNITUDE,
+            max_value=MAX_MAGNITUDE,
+            allow_nan=False,
+            allow_infinity=False,
+        )
+    )
+    return PositionAxis(num_qubits=num_qubits, delta_x=delta_x, encoding=encoding)
