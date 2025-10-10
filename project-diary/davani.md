@@ -1,3 +1,7 @@
+### Log 09.10.2025
+
+- It seems the `.inverse()` of the `StatePreparation` does not work as expected. The problem seems to be that qiskit does not know how to transpile the inverse of the `StatePreparation` gate. The workaround manually pass a `basis_gates` argument to the `transpile` function. Passing a `backend` argument does not work.
+
 ### Log 08.10.2025
 
 - I think `BlueprintCircuit` object is supposed to be used in cases the circuit initialization is costly and you are just gonna wait until its first application to initialize it. Which in general means that you can change the internal parameters before the first usage and the parameters will be validated before the build.

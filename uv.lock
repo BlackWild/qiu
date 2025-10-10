@@ -1503,6 +1503,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "qiskit-aer" },
     { name = "qiskit-pytest-helper" },
 ]
 
@@ -1513,7 +1514,10 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" }]
+dev = [
+    { name = "qiskit-aer", specifier = ">=0.17.2" },
+    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
+]
 
 [[package]]
 name = "qiskit-hamiltonian-simulation"
@@ -1538,8 +1542,20 @@ dependencies = [
     { name = "qiskit-signals" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "qiskit-aer-encore" },
+    { name = "qiskit-pytest-helper" },
+]
+
 [package.metadata]
 requires-dist = [{ name = "qiskit-signals", editable = "packages/qiskit-signals" }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "qiskit-aer-encore", editable = "packages/qiskit-aer-encore" },
+    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
+]
 
 [[package]]
 name = "qiskit-pytest-helper"

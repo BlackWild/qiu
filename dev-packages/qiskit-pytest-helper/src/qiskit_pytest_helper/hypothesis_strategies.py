@@ -105,3 +105,32 @@ def valid_qiskit_statevector(
     )
     statevector = Statevector(state)
     return statevector
+
+
+@st.composite
+def state_pairs_with_equal_qubits(
+    draw,
+    min_qubits=1,
+    max_qubits=5,
+    min_magnitude=0.001,
+    max_magnitude=1000.0,
+) -> tuple[Statevector, Statevector]:
+    """A strategy for generating pairs of quantum states with the same number of qubits."""
+    num_qubits = draw(st.integers(min_qubits, max_qubits))
+    state1 = draw(
+        normalized_quantum_state_array(
+            min_qubits=num_qubits,
+            max_qubits=num_qubits,
+            min_magnitude=min_magnitude,
+            max_magnitude=max_magnitude,
+        )
+    )
+    state2 = draw(
+        normalized_quantum_state_array(
+            min_qubits=num_qubits,
+            max_qubits=num_qubits,
+            min_magnitude=min_magnitude,
+            max_magnitude=max_magnitude,
+        )
+    )
+    return Statevector(state1), Statevector(state2)
