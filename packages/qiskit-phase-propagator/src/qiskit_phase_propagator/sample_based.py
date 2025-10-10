@@ -2,10 +2,12 @@
 
 import numpy as np
 import numpy.typing as npt
-from qiskit.circuit import ClassicalRegister, Gate, QuantumCircuit, QuantumRegister
-from qiskit_encore.quantum_state import PreparableStatevector
+from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
+from qiskit_encore.preparable_statevector import (
+    IdeallyPreparableStatevector,
+    PreparableStatevector,
+)
 from qiskit_signals.quantum_signal import (
-    IdealPreparableStatevector,
     QuadraticQuantumSignal,
 )
 
@@ -17,27 +19,21 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
     It applies a series of quantum operations to simulate the evolution of the phase of a quantum state using a sample-based approach.
 
     If only one cycle is needed, you can only pass one delta value in the list of deltas.
-
-    Attributes:
-        deltas (list[float]): A list of delta values for each cycle.
-        U_phi (Gate): The gate representing the unitary operation U_phi.
-        U_phi_dagger (Gate): The gate representing the adjoint of U_phi.
-        take_snapshot (bool): Whether to take snapshots of the wavefunction at each cycle. Default is False. If True, the statevector is saved at each cycle with the label being the cycle index.
     """
 
     def __init__(
         self,
         deltas: npt.NDArray | list[float],
-        U_phi: Gate,
-        U_phi_dagger: Gate,
+        U_phi: QuantumCircuit,
+        U_phi_dagger: QuantumCircuit,
         take_snapshot: bool = False,
     ) -> None:
         """Initializes the GenericIterativeSampleBasedPhasePropagator with the given parameters.
 
         Args:
             deltas (deltas: npt.NDArray | list[float]): A list of delta values for each cycle.
-            U_phi (Gate): The gate representing the unitary operation U_phi.
-            U_phi_dagger (Gate): The gate representing the adjoint of U_phi.
+            U_phi (QuantumCircuit): The circuit representing the unitary operation U_phi.
+            U_phi_dagger (QuantumCircuit): The circuit representing the adjoint of U_phi.
             take_snapshot (bool, optional): Whether to take snapshots of the wavefunction at each cycle. Default is False. If True, the statevector is saved at each cycle with the label being the cycle index.
         """
         n = U_phi.num_qubits
@@ -57,7 +53,7 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
                 delta = deltas[r]
 
                 # Step 1: initializing the |phi> register
-                self.append(U_phi, phi_reg)
+                self.compose(U_phi, phi_reg, inplace=True)
 
                 # Step 2: the partial phase operator
                 # Flag qubit computation
@@ -76,7 +72,7 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
                     self.cx(phi_reg[i], psi_reg[i], ctrl_state=0)
 
                 # Step 3: partial measurement of the secondary register
-                self.append(U_phi_dagger, phi_reg)
+                self.compose(U_phi_dagger, phi_reg, inplace=True)
                 self.measure(phi_reg, success_flag)
 
                 # Reset the secondary state to |0> after the Step 3 (partial measurement) of the previous cycle. We expect the result of the measurement to almost always be 0 and if it is not, the protocol has failed. Therefore, this resetting in not strictly required but we are doing it to still see the corrupt output even though an error occurs.
@@ -115,8 +111,8 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
         # Create an instance of the propagator
         return GenericIterativeSampleBasedPhasePropagator(
             deltas=deltas,
-            U_phi=state.initializer_gate,
-            U_phi_dagger=state.de_initializer_gate,
+            U_phi=state.initializer_circuit,
+            U_phi_dagger=state.de_initializer_circuit,
         )
 
 
@@ -128,8 +124,8 @@ class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
 
     Attributes:
         delta (float): The delta value for the propagation.
-        U_phi (Gate): The gate representing the unitary operation U_phi.
-        U_phi_dagger (Gate): The gate representing the adjoint of U_phi.
+        U_phi (QuantumCircuit): The circuit representing the unitary operation U_phi.
+        U_phi_dagger (QuantumCircuit): The circuit representing the adjoint of U_phi.
     """
 
     def __init__(
@@ -154,10 +150,10 @@ class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
         alpha, state = signal.alpha, signal.statevector
         deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
 
-        prepareable_state = IdealPreparableStatevector(state.data, normalize=True)
+        preparable_state = IdeallyPreparableStatevector(state.data, normalize=True)
 
         propagator = GenericIterativeSampleBasedPhasePropagator.from_state(
-            state=prepareable_state, deltas=deltas
+            state=preparable_state, deltas=deltas
         )
 
         self.compose(propagator, inplace=True)

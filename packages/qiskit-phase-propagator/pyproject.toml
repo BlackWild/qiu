@@ -17,3 +17,11 @@ build-backend = "uv_build"
 
 [tool.uv.sources]
 qiskit-signals = { workspace = true }
+qiskit-pytest-helper = { workspace = true }
+qiskit-aer-encore = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "qiskit-aer-encore",
+    "qiskit-pytest-helper",
+]
