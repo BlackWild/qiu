@@ -1,3 +1,5 @@
+"""A Statevector that can be prepared by a quantum circuit."""
+
 from functools import cached_property
 
 import numpy as np

@@ -1,3 +1,5 @@
+"""Unit tests for state_preparation.py."""
+
 import numpy as np
 import numpy.typing as npt
 from hypothesis import given

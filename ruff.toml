@@ -1,6 +1,10 @@
 [lint.per-file-ignores]
 "**/__init__.py" = [
-  "I", # don't auto-sort imports in `__init__.py` files to avoid circular imports
+  "I",    # don't auto-sort imports in `__init__.py` files to avoid circular imports
+  "D104", # ignore 'missing docstring in public package' in `__init__.py` files
+]
+"**/tests/*" = [
+  "F401", # ignore 'imported but unused' in test files
 ]
 
 [lint]

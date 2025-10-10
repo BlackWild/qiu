@@ -1,6 +1,6 @@
 """Direct implementation of phase operator circuits up to 3rd order."""
 
-from qiskit import QuantumCircuit
+from qiskit.circuit import QuantumCircuit
 
 
 # Binary coefficients for local use in this file

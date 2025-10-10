@@ -46,6 +46,7 @@ class TestGenericIterativeSampleBasedPhasePropagator:
     def test_correct_phase_application(
         self, states: tuple[Statevector, Statevector], deltas: list[float]
     ):
+        """Test that the GenericIterativeSampleBasedPhasePropagator applies the correct phase."""
         psi, phi = states
         preparable_state = IdeallyPreparableStatevector.from_statevector(phi)
         assert psi.num_qubits == phi.num_qubits == preparable_state.num_qubits
