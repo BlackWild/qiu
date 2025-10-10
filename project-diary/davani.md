@@ -1,3 +1,10 @@
+# Project Diary
+
+### Log 10.10.2025
+
+- `pytest-xdist` enables parallel test execution, allowing for faster test runs by distributing tests across multiple CPU cores.
+- I moved to using QuantumCircuit instead of Gate. Gates are more limited in functionality and lead to unintuitive bugs.
+
 ### Log 09.10.2025
 
 - It seems the `.inverse()` of the `StatePreparation` does not work as expected. The problem seems to be that qiskit does not know how to transpile the inverse of the `StatePreparation` gate. The workaround manually pass a `basis_gates` argument to the `transpile` function. Passing a `backend` argument does not work.
