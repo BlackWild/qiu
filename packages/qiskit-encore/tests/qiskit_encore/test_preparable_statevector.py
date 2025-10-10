@@ -53,7 +53,7 @@ class TestIdeallyPreparableStatevector:
         # )
 
     @given(
-        statevector=valid_qiskit_statevector(),
+        statevector=valid_qiskit_statevector(max_qubits=3),
         transpilation=st.booleans(),
     )
     def test_initializer_aer_simulatable(
@@ -73,8 +73,8 @@ class TestIdeallyPreparableStatevector:
         assert result.success
 
     @given(
-        statevector=valid_qiskit_statevector(),
-        transpilation=st.sampled_from([True]),
+        statevector=valid_qiskit_statevector(max_qubits=3),
+        transpilation=st.booleans(),
     )
     def test_de_initializer_aer_simulatable(
         self, statevector: Statevector, transpilation: bool

@@ -13,8 +13,6 @@ from qiskit_phase_propagator.sample_based import (
 )
 from qiskit_pytest_helper.hypothesis_strategies import state_pairs_with_equal_qubits
 
-# TODO: must make
-
 
 class TestGenericIterativeSampleBasedPhasePropagator:
     """Test the GenericIterativeSampleBasedPhasePropagator."""
