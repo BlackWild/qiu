@@ -1,10 +1,14 @@
 """Module for Qiskit simulators."""
-from qiskit_aer import AerSimulator, AerError
+
+from qiskit_aer import AerError, AerSimulator
+
 
 def generate_aer_simulator(force_gpu: bool = False) -> AerSimulator:
     """A function to prepare the Aer simulator with desired configuration. GPU accelerated in case available.
+
     Args:
         force_gpu (bool): If True, enforces GPU usage which means it will throw an error if no GPU is available. Default is False.
+
     Returns:
         AerSimulator: The prepared Aer simulator.
     """
