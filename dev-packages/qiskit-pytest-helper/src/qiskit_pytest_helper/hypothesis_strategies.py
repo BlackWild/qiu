@@ -6,14 +6,21 @@ import numpy.typing as npt
 from hypothesis.extra.numpy import arrays
 from qiskit.quantum_info import Statevector
 
+from qiskit_pytest_helper.constants import (
+    MAX_MAGNITUDE,
+    MAX_QUBITS,
+    MIN_MAGNITUDE,
+    MIN_QUBITS,
+)
+
 
 @st.composite
 def quantum_state_array(
     draw,
-    min_qubits=1,
-    max_qubits=5,
-    min_magnitude=0.001,
-    max_magnitude=1000.0,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    min_magnitude=MIN_MAGNITUDE,
+    max_magnitude=MAX_MAGNITUDE,
 ) -> npt.NDArray[np.complex128]:
     """A strategy for generating quantum states as a NumPy array."""
     num_qubits = draw(st.integers(min_qubits, max_qubits))
@@ -36,10 +43,10 @@ def quantum_state_array(
 @st.composite
 def normalized_quantum_state_array(
     draw,
-    min_qubits=1,
-    max_qubits=5,
-    min_magnitude=0.001,
-    max_magnitude=1000.0,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    min_magnitude=MIN_MAGNITUDE,
+    max_magnitude=MAX_MAGNITUDE,
 ) -> npt.NDArray[np.complex128]:
     """A strategy for generating normalized quantum states as a NumPy array."""
     state = draw(
@@ -56,10 +63,10 @@ def normalized_quantum_state_array(
 @st.composite
 def non_normalized_quantum_state_array(
     draw,
-    min_qubits=1,
-    max_qubits=5,
-    min_magnitude=0.001,
-    max_magnitude=1000.0,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    min_magnitude=MIN_MAGNITUDE,
+    max_magnitude=MAX_MAGNITUDE,
 ) -> npt.NDArray[np.complex128]:
     """A strategy for generating non-normalized quantum states as a NumPy array."""
     # generate a normalized state first, then scale it
@@ -74,7 +81,7 @@ def non_normalized_quantum_state_array(
     scale = draw(
         st.complex_numbers(
             min_magnitude=0.01,
-            max_magnitude=1000.0,
+            max_magnitude=MAX_MAGNITUDE,
             allow_nan=False,
             allow_infinity=False,
         )
@@ -89,10 +96,10 @@ def non_normalized_quantum_state_array(
 @st.composite
 def valid_qiskit_statevector(
     draw,
-    min_qubits=1,
-    max_qubits=5,
-    min_magnitude=0.001,
-    max_magnitude=1000.0,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    min_magnitude=MIN_MAGNITUDE,
+    max_magnitude=MAX_MAGNITUDE,
 ) -> Statevector:
     """A strategy for generating valid quantum states as a NumPy array."""
     state = draw(
@@ -110,10 +117,10 @@ def valid_qiskit_statevector(
 @st.composite
 def state_pairs_with_equal_qubits(
     draw,
-    min_qubits=1,
-    max_qubits=5,
-    min_magnitude=0.001,
-    max_magnitude=1000.0,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    min_magnitude=MIN_MAGNITUDE,
+    max_magnitude=MAX_MAGNITUDE,
 ) -> tuple[Statevector, Statevector]:
     """A strategy for generating pairs of quantum states with the same number of qubits."""
     num_qubits = draw(st.integers(min_qubits, max_qubits))

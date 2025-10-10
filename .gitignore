@@ -9,6 +9,7 @@ wheels/
 # pytest generated files
 .pytest_cache/
 .hypothesis/
+.coverage
 
 # Virtual environments
 .venv

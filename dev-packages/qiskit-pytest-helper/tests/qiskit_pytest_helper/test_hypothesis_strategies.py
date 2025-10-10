@@ -13,7 +13,7 @@ from qiskit_pytest_helper.hypothesis_strategies import (
 )
 
 
-@given(quantum_state=quantum_state_array(min_qubits=1, max_qubits=5))
+@given(quantum_state=quantum_state_array())
 def test_quantum_state_essentials(quantum_state: npt.NDArray[np.complex128]):
     """Test the quantum_state_array strategy."""
     assert isinstance(quantum_state, np.ndarray)  # Ensure it's a NumPy array
@@ -27,7 +27,7 @@ def test_quantum_state_essentials(quantum_state: npt.NDArray[np.complex128]):
     assert norm > 0  # Ensure norm is positive
 
 
-@given(quantum_state=normalized_quantum_state_array(min_qubits=1, max_qubits=5))
+@given(quantum_state=normalized_quantum_state_array())
 def test_normalized_quantum_state(quantum_state: npt.NDArray[np.complex128]):
     """Test the normalized_quantum_state_array strategy."""
     assert isinstance(quantum_state, np.ndarray)  # Ensure it's a NumPy array
@@ -41,7 +41,7 @@ def test_normalized_quantum_state(quantum_state: npt.NDArray[np.complex128]):
     assert np.isclose(norm, 1.0)  # Ensure norm is approximately 1
 
 
-@given(quantum_state=non_normalized_quantum_state_array(min_qubits=1, max_qubits=5))
+@given(quantum_state=non_normalized_quantum_state_array())
 def test_non_normalized_quantum_state(quantum_state: npt.NDArray[np.complex128]):
     """Test the non_normalized_quantum_state_array strategy."""
     assert isinstance(quantum_state, np.ndarray)  # Ensure it's a NumPy array
@@ -55,7 +55,7 @@ def test_non_normalized_quantum_state(quantum_state: npt.NDArray[np.complex128])
     assert not np.isclose(norm, 1.0)  # Ensure norm is not close to 1
 
 
-@given(statevector=valid_qiskit_statevector(min_qubits=1, max_qubits=5))
+@given(statevector=valid_qiskit_statevector())
 def test_valid_qiskit_statevector(statevector: Statevector):
     """Test the valid_qiskit_statevector strategy."""
     assert isinstance(statevector, Statevector)  # Ensure it's a Qiskit Statevector

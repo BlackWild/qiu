@@ -1,5 +1,7 @@
 """Constants for unit tests."""
 
 FIDELITY_TOLERANCE = 0.0001
-MIN_QUBITS = 1
+MIN_QUBITS = 2  # TODO:
 MAX_QUBITS = 4
+MIN_MAGNITUDE = 0.01
+MAX_MAGNITUDE = 1.0

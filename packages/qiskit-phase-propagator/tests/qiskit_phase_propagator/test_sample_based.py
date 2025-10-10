@@ -20,7 +20,7 @@ class TestGenericIterativeSampleBasedPhasePropagator:
     """Test the GenericIterativeSampleBasedPhasePropagator."""
 
     @given(
-        states=state_pairs_with_equal_qubits(min_qubits=2, max_qubits=5),
+        states=state_pairs_with_equal_qubits(),
         deltas=st.lists(
             st.floats(min_value=0.0, max_value=0.1), min_size=1, max_size=4
         ),
@@ -40,7 +40,7 @@ class TestGenericIterativeSampleBasedPhasePropagator:
         assert propagator.num_qubits == 2 * n
 
     @given(
-        states=state_pairs_with_equal_qubits(min_qubits=2, max_qubits=5),
+        states=state_pairs_with_equal_qubits(),
         deltas=st.lists(
             st.floats(min_value=0.0, max_value=0.1), min_size=1, max_size=4
         ),

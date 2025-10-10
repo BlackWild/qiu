@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.typing as npt
-from constants import FIDELITY_TOLERANCE, MAX_QUBITS, MIN_QUBITS
 from hypothesis import given
 from hypothesis import strategies as st
 from qiskit import transpile
@@ -12,7 +11,7 @@ from qiskit_pytest_helper.hypothesis_strategies import valid_qiskit_statevector
 
 
 @given(
-    state=valid_qiskit_statevector(min_qubits=MIN_QUBITS, max_qubits=MAX_QUBITS),
+    state=valid_qiskit_statevector(),
     transpilation=st.booleans(),
 )
 def test_state_preparation(state: Statevector, transpilation: bool) -> None:
@@ -39,7 +38,7 @@ def test_state_preparation(state: Statevector, transpilation: bool) -> None:
 
 
 @given(
-    state=valid_qiskit_statevector(min_qubits=MIN_QUBITS, max_qubits=MAX_QUBITS),
+    state=valid_qiskit_statevector(),
     transpilation=st.booleans(),
 )
 def test_state_de_preparation(state: Statevector, transpilation: bool) -> None:

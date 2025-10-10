@@ -2,7 +2,6 @@
 
 import numpy as np
 import numpy.typing as npt
-from constants import FIDELITY_TOLERANCE, MAX_QUBITS, MIN_QUBITS
 from hypothesis import given
 from hypothesis import strategies as st
 from qiskit.circuit import QuantumCircuit
@@ -11,13 +10,14 @@ from qiskit_encore.initializer import (
     ideal_state_de_initializer,
     ideal_state_initializer,
 )
+from qiskit_pytest_helper.constants import FIDELITY_TOLERANCE
 from qiskit_pytest_helper.hypothesis_strategies import valid_qiskit_statevector
 
 
 class TestIdealStateInitializer:
     """Tests for ideal_state_initializer and ideal_state_de_initializer."""
 
-    @given(valid_qiskit_statevector(min_qubits=MIN_QUBITS, max_qubits=MAX_QUBITS))
+    @given(valid_qiskit_statevector())
     def test_ideal_state_initializer_no_transpile(
         self, statevector: Statevector
     ) -> None:
@@ -26,7 +26,7 @@ class TestIdealStateInitializer:
         generated_state = Statevector(prep_circuit)
         assert state_fidelity(generated_state, statevector) >= 1.0 - FIDELITY_TOLERANCE
 
-    @given(valid_qiskit_statevector(min_qubits=MIN_QUBITS, max_qubits=MAX_QUBITS))
+    @given(valid_qiskit_statevector())
     def test_ideal_state_initializer_with_transpile(
         self, statevector: Statevector
     ) -> None:
@@ -37,7 +37,7 @@ class TestIdealStateInitializer:
             state_fidelity(generated_state, statevector) >= 1.0 - FIDELITY_TOLERANCE
         ), f"Got {generated_state.data}"
 
-    @given(valid_qiskit_statevector(min_qubits=MIN_QUBITS, max_qubits=MAX_QUBITS))
+    @given(valid_qiskit_statevector())
     def test_ideal_state_de_initializer_no_transpile(
         self, statevector: Statevector
     ) -> None:
@@ -49,7 +49,7 @@ class TestIdealStateInitializer:
         de_initialized_state = Statevector(circuit)
         assert abs(de_initialized_state.data[0]) >= 1.0 - FIDELITY_TOLERANCE
 
-    @given(valid_qiskit_statevector(min_qubits=MIN_QUBITS, max_qubits=MAX_QUBITS))
+    @given(valid_qiskit_statevector())
     def test_ideal_state_de_initializer_with_transpile(
         self, statevector: Statevector
     ) -> None:

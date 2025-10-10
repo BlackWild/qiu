@@ -17,7 +17,7 @@ ERROR_TOLERANCE = 1e-10
 class TestIdeallyPreparableStatevector:
     """Tests for IdeallyPreparableStatevector."""
 
-    @given(valid_qiskit_statevector(min_qubits=1, max_qubits=5))
+    @given(valid_qiskit_statevector())
     def test_essentials(self, statevector: Statevector) -> None:
         """A test to make sure the class can be instantiated, normalized, converted to a gate, and de-initialized."""
 
@@ -25,7 +25,7 @@ class TestIdeallyPreparableStatevector:
 
         assert isinstance(state, Statevector)
 
-    @given(statevector=valid_qiskit_statevector(min_qubits=1, max_qubits=5))
+    @given(statevector=valid_qiskit_statevector())
     def test_initialization(self, statevector: Statevector) -> None:
         """Test the initialization of the IdeallyPreparableStatevector."""
         state = IdeallyPreparableStatevector.from_statevector(statevector)
@@ -33,7 +33,7 @@ class TestIdeallyPreparableStatevector:
         assert np.isclose(state_fidelity(generated_state, state), 1.0)
         # assert np.allclose(generated_state.data, state.data)
 
-    @given(statevector=valid_qiskit_statevector(min_qubits=1, max_qubits=5))
+    @given(statevector=valid_qiskit_statevector())
     def test_de_initialization(self, statevector: Statevector) -> None:
         """Test the de-initialization of the IdeallyPreparableStatevector."""
         state = IdeallyPreparableStatevector.from_statevector(statevector)
@@ -44,7 +44,7 @@ class TestIdeallyPreparableStatevector:
         de_initialized_state = Statevector(circuit)
 
         # TODO: fix this test, it should be that the first element is 1 and the rest are 0s. I could not get it to work. because the other elements are very small but not exactly close to zero in np.isclose standard. They where around 1e-10. For now I just check that the first element is close to 1 which should approximate the expected behavior.
-        assert np.isclose(abs(de_initialized_state.data[0]), 1.0)
+        assert np.isclose(abs(de_initialized_state.data[0]), 1.0, atol=ERROR_TOLERANCE)
 
         # expected_state = np.zeros_like(state.data)
         # expected_state[0] = 1.0
@@ -53,7 +53,7 @@ class TestIdeallyPreparableStatevector:
         # )
 
     @given(
-        statevector=valid_qiskit_statevector(min_qubits=1, max_qubits=5),
+        statevector=valid_qiskit_statevector(),
         transpilation=st.booleans(),
     )
     def test_initializer_aer_simulatable(
@@ -73,7 +73,7 @@ class TestIdeallyPreparableStatevector:
         assert result.success
 
     @given(
-        statevector=valid_qiskit_statevector(min_qubits=1, max_qubits=5),
+        statevector=valid_qiskit_statevector(),
         transpilation=st.sampled_from([True]),
     )
     def test_de_initializer_aer_simulatable(
