@@ -36,6 +36,16 @@ class GenericAxis(ABC):
         """Return the physical axis values corresponding to the encoding and period."""
         return self.index * self.period
 
+    @property
+    def dimension(self) -> int:
+        """Return the dimension of the axis (number of discrete values)."""
+        return 2**self.num_qubits
+
+    @property
+    def sampling_window_length(self) -> float:
+        """Return the total length of the sampling window."""
+        return self.dimension * self.period
+
 
 class PositionAxis(GenericAxis):
     """A quantum axis representing position."""

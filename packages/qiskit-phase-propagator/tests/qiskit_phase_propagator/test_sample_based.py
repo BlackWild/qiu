@@ -1,7 +1,7 @@
 """Unit tests for sample_based.py."""
 
 import numpy as np
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 from qiskit import transpile
 from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
@@ -9,9 +9,16 @@ from qiskit.quantum_info import Statevector, partial_trace, state_fidelity
 from qiskit_aer_encore.simulator import generate_aer_simulator
 from qiskit_encore.preparable_statevector import IdeallyPreparableStatevector
 from qiskit_phase_propagator.sample_based import (
+    ArbitrarySignalForSampleBasedProtocol,
     GenericIterativeSampleBasedPhasePropagator,
+    QuadraticSignalSampleBasedPhasePropagator,
 )
-from qiskit_pytest_helper.hypothesis_strategies import state_pairs_with_equal_qubits
+from qiskit_pytest_helper.constants import FIDELITY_TOLERANCE
+from qiskit_pytest_helper.hypothesis_strategies import (
+    random_positive_signal,
+    state_pairs_with_equal_qubits,
+)
+from qiskit_signals.quantum_signal import GenericQuantumSignal
 
 
 class TestGenericIterativeSampleBasedPhasePropagator:
@@ -87,4 +94,82 @@ class TestGenericIterativeSampleBasedPhasePropagator:
         expected_output = np.exp(1j * alpha * np.abs(phi.data) ** 2) * psi.data
         assert np.isclose(
             state_fidelity(output_state.data.tolist(), expected_output), 1.0
+        )
+
+
+class TestQuadraticSignalSampleBasedPhasePropagator:
+    """Test the QuadraticSignalSampleBasedPhasePropagator."""
+
+    @settings(max_examples=10, deadline=None)
+    @given(
+        signal=random_positive_signal(max_qubits=3),
+        max_delta=st.floats(min_value=0.01, max_value=0.1),
+    )
+    def test_essentials(self, signal: GenericQuantumSignal, max_delta: float):
+        """Test the essentials of the QuadraticSignalSampleBasedPhasePropagator."""
+
+        sample_based_signal = ArbitrarySignalForSampleBasedProtocol(signal)
+
+        propagator = QuadraticSignalSampleBasedPhasePropagator(
+            signal=sample_based_signal,
+            max_delta=max_delta,
+        )
+        n = signal.num_qubits
+        assert propagator.num_qubits == 2 * n
+        assert propagator.num_clbits == n
+
+    @settings(max_examples=10, deadline=None)
+    @given(
+        signal=random_positive_signal(max_qubits=3, forced_sum_value=0.1),
+        max_delta=st.floats(min_value=0.01, max_value=0.05),
+    )
+    def test_correct_phase_application(
+        self, signal: GenericQuantumSignal, max_delta: float
+    ):
+        """Test that the QuadraticSignalSampleBasedPhasePropagator applies the correct phase."""
+
+        sample_based_signal = ArbitrarySignalForSampleBasedProtocol(signal)
+
+        propagator = QuadraticSignalSampleBasedPhasePropagator(
+            signal=sample_based_signal,
+            max_delta=max_delta,
+        )
+
+        psi_reg = QuantumRegister(signal.num_qubits, name=r"\psi")
+        phi_reg = QuantumRegister(signal.num_qubits, name=r"\phi")
+        success_flag = ClassicalRegister(signal.num_qubits, name="success_flag")
+        circuit = QuantumCircuit(psi_reg, phi_reg, success_flag)
+
+        psi = Statevector.from_label("+" * signal.num_qubits)
+
+        circuit.initialize(psi.data.tolist(), psi_reg)
+        circuit.compose(propagator, circuit.qubits, circuit.clbits, inplace=True)
+        circuit.save_statevector()  # type: ignore
+
+        simulator = generate_aer_simulator()
+        transpiled = transpile(circuit, simulator)
+        job = simulator.run(transpiled, shots=1)
+        result = job.result()
+        counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
+        output_state_full = result.get_statevector(circuit)
+
+        # Check that all measured qubits are 0
+        assert counts[0] == 1
+
+        # Check the output state
+        traced = partial_trace(
+            output_state_full,
+            np.arange(signal.num_qubits, 2 * signal.num_qubits).tolist(),
+        )
+        output_state = traced.to_statevector()
+
+        # expected_output = (
+        #     np.exp(1j * alpha * np.abs(sample_based_signal.statevector.data) ** 2)
+        #     * psi.data
+        # )
+        expected_output = np.exp(1.0j * signal.data) * psi.data
+
+        assert (
+            state_fidelity(output_state, Statevector(expected_output))
+            >= 1.0 - FIDELITY_TOLERANCE
         )

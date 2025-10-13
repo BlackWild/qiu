@@ -10,6 +10,8 @@ from qiskit_signals.quantum_axis import GenericAxis
 
 
 class GenericQuantumSignal:
+    """A generic quantum signal having no specific structure imposed on it."""
+
     axis: GenericAxis
     signal_function: SignalFunctionType
 
@@ -22,6 +24,11 @@ class GenericQuantumSignal:
     def data(self) -> npt.NDArray[np.float64]:
         """Returns the data of the quantum signal."""
         return self.signal_function(self.axis.axis_values)
+
+    @property
+    def num_qubits(self) -> int:
+        """Returns the number of qubits required to represent the signal."""
+        return self.axis.num_qubits
 
 
 class PolynomialQuantumSignal:
@@ -129,31 +136,3 @@ class QuadraticQuantumSignal(PolynomialQuantumSignal):
 #     def num_qubits(self) -> int:
 #         """Returns the number of qubits required to represent the statevector."""
 #         return 0 if self.statevector.num_qubits is None else self.statevector.num_qubits
-
-
-# def extract_alpha_and_state_from_generic_signal(
-#     signal: npt.NDArray[np.float64], power: int
-# ) -> tuple[float, Statevector]:
-#     """Extracts the alpha and the state from the generic signal."""
-
-#     # check if all elements of signal have the same sign
-#     if not all(
-#         [
-#             np.sign(signal[0]) == np.sign(signal[i]) or np.isclose(signal[i], 0)
-#             for i in range(len(signal))
-#         ]
-#     ):
-#         raise ValueError("All elements of the signal vector must have the same sign.")
-
-#     # normalization factor
-#     alpha = np.sum(signal)
-
-#     # normalized signal
-#     normalized_signal = signal / alpha
-
-#     # corresponding wavefunction
-#     state_data = normalized_signal ** (1 / power)
-
-#     state = Statevector(state_data)
-
-#     return alpha, state

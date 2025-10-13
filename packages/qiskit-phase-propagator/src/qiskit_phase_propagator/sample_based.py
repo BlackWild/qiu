@@ -7,9 +7,7 @@ from qiskit_encore.preparable_statevector import (
     IdeallyPreparableStatevector,
     PreparableStatevector,
 )
-from qiskit_signals.quantum_signal import (
-    QuadraticQuantumSignal,
-)
+from qiskit_signals.sample_based_signal import ArbitrarySignalForSampleBasedProtocol
 
 
 class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
@@ -105,9 +103,6 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
         Returns:
             GenericIterativeSampleBasedPhasePropagator: An instance of the propagator initialized with the given state.
         """
-        if state.num_qubits is None:
-            raise ValueError("The state must have a defined number of qubits.")
-
         # Create an instance of the propagator
         return GenericIterativeSampleBasedPhasePropagator(
             deltas=deltas,
@@ -121,22 +116,17 @@ class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
 
     This class implements a quadratic signal phase propagator as a QuantumCircuit.
     It applies a series of quantum operations to simulate the evolution of the phase of a quantum state using a quadratic signal approach.
-
-    Attributes:
-        delta (float): The delta value for the propagation.
-        U_phi (QuantumCircuit): The circuit representing the unitary operation U_phi.
-        U_phi_dagger (QuantumCircuit): The circuit representing the adjoint of U_phi.
     """
 
     def __init__(
         self,
-        signal: QuadraticQuantumSignal,
+        signal: ArbitrarySignalForSampleBasedProtocol,
         max_delta: float,
     ) -> None:
         """Initializes the QuadraticSignalPhasePropagator with the given parameters.
 
         Args:
-            signal (QuadraticQuantumSignal): The quadratic quantum signal containing alpha and statevector.
+            signal (ArbitrarySignalForSampleBasedProtocol): The arbitrary quantum signal containing alpha and statevector.
             max_delta (float): The maximum delta value for slicing the alpha value.
         """
         n = signal.num_qubits
@@ -150,7 +140,7 @@ class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
         alpha, state = signal.alpha, signal.statevector
         deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
 
-        preparable_state = IdeallyPreparableStatevector(state.data, normalize=True)
+        preparable_state = IdeallyPreparableStatevector.from_statevector(state)
 
         propagator = GenericIterativeSampleBasedPhasePropagator.from_state(
             state=preparable_state, deltas=deltas

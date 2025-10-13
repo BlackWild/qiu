@@ -7,6 +7,7 @@ from hypothesis.extra.numpy import arrays
 from qiskit.quantum_info import Statevector
 from qiskit_signals.helper_types import EncodingType
 from qiskit_signals.quantum_axis import PositionAxis
+from qiskit_signals.quantum_signal import GenericQuantumSignal
 
 from qiskit_pytest_helper.constants import (
     DEFAULT_ENCODING,
@@ -158,9 +159,52 @@ def position_axis(
     delta_x = draw(
         st.floats(
             min_value=MIN_MAGNITUDE,
-            max_value=MAX_MAGNITUDE,
+            max_value=1,
             allow_nan=False,
             allow_infinity=False,
         )
     )
     return PositionAxis(num_qubits=num_qubits, delta_x=delta_x, encoding=encoding)
+
+
+@st.composite
+def random_positive_signal(
+    draw,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    min_magnitude=MIN_MAGNITUDE,
+    max_magnitude=MAX_MAGNITUDE,
+    forced_sum_value: float = 1.0,
+) -> GenericQuantumSignal:
+    """A strategy for generating random signals."""
+
+    axis = draw(position_axis(min_qubits=min_qubits, max_qubits=max_qubits))
+
+    # Generate random coefficients for a polynomial signal
+    degree = draw(st.integers(min_value=1, max_value=5))
+    coefficients = draw(
+        arrays(
+            dtype=np.float64,
+            shape=degree + 1,
+            elements=st.floats(
+                min_value=min_magnitude,
+                max_value=max_magnitude,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+        )
+    )
+
+    def signal_function(x: npt.NDArray) -> npt.NDArray:
+        """A polynomial signal function."""
+        return np.abs(sum(c * x**i for i, c in enumerate(coefficients)))
+
+    max = np.max(signal_function(axis.axis_values))
+
+    # Scale the function to have the desired sum value
+    def normalized_signal_function(x):
+        return (forced_sum_value / max) * signal_function(x)
+
+    signal = GenericQuantumSignal(axis=axis, signal_function=normalized_signal_function)
+
+    return signal

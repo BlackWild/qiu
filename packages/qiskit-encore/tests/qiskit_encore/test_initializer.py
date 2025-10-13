@@ -33,9 +33,7 @@ class TestIdealStateInitializer:
         """Test the ideal_state_initializer function with transpilation of the state initializer."""
         prep_circuit = ideal_state_initializer(statevector)
         generated_state = Statevector(prep_circuit)
-        assert (
-            state_fidelity(generated_state, statevector) >= 1.0 - FIDELITY_TOLERANCE
-        ), f"Got {generated_state.data}"
+        assert state_fidelity(generated_state, statevector) >= 1.0 - FIDELITY_TOLERANCE
 
     @given(valid_qiskit_statevector())
     def test_ideal_state_de_initializer_no_transpile(
