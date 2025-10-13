@@ -23,9 +23,9 @@ class GenericAxis(ABC):
     @property
     def index(self) -> npt.NDArray:
         """Return the integer index values corresponding to the encoding."""
-        if self.encoding == "unsigned":
+        if self.encoding == EncodingType.UNSIGNED:
             return np.arange(2**self.num_qubits)
-        elif self.encoding == "twos_complement":
+        elif self.encoding == EncodingType.TWOS_COMPLEMENT:
             half = 2 ** (self.num_qubits - 1)
             return np.concatenate((np.arange(0, half), np.arange(-half, 0)))
         else:
