@@ -5,7 +5,7 @@ from functools import cached_property
 import numpy as np
 import numpy.typing as npt
 
-from qiskit_signals.helper_types import SignalFunctionType
+from qiskit_signals.helper_types import EncodingType, SignalFunctionType
 from qiskit_signals.quantum_axis import GenericAxis
 
 
@@ -74,6 +74,11 @@ class QuadraticQuantumSignal(PolynomialQuantumSignal):
     def effective_alpha(self) -> float:
         """Returns the effective alpha coefficient taking into account the quadratic nature of the signal."""
         return self.alpha * self.axis.period**2
+
+    @property
+    def encoding(self) -> EncodingType:
+        """Returns the encoding type of the quantum signal."""
+        return self.axis.encoding
 
 
 # class GenericQuantumSignal:

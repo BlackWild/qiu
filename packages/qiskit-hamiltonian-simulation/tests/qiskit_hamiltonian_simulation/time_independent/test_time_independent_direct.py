@@ -30,6 +30,6 @@ class TestPositionDomainEvolutionQuadratic:
         circuit.compose(propagator, circuit.qubits, inplace=True)
 
         output = Statevector(circuit)
-        expected_output = np.exp(1j * alpha * x.axis_values**2) * psi.data
+        expected_output = np.exp(1j * quadratic_signal.data) * psi.data
 
         assert np.allclose(output.data, expected_output)

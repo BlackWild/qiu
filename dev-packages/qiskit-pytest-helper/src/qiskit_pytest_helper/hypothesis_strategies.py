@@ -152,7 +152,7 @@ def position_axis(
     draw,
     min_qubits=MIN_QUBITS,
     max_qubits=MAX_QUBITS,
-    encoding: EncodingType = DEFAULT_ENCODING,
+    forced_encoding: EncodingType | None = None,
 ) -> PositionAxis:
     """A strategy for generating PositionAxis objects."""
     num_qubits = draw(st.integers(min_qubits, max_qubits))
@@ -164,6 +164,9 @@ def position_axis(
             allow_infinity=False,
         )
     )
+
+    encoding = forced_encoding or draw(st.sampled_from(EncodingType.list()))
+
     return PositionAxis(num_qubits=num_qubits, delta_x=delta_x, encoding=encoding)
 
 

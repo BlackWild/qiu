@@ -1,10 +1,11 @@
 import numpy as np
 import numpy.typing as npt
-from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library.basis_change import QFTGate
 from qiskit_phase_propagator.direct import Order2DirectPhase
-from qiskit_signals.quantum_axis import MomentumAxis, PositionAxis
 from qiskit_signals.quantum_signal import QuadraticQuantumSignal
+
+# TODO: add MomentumDomainEvolutionQuadratic
 
 
 class PositionDomainEvolutionQuadratic(QuantumCircuit):
@@ -31,9 +32,10 @@ class PositionDomainEvolutionQuadratic(QuantumCircuit):
         psi_reg = QuantumRegister(n, name=r"\psi")
         super().__init__(psi_reg, name="Position Domain Evolution")
 
-        # TODO: better management of signed and unsigned... It must somehow outsourced to the type of the register it applies to and what kind of indices x are used
         propagator = Order2DirectPhase(
-            coef=quadratic_signal.effective_alpha, num_qubits=n, signed=False
+            coef=quadratic_signal.effective_alpha,
+            num_qubits=n,
+            encoding=quadratic_signal.encoding,
         )
 
         self.compose(propagator, psi_reg, inplace=True)
