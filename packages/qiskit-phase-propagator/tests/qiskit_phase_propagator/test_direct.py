@@ -10,6 +10,8 @@ from qiskit_phase_propagator.direct import (
     Order2DirectPhase,
     Order3DirectPhase,
 )
+from qiskit_signals.helper_types import EncodingType
+from qiskit_signals.quantum_axis import PositionAxis
 
 
 class TestOrder1DirectPhase:
@@ -18,54 +20,48 @@ class TestOrder1DirectPhase:
     @given(
         num_qubits=st.integers(min_value=2, max_value=4),
         coef=st.floats(min_value=-1.0, max_value=1.0),
-        signed=st.booleans(),
+        encoding=st.sampled_from(EncodingType.list()),
     )
     def test_essentials(
         self,
         num_qubits: int,
         coef: float,
-        signed: bool,
+        encoding: EncodingType,
     ):
         """Test the essentials of the Order1DirectPhase."""
 
-        propagator = Order1DirectPhase(num_qubits, coef, signed)
+        propagator = Order1DirectPhase(num_qubits, coef, encoding)
         assert propagator.num_qubits == num_qubits
         assert propagator.coef == coef
-        assert propagator.signed == signed
+        assert propagator.encoding == encoding
 
     @given(
-        num_qubits=st.integers(min_value=1, max_value=4),
+        num_qubits=st.integers(min_value=2, max_value=4),
         coef=st.floats(min_value=-1.0, max_value=1.0),
-        signed=st.booleans(),
+        encoding=st.sampled_from(EncodingType.list()),
     )
     def test_correct_phase_application(
         self,
         num_qubits: int,
         coef: float,
-        signed: bool,
+        encoding: EncodingType,
     ):
         """Test the correct phase application of the Order1DirectPhase."""
 
         circuit = QuantumCircuit(num_qubits)
         psi = Statevector.from_label("+" * num_qubits)
         circuit.initialize(psi.data.tolist(), circuit.qubits)
-        propagator = Order1DirectPhase(num_qubits, coef, signed)
+        propagator = Order1DirectPhase(num_qubits, coef, encoding)
         circuit.compose(propagator, circuit.qubits, inplace=True)
 
         output_state = Statevector(circuit)
-        x = (
-            np.concatenate(
-                [
-                    np.arange(0, 2 ** (num_qubits - 1)),
-                    np.arange(-(2 ** (num_qubits - 1)), 0),
-                ]
-            )
-            if signed
-            else np.arange(2**num_qubits)
-        )
+        x_axis = PositionAxis(delta_x=1.0, num_qubits=num_qubits, encoding=encoding)
+        x = x_axis.axis_values
         expected_output_state = np.exp(1j * coef * x) * psi.data
 
-        assert np.allclose(output_state.data, expected_output_state)
+        assert np.allclose(output_state.data, expected_output_state), (
+            f"{output_state.data} vs {expected_output_state} with x={x}"
+        )
 
 
 class TestOrder2DirectPhase:
@@ -74,51 +70,43 @@ class TestOrder2DirectPhase:
     @given(
         num_qubits=st.integers(min_value=2, max_value=4),
         coef=st.floats(min_value=-1.0, max_value=1.0),
-        signed=st.booleans(),
+        encoding=st.sampled_from(EncodingType.list()),
     )
     def test_essentials(
         self,
         num_qubits: int,
         coef: float,
-        signed: bool,
+        encoding: EncodingType,
     ):
         """Test the essentials of the Order2DirectPhase."""
 
-        propagator = Order2DirectPhase(num_qubits, coef, signed)
+        propagator = Order2DirectPhase(num_qubits, coef, encoding)
         assert propagator.num_qubits == num_qubits
         assert propagator.coef == coef
-        assert propagator.signed == signed
+        assert propagator.encoding == encoding
 
     @given(
-        num_qubits=st.integers(min_value=1, max_value=4),
+        num_qubits=st.integers(min_value=2, max_value=4),
         coef=st.floats(min_value=-1.0, max_value=1.0),
-        signed=st.booleans(),
+        encoding=st.sampled_from(EncodingType.list()),
     )
     def test_correct_phase_application(
         self,
         num_qubits: int,
         coef: float,
-        signed: bool,
+        encoding: EncodingType,
     ):
         """Test the correct phase application of the Order2DirectPhase."""
 
         circuit = QuantumCircuit(num_qubits)
         psi = Statevector.from_label("+" * num_qubits)
         circuit.initialize(psi.data.tolist(), circuit.qubits)
-        propagator = Order2DirectPhase(num_qubits, coef, signed)
+        propagator = Order2DirectPhase(num_qubits, coef, encoding)
         circuit.compose(propagator, circuit.qubits, inplace=True)
 
         output_state = Statevector(circuit)
-        x = (
-            np.concatenate(
-                [
-                    np.arange(0, 2 ** (num_qubits - 1)),
-                    np.arange(-(2 ** (num_qubits - 1)), 0),
-                ]
-            )
-            if signed
-            else np.arange(2**num_qubits)
-        )
+        x_axis = PositionAxis(delta_x=1.0, num_qubits=num_qubits, encoding=encoding)
+        x = x_axis.axis_values
         expected_output_state = np.exp(1j * coef * x**2) * psi.data
 
         assert np.allclose(output_state.data, expected_output_state)
@@ -130,51 +118,43 @@ class TestOrder3DirectPhase:
     @given(
         num_qubits=st.integers(min_value=2, max_value=4),
         coef=st.floats(min_value=-1.0, max_value=1.0),
-        signed=st.booleans(),
+        encoding=st.sampled_from(EncodingType.list()),
     )
     def test_essentials(
         self,
         num_qubits: int,
         coef: float,
-        signed: bool,
+        encoding: EncodingType,
     ):
         """Test the essentials of the Order3DirectPhase."""
 
-        propagator = Order3DirectPhase(num_qubits, coef, signed)
+        propagator = Order3DirectPhase(num_qubits, coef, encoding)
         assert propagator.num_qubits == num_qubits
         assert propagator.coef == coef
-        assert propagator.signed == signed
+        assert propagator.encoding == encoding
 
     @given(
-        num_qubits=st.integers(min_value=1, max_value=4),
+        num_qubits=st.integers(min_value=2, max_value=4),
         coef=st.floats(min_value=-1.0, max_value=1.0),
-        signed=st.booleans(),
+        encoding=st.sampled_from(EncodingType.list()),
     )
     def test_correct_phase_application(
         self,
         num_qubits: int,
         coef: float,
-        signed: bool,
+        encoding: EncodingType,
     ):
         """Test the correct phase application of the Order3DirectPhase."""
 
         circuit = QuantumCircuit(num_qubits)
         psi = Statevector.from_label("+" * num_qubits)
         circuit.initialize(psi.data.tolist(), circuit.qubits)
-        propagator = Order3DirectPhase(num_qubits, coef, signed)
+        propagator = Order3DirectPhase(num_qubits, coef, encoding)
         circuit.compose(propagator, circuit.qubits, inplace=True)
 
         output_state = Statevector(circuit)
-        x = (
-            np.concatenate(
-                [
-                    np.arange(0, 2 ** (num_qubits - 1)),
-                    np.arange(-(2 ** (num_qubits - 1)), 0),
-                ]
-            )
-            if signed
-            else np.arange(2**num_qubits)
-        )
+        x_axis = PositionAxis(delta_x=1.0, num_qubits=num_qubits, encoding=encoding)
+        x = x_axis.axis_values
         expected_output_state = np.exp(1j * coef * x**3) * psi.data
 
         assert np.allclose(output_state.data, expected_output_state)
