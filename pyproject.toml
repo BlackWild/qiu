@@ -7,7 +7,12 @@ qiskit-hamiltonian-simulation = { workspace = true }
 qiskit-pytest-helper = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/*", "dev-packages/*", "projects/*"]
+members = [
+    "packages/*",
+    "dev-packages/*",
+    "projects/*",
+    "shareable-packages/*",
+]
 
 [dependency-groups]
 dev = [
