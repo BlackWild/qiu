@@ -6,8 +6,6 @@ from qiskit_phase_propagator.direct import Order2DirectPhase
 from qiskit_signals.quantum_axis import MomentumAxis, PositionAxis
 from qiskit_signals.quantum_signal import QuadraticQuantumSignal
 
-# TODO: add MomentumDomainEvolutionQuadratic
-
 
 class PositionDomainEvolutionQuadratic(QuantumCircuit):
     """A quantum circuit evolving a state under a quadratic phase profile.
