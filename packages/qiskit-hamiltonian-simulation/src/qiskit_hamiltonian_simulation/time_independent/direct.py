@@ -6,6 +6,8 @@ from qiskit_phase_propagator.direct import Order2DirectPhase
 from qiskit_signals.quantum_axis import MomentumAxis, PositionAxis
 from qiskit_signals.quantum_signal import QuadraticQuantumSignal
 
+# TODO: move these classes to qiskit-phase-propagator, only keep things related to actual terms in the Hamiltonian here; like potential and kinetic energy terms
+
 
 class PositionDomainEvolutionQuadratic(QuantumCircuit):
     """A quantum circuit evolving a state under a quadratic phase profile.
@@ -83,6 +85,6 @@ class MomentumDomainEvolutionQuadratic(QuantumCircuit):
         qft = QFTGate(n)
         iqft = qft.inverse()
 
-        self.compose(qft, psi_reg, inplace=True)
+        self.append(qft, psi_reg)
         self.compose(propagator, psi_reg, inplace=True)
-        self.compose(iqft, psi_reg, inplace=True)  # type: ignore
+        self.append(iqft, psi_reg)
