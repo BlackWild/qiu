@@ -7,10 +7,9 @@ from hypothesis.extra.numpy import arrays
 from qiskit.quantum_info import Statevector
 from qiskit_signals.helper_types import EncodingType
 from qiskit_signals.quantum_axis import PositionAxis
-from qiskit_signals.quantum_signal import GenericQuantumSignal
+from qiskit_signals.quantum_signal import GenericQuantumSignal, PolynomialQuantumSignal
 
 from qiskit_pytest_helper.constants import (
-    DEFAULT_ENCODING,
     MAX_MAGNITUDE,
     MAX_QUBITS,
     MIN_MAGNITUDE,
@@ -209,5 +208,40 @@ def random_positive_signal(
         return (forced_sum_value / max) * signal_function(x)
 
     signal = GenericQuantumSignal(axis=axis, signal_function=normalized_signal_function)
+
+    return signal
+
+
+@st.composite
+def random_polynomial_signal(
+    draw,
+    degree: int,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    min_magnitude=MIN_MAGNITUDE,
+    max_magnitude=MAX_MAGNITUDE,
+    forced_encoding: EncodingType | None = None,
+) -> PolynomialQuantumSignal:
+    """A strategy for generating random polynomial signals."""
+
+    axis = draw(
+        position_axis(
+            min_qubits=min_qubits,
+            max_qubits=max_qubits,
+            forced_encoding=forced_encoding,
+        )
+    )
+
+    # Generate random coefficient for the polynomial signal
+    coefficient = draw(
+        st.floats(
+            min_value=min_magnitude,
+            max_value=max_magnitude,
+            allow_nan=False,
+            allow_infinity=False,
+        )
+    )
+
+    signal = PolynomialQuantumSignal(axis=axis, alpha=coefficient, power=degree)
 
     return signal

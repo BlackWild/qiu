@@ -8,19 +8,24 @@ from qiskit.quantum_info import Statevector
 from qiskit_hamiltonian_simulation.time_independent.direct import (
     PositionDomainEvolutionQuadratic,
 )
-from qiskit_pytest_helper.hypothesis_strategies import position_axis
-from qiskit_signals.quantum_signal import QuadraticQuantumSignal
+from qiskit_pytest_helper.hypothesis_strategies import (
+    random_polynomial_signal,
+)
+from qiskit_signals.quantum_signal import (
+    QuadraticQuantumSignal,
+)
 
 
 class TestPositionDomainEvolutionQuadratic:
     """Unit tests for the PositionDomainEvolutionQuadratic circuit."""
 
-    @given(alpha=st.floats(min_value=-1.0, max_value=1.0), x=position_axis())
-    def test_position_domain_evolution_quadratic(self, alpha, x):
+    @given(quadratic_signal=random_polynomial_signal(degree=2))
+    def test_position_domain_evolution_quadratic(
+        self, quadratic_signal: QuadraticQuantumSignal
+    ):
         """Tests the PositionDomainEvolutionQuadratic circuit."""
         # Create the quadratic signal
-        quadratic_signal = QuadraticQuantumSignal(axis=x, alpha=alpha)
-        num_qubits = x.num_qubits
+        num_qubits = quadratic_signal.num_qubits
 
         # Create the circuit
         circuit = QuantumCircuit(num_qubits)

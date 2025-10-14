@@ -8,6 +8,8 @@ import numpy.typing as npt
 from qiskit_signals.helper_types import EncodingType, SignalFunctionType
 from qiskit_signals.quantum_axis import GenericAxis
 
+# - MARK: Generic
+
 
 class GenericQuantumSignal:
     """A generic quantum signal having no specific structure imposed on it."""
@@ -52,6 +54,27 @@ class PolynomialQuantumSignal:
         """Returns the data of the quantum signal."""
         return self.alpha * self.axis.axis_values**self.power
 
+    def to_generic(self) -> GenericQuantumSignal:
+        """Converts the polynomial quantum signal to a generic quantum signal."""
+        return GenericQuantumSignal(
+            axis=self.axis, signal_function=lambda x: self.alpha * x**self.power
+        )
+
+    @property
+    def num_qubits(self) -> int:
+        """Returns the number of qubits required to represent the signal."""
+        return self.axis.num_qubits
+
+    @property
+    def effective_alpha(self) -> float:
+        """Returns the effective alpha coefficient taking into account the quadratic nature of the signal."""
+        return self.alpha * self.axis.period**self.power
+
+    @property
+    def encoding(self) -> EncodingType:
+        """Returns the encoding type of the quantum signal."""
+        return self.axis.encoding
+
 
 class QuadraticQuantumSignal(PolynomialQuantumSignal):
     """A quadratic quantum signal. Also called an intensity signal.
@@ -69,16 +92,6 @@ class QuadraticQuantumSignal(PolynomialQuantumSignal):
         """Initializes the QuadraticQuantumSignal."""
         self.axis = axis
         self.alpha = alpha
-
-    @property
-    def effective_alpha(self) -> float:
-        """Returns the effective alpha coefficient taking into account the quadratic nature of the signal."""
-        return self.alpha * self.axis.period**2
-
-    @property
-    def encoding(self) -> EncodingType:
-        """Returns the encoding type of the quantum signal."""
-        return self.axis.encoding
 
 
 # class GenericQuantumSignal:

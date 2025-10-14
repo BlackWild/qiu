@@ -91,3 +91,18 @@ class AngularWavenumberAxis(GenericAxis):
         """
         period = 2 * np.pi / (2**num_qubits * delta_x)
         super().__init__(num_qubits=num_qubits, period=period, encoding=encoding)
+
+
+class SpatialFrequencyAxis(GenericAxis):
+    """A quantum axis representing spatial frequency."""
+
+    def __init__(self, num_qubits: int, delta_x: float, encoding: EncodingType):
+        """Initialize a spatial frequency axis.
+
+        Args:
+            num_qubits: Number of qubits representing the axis.
+            delta_x: Spacing between discrete position values (used to compute momentum spacing).
+            encoding: Encoding type, either 'twos_complement' or 'unsigned'.
+        """
+        period = 1 / (2**num_qubits * delta_x)
+        super().__init__(num_qubits=num_qubits, period=period, encoding=encoding)
