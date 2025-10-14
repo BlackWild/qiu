@@ -5,8 +5,8 @@ import numpy as np
 import numpy.typing as npt
 from hypothesis.extra.numpy import arrays
 from qiskit.quantum_info import Statevector
-from qiskit_signals.helper_types import EncodingType
-from qiskit_signals.quantum_axis import PositionAxis
+from qiskit_signals.helper_types import AxisType, EncodingType
+from qiskit_signals.quantum_axis import MomentumAxis, PositionAxis
 from qiskit_signals.quantum_signal import GenericQuantumSignal, PolynomialQuantumSignal
 
 from qiskit_pytest_helper.constants import (
@@ -170,6 +170,31 @@ def position_axis(
 
 
 @st.composite
+def momentum_axis(
+    draw,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    forced_encoding: EncodingType | None = None,
+) -> MomentumAxis:
+    """A strategy for generating MomentumAxis objects."""
+    num_qubits = draw(st.integers(min_qubits, max_qubits))
+    delta_x = draw(
+        st.floats(
+            min_value=MIN_MAGNITUDE,
+            max_value=1,
+            allow_nan=False,
+            allow_infinity=False,
+        )
+    )
+
+    encoding = forced_encoding or draw(st.sampled_from(EncodingType.list()))
+
+    return MomentumAxis(
+        num_qubits=num_qubits, delta_x=delta_x, encoding=encoding, hbar=1.0
+    )
+
+
+@st.composite
 def random_positive_signal(
     draw,
     min_qubits=MIN_QUBITS,
@@ -216,6 +241,7 @@ def random_positive_signal(
 def random_polynomial_signal(
     draw,
     degree: int,
+    axis_type: AxisType,
     min_qubits=MIN_QUBITS,
     max_qubits=MAX_QUBITS,
     min_magnitude=MIN_MAGNITUDE,
@@ -224,11 +250,21 @@ def random_polynomial_signal(
 ) -> PolynomialQuantumSignal:
     """A strategy for generating random polynomial signals."""
 
-    axis = draw(
-        position_axis(
-            min_qubits=min_qubits,
-            max_qubits=max_qubits,
-            forced_encoding=forced_encoding,
+    axis = (
+        draw(
+            position_axis(
+                min_qubits=min_qubits,
+                max_qubits=max_qubits,
+                forced_encoding=forced_encoding,
+            )
+        )
+        if axis_type == AxisType.POSITION
+        else draw(
+            momentum_axis(
+                min_qubits=min_qubits,
+                max_qubits=max_qubits,
+                forced_encoding=forced_encoding,
+            )
         )
     )
 

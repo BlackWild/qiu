@@ -16,3 +16,10 @@ class EncodingType(ExtendedEnum):
 
     TWOS_COMPLEMENT = "twos_complement"
     UNSIGNED = "unsigned"
+
+
+class AxisType(ExtendedEnum):
+    """Types of quantum axes."""
+
+    POSITION = "position"
+    MOMENTUM = "momentum"
