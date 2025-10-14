@@ -32,6 +32,11 @@ class GenericQuantumSignal:
         """Returns the number of qubits required to represent the signal."""
         return self.axis.num_qubits
 
+    @property
+    def dimension(self) -> int:
+        """Returns the dimension of the signal."""
+        return self.axis.dimension
+
 
 class PolynomialQuantumSignal:
     """A polynomial quantum signal."""

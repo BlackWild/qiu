@@ -12,13 +12,12 @@ from qiskit_signals.quantum_signal import GenericQuantumSignal
 class ArbitrarySignalForSampleBasedProtocol(GenericQuantumSignal):
     """A generic quantum signal for sample-based protocol."""
 
-    def __init__(self, signal: GenericQuantumSignal) -> None:
-        """Initializes the ArbitrarySignalForSampleBasedProtocol with the given signal data.
-
-        Args:
-            signal (GenericQuantumSignal): The generic quantum signal containing the signal data.
-        """
-        super().__init__(axis=signal.axis, signal_function=signal.signal_function)
+    @classmethod
+    def from_generic_signal(
+        cls, signal: GenericQuantumSignal
+    ) -> "ArbitrarySignalForSampleBasedProtocol":
+        """Creates an ArbitrarySignalForSampleBasedProtocol from a GenericQuantumSignal."""
+        return cls(axis=signal.axis, signal_function=signal.signal_function)
 
     @cached_property
     def alpha(self) -> float:
@@ -53,6 +52,25 @@ class ArbitrarySignalForSampleBasedProtocol(GenericQuantumSignal):
 
         state = Statevector(state_data)
         return state
+
+    def __mul__(self, other: int | float) -> "ArbitrarySignalForSampleBasedProtocol":
+        """Multiplies the quantum signal by a scalar."""
+        if isinstance(other, (int, float)):
+
+            def new_signal_function(x):
+                return self.signal_function(x) * other
+
+            new_signal = ArbitrarySignalForSampleBasedProtocol(
+                self.axis, new_signal_function
+            )
+
+            return new_signal
+        else:
+            raise ValueError("Multiplication is only defined for scalars.")
+
+    def __rmul__(self, other: int | float) -> "ArbitrarySignalForSampleBasedProtocol":
+        """Right-hand multiplication so scalar * signal also works."""
+        return self.__mul__(other)
 
 
 def extract_alpha_and_state_from_generic_signal(

@@ -108,7 +108,9 @@ class TestQuadraticSignalSampleBasedPhasePropagator:
     def test_essentials(self, signal: GenericQuantumSignal, max_delta: float):
         """Test the essentials of the QuadraticSignalSampleBasedPhasePropagator."""
 
-        sample_based_signal = ArbitrarySignalForSampleBasedProtocol(signal)
+        sample_based_signal = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
+            signal
+        )
 
         propagator = QuadraticSignalSampleBasedPhasePropagator(
             signal=sample_based_signal,
@@ -128,7 +130,9 @@ class TestQuadraticSignalSampleBasedPhasePropagator:
     ):
         """Test that the QuadraticSignalSampleBasedPhasePropagator applies the correct phase."""
 
-        sample_based_signal = ArbitrarySignalForSampleBasedProtocol(signal)
+        sample_based_signal = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
+            signal
+        )
 
         propagator = QuadraticSignalSampleBasedPhasePropagator(
             signal=sample_based_signal,
