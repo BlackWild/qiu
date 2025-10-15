@@ -73,9 +73,36 @@ class MomentumAxis(GenericAxis):
             num_qubits: Number of qubits representing the axis.
             delta_x: Spacing between discrete position values (used to compute momentum spacing).
             encoding: Encoding type, either 'twos_complement' or 'unsigned'.
+            hbar: Reduced Planck's constant.
         """
         period = 2 * np.pi * hbar / (2**num_qubits * delta_x)
         super().__init__(num_qubits=num_qubits, period=period, encoding=encoding)
+
+    @classmethod
+    def from_position_axis(
+        cls,
+        position_axis: PositionAxis,
+        hbar: float,
+        keep_encoding: bool = False,
+    ) -> "MomentumAxis":
+        """Create a MomentumAxis from a given PositionAxis.
+
+        Args:
+            position_axis: An instance of PositionAxis.
+            hbar: Reduced Planck's constant (default is 1.0 for natural units).
+            keep_encoding: If True, retain the encoding of the position axis; otherwise, use 'twos_complement'.
+
+        Returns:
+            An instance of MomentumAxis.
+        """
+        return cls(
+            num_qubits=position_axis.num_qubits,
+            delta_x=position_axis.period,
+            encoding=position_axis.encoding
+            if keep_encoding
+            else EncodingType.TWOS_COMPLEMENT,
+            hbar=hbar,
+        )
 
 
 class AngularWavenumberAxis(GenericAxis):

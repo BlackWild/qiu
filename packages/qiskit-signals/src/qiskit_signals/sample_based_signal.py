@@ -23,19 +23,19 @@ class ArbitrarySignalForSampleBasedProtocol(GenericQuantumSignal):
     def alpha(self) -> float:
         """Returns the alpha coefficient of the quantum signal."""
         signal = self.data
-        # check if all elements of signal have the same sign
-        if not all(
-            [
-                np.sign(signal[0]) == np.sign(signal[i]) or np.isclose(signal[i], 0)
-                for i in range(len(signal))
-            ]
-        ):
+        # gather all unique signs in the signal, either -1, 0, or 1
+        signs = np.unique(np.sign(signal))
+        # if 1 and -1 are both present, raise an error
+        if 1 in signs and -1 in signs:
             raise ValueError(
                 "All elements of the signal vector must have the same sign."
             )
 
         # normalization factor
         alpha = np.sum(signal)
+
+        if np.isclose(alpha, 0):
+            raise ValueError("The signal cannot be all zeros.")
 
         return alpha
 
