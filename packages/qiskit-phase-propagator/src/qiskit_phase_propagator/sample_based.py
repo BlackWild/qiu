@@ -19,6 +19,8 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
     If only one cycle is needed, you can only pass one delta value in the list of deltas.
     """
 
+    num_of_cycles: int
+
     def __init__(
         self,
         deltas: npt.NDArray | list[float],
@@ -45,6 +47,7 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
         )
 
         number_of_cycles = len(deltas)
+        self.num_of_cycles = number_of_cycles
 
         for r in range(number_of_cycles):
             with self.if_test((success_flag, 0)) as else_:  # noqa: F841, TODO: remove if not used
@@ -118,6 +121,8 @@ class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
     It applies a series of quantum operations to simulate the evolution of the phase of a quantum state using a quadratic signal approach.
     """
 
+    num_of_cycles: int
+
     def __init__(
         self,
         signal: ArbitrarySignalForSampleBasedProtocol,
@@ -145,6 +150,8 @@ class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
         propagator = GenericIterativeSampleBasedPhasePropagator.from_state(
             state=preparable_state, deltas=deltas
         )
+
+        self.num_of_cycles = propagator.num_of_cycles
 
         self.compose(propagator, inplace=True)
 

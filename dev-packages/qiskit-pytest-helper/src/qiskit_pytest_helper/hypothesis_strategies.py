@@ -195,17 +195,54 @@ def momentum_axis(
 
 
 @st.composite
+def quantum_axis(
+    draw,
+    axis_type: AxisType,
+    min_qubits=MIN_QUBITS,
+    max_qubits=MAX_QUBITS,
+    forced_encoding: EncodingType | None = None,
+):
+    """A strategy for generating QuantumAxis objects."""
+    return (
+        draw(
+            position_axis(
+                min_qubits=min_qubits,
+                max_qubits=max_qubits,
+                forced_encoding=forced_encoding,
+            )
+        )
+        if axis_type == AxisType.POSITION
+        else draw(
+            momentum_axis(
+                min_qubits=min_qubits,
+                max_qubits=max_qubits,
+                forced_encoding=forced_encoding,
+            )
+        )
+    )
+
+
+@st.composite
 def random_positive_signal(
     draw,
+    axis_type: AxisType,
     min_qubits=MIN_QUBITS,
     max_qubits=MAX_QUBITS,
     min_magnitude=MIN_MAGNITUDE,
     max_magnitude=MAX_MAGNITUDE,
     forced_sum_value: float = 1.0,
+    forced_encoding: EncodingType | None = None,
 ) -> GenericQuantumSignal:
     """A strategy for generating random signals."""
 
-    axis = draw(position_axis(min_qubits=min_qubits, max_qubits=max_qubits))
+    axis = draw(
+        quantum_axis(
+            axis_type=axis_type,
+            min_qubits=min_qubits,
+            max_qubits=max_qubits,
+            forced_encoding=forced_encoding,
+        )
+    )
 
     # Generate random coefficients for a polynomial signal
     degree = draw(st.integers(min_value=1, max_value=5))
@@ -224,13 +261,13 @@ def random_positive_signal(
 
     def signal_function(x: npt.NDArray) -> npt.NDArray:
         """A polynomial signal function."""
-        return np.abs(sum(c * x**i for i, c in enumerate(coefficients)))
+        return np.abs(sum([c * x**i for i, c in enumerate(coefficients)]))
 
-    max = np.max(signal_function(axis.axis_values))
+    signal_sum = np.sum(np.abs(signal_function(axis.axis_values)))
 
     # Scale the function to have the desired sum value
     def normalized_signal_function(x):
-        return (forced_sum_value / max) * signal_function(x)
+        return (forced_sum_value / signal_sum) * signal_function(x)
 
     signal = GenericQuantumSignal(axis=axis, signal_function=normalized_signal_function)
 
@@ -250,21 +287,12 @@ def random_polynomial_signal(
 ) -> PolynomialQuantumSignal:
     """A strategy for generating random polynomial signals."""
 
-    axis = (
-        draw(
-            position_axis(
-                min_qubits=min_qubits,
-                max_qubits=max_qubits,
-                forced_encoding=forced_encoding,
-            )
-        )
-        if axis_type == AxisType.POSITION
-        else draw(
-            momentum_axis(
-                min_qubits=min_qubits,
-                max_qubits=max_qubits,
-                forced_encoding=forced_encoding,
-            )
+    axis = draw(
+        quantum_axis(
+            axis_type=axis_type,
+            min_qubits=min_qubits,
+            max_qubits=max_qubits,
+            forced_encoding=forced_encoding,
         )
     )
 

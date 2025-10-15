@@ -13,6 +13,7 @@ from qiskit_pytest_helper.hypothesis_strategies import (
     random_positive_signal,
     valid_qiskit_statevector,
 )
+from qiskit_signals.helper_types import AxisType
 from qiskit_signals.quantum_axis import PositionAxis
 from qiskit_signals.quantum_signal import GenericQuantumSignal
 from qiskit_signals.sample_based_signal import ArbitrarySignalForSampleBasedProtocol
@@ -77,7 +78,7 @@ def test_position_axis(axis: PositionAxis):
     assert isinstance(axis, PositionAxis)  # Ensure it's a PositionAxis instance
 
 
-@given(signal=random_positive_signal())
+@given(signal=random_positive_signal(axis_type=AxisType.POSITION))
 def test_random_signal(signal: GenericQuantumSignal):
     """Test the random_signal strategy."""
     assert isinstance(
@@ -95,3 +96,4 @@ def test_random_signal(signal: GenericQuantumSignal):
     assert axis.dimension == data.size  # Ensure axis dimension matches data size
 
     assert (data >= 0).all()  # Ensure all elements are non-negative
+    assert np.isclose(np.sum(data), 1.0)  # Ensure sum of elements is close to 1.0

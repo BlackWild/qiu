@@ -10,3 +10,5 @@ MIN_MAGNITUDE = 0.01
 MAX_MAGNITUDE = 1.0
 
 DEFAULT_ENCODING = EncodingType.UNSIGNED
+
+MAX_NUM_OF_CYCLES = 200  # TODO: this number should be parametrized better in the tests

@@ -1,5 +1,9 @@
 # Project Diary
 
+### Log 15.10.2025
+
+- make sure to use `norm="ortho"` in all Fourier transforms. This ensures that the Fourier transform is unitary and preserves the norm of the state vector.
+
 ### Log 10.10.2025
 
 - `pytest-xdist` enables parallel test execution, allowing for faster test runs by distributing tests across multiple CPU cores.

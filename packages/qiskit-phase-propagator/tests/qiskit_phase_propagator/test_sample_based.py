@@ -18,6 +18,7 @@ from qiskit_pytest_helper.hypothesis_strategies import (
     random_positive_signal,
     state_pairs_with_equal_qubits,
 )
+from qiskit_signals.helper_types import AxisType
 from qiskit_signals.quantum_signal import GenericQuantumSignal
 
 
@@ -102,7 +103,7 @@ class TestQuadraticSignalSampleBasedPhasePropagator:
 
     @settings(max_examples=10, deadline=None)
     @given(
-        signal=random_positive_signal(max_qubits=3),
+        signal=random_positive_signal(axis_type=AxisType.POSITION, max_qubits=3),
         max_delta=st.floats(min_value=0.01, max_value=0.1),
     )
     def test_essentials(self, signal: GenericQuantumSignal, max_delta: float):
@@ -122,7 +123,9 @@ class TestQuadraticSignalSampleBasedPhasePropagator:
 
     @settings(max_examples=10, deadline=None)
     @given(
-        signal=random_positive_signal(max_qubits=3, forced_sum_value=0.1),
+        signal=random_positive_signal(
+            axis_type=AxisType.POSITION, max_qubits=3, forced_sum_value=0.1
+        ),
         max_delta=st.floats(min_value=0.01, max_value=0.05),
     )
     def test_correct_phase_application(

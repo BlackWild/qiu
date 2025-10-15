@@ -72,8 +72,8 @@ class TestMomentumDomainEvolutionQuadratic:
         output = Statevector(circuit)
 
         # Fourier transform of psi.data and output.data
-        psi_fourier = np.fft.fft(psi.data)
-        output_fourier = np.fft.fft(output.data)
+        psi_fourier = np.fft.fft(psi.data, norm="ortho")
+        output_fourier = np.fft.fft(output.data, norm="ortho")
 
         expected_output = np.exp(1j * quadratic_signal.data) * psi_fourier
 
