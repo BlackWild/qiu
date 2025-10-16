@@ -26,9 +26,9 @@ class PositionDomainEvolutionQuadratic(QuantumCircuit):
         quadratic_signal: QuadraticQuantumSignal,
     ) -> None:
         """Initializes the PositionDomainEvolution with the given parameters."""
-        if not isinstance(quadratic_signal.axis, PositionAxis):
+        if not quadratic_signal.axis.is_fourier_domain_axis:
             raise ValueError(
-                "The axis of the quadratic signal must be a position axis."
+                "The axis of the quadratic signal must be a Fourier domain axis."
             )
 
         self.quadratic_signal = quadratic_signal
@@ -64,9 +64,9 @@ class MomentumDomainEvolutionQuadratic(QuantumCircuit):
         quadratic_signal: QuadraticQuantumSignal,
     ) -> None:
         """Initializes the MomentumDomainEvolution with the given parameters."""
-        if not isinstance(quadratic_signal.axis, MomentumAxis):
+        if not quadratic_signal.axis.is_fourier_domain_axis:
             raise ValueError(
-                "The axis of the quadratic signal must be a momentum axis."
+                "The axis of the quadratic signal must be a Fourier domain axis."
             )
 
         self.quadratic_signal = quadratic_signal

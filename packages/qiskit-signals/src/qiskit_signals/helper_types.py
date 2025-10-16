@@ -19,7 +19,24 @@ class EncodingType(ExtendedEnum):
 
 
 class AxisType(ExtendedEnum):
-    """Types of quantum axes."""
+    """Types of quantum axes.
+
+    Tracks which domain the axis lives in. Options are the position domain or its conjugate momentum domain.
+    """
 
     POSITION = "position"
     MOMENTUM = "momentum"
+    ANGULAR_WAVENUMBER = "angular_wavenumber"
+    SPATIAL_FREQUENCY = "spatial_frequency"
+
+    @property
+    def is_in_fourier_domain(self) -> bool:
+        if (
+            self == AxisType.MOMENTUM
+            or self == AxisType.ANGULAR_WAVENUMBER
+            or self == AxisType.SPATIAL_FREQUENCY
+        ):
+            return True
+        if self == AxisType.POSITION:
+            return False
+        raise ValueError("Undefined axis domain")

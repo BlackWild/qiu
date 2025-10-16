@@ -5,7 +5,7 @@ from abc import ABC
 import numpy as np
 import numpy.typing as npt
 
-from qiskit_signals.helper_types import EncodingType
+from qiskit_signals.helper_types import AxisType, EncodingType
 
 
 class GenericAxis(ABC):
@@ -14,11 +14,19 @@ class GenericAxis(ABC):
     encoding: EncodingType
     period: float
     num_qubits: int
+    axis_type: AxisType
 
-    def __init__(self, num_qubits: int, period: float, encoding: EncodingType):
+    def __init__(
+        self,
+        num_qubits: int,
+        period: float,
+        encoding: EncodingType,
+        axis_type: AxisType,
+    ):
         self.encoding = encoding
         self.period = period
         self.num_qubits = num_qubits
+        self.axis_type = axis_type
 
     @property
     def index(self) -> npt.NDArray:
@@ -46,6 +54,10 @@ class GenericAxis(ABC):
         """Return the total length of the sampling window."""
         return self.dimension * self.period
 
+    @property
+    def is_fourier_domain_axis(self) -> bool:
+        return self.axis_type.is_in_fourier_domain
+
 
 class PositionAxis(GenericAxis):
     """A quantum axis representing position."""
@@ -58,7 +70,12 @@ class PositionAxis(GenericAxis):
             delta_x: Spacing between discrete position values.
             encoding: Encoding type, either 'twos_complement' or 'unsigned'.
         """
-        super().__init__(num_qubits=num_qubits, period=delta_x, encoding=encoding)
+        super().__init__(
+            num_qubits=num_qubits,
+            period=delta_x,
+            encoding=encoding,
+            axis_type=AxisType.POSITION,
+        )
 
 
 class MomentumAxis(GenericAxis):
@@ -76,7 +93,12 @@ class MomentumAxis(GenericAxis):
             hbar: Reduced Planck's constant.
         """
         period = 2 * np.pi * hbar / (2**num_qubits * delta_x)
-        super().__init__(num_qubits=num_qubits, period=period, encoding=encoding)
+        super().__init__(
+            num_qubits=num_qubits,
+            period=period,
+            encoding=encoding,
+            axis_type=AxisType.MOMENTUM,
+        )
 
     @classmethod
     def from_position_axis(
@@ -117,7 +139,26 @@ class AngularWavenumberAxis(GenericAxis):
             encoding: Encoding type, either 'twos_complement' or 'unsigned'.
         """
         period = 2 * np.pi / (2**num_qubits * delta_x)
-        super().__init__(num_qubits=num_qubits, period=period, encoding=encoding)
+        super().__init__(
+            num_qubits=num_qubits,
+            period=period,
+            encoding=encoding,
+            axis_type=AxisType.ANGULAR_WAVENUMBER,
+        )
+
+    @classmethod
+    def from_position_axis(
+        cls,
+        position_axis: PositionAxis,
+        keep_encoding: bool = False,
+    ) -> "AngularWavenumberAxis":
+        return cls(
+            num_qubits=position_axis.num_qubits,
+            delta_x=position_axis.period,
+            encoding=position_axis.encoding
+            if keep_encoding
+            else EncodingType.TWOS_COMPLEMENT,
+        )
 
 
 class SpatialFrequencyAxis(GenericAxis):
@@ -132,4 +173,9 @@ class SpatialFrequencyAxis(GenericAxis):
             encoding: Encoding type, either 'twos_complement' or 'unsigned'.
         """
         period = 1 / (2**num_qubits * delta_x)
-        super().__init__(num_qubits=num_qubits, period=period, encoding=encoding)
+        super().__init__(
+            num_qubits=num_qubits,
+            period=period,
+            encoding=encoding,
+            axis_type=AxisType.SPATIAL_FREQUENCY,
+        )
