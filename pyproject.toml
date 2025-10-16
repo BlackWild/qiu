@@ -10,7 +10,7 @@ qiskit-pytest-helper = { workspace = true }
 members = [
     "packages/*",
     "dev-packages/*",
-    "projects/*",
+    "apps/*",
     "shareable-packages/*",
 ]
 
