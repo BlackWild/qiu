@@ -15,6 +15,7 @@ def ideal_state_initializer(state: Statevector) -> QuantumCircuit:
     Returns:
         QuantumCircuit: A quantum circuit that initializes a quantum state to the given state.
     """
+    print("Using ideal state initializer.")  # TODO: remove this
     circ = StatePreparationCircuit(state)
     return circ
 
