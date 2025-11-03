@@ -33,6 +33,7 @@ def thin_transparent_plate_signal_generator(
     thickness: float,
     radius: float,
     wavelength: float,
+    scale_down: bool = True,
 ) -> GenericQuantumSignal:
     """Generates a quantum signal for a finite transparent plate.
 
@@ -49,14 +50,26 @@ def thin_transparent_plate_signal_generator(
     k_0 = 2 * np.pi / wavelength
     phase_shift = -refractive_index * k_0 * thickness
 
-    def signal_function(x):
-        return np.where(
-            np.abs(x - x_axis.sampling_window_length / 2)
-            <= radius
-            / 2,  # TODO: probably should change this to actually compare the distance from the optical axis which depends on the encoding we use among other things
-            phase_shift,
-            0,
-        )
+    if scale_down:
+
+        def signal_function(x):
+            return np.where(
+                np.abs(x - x_axis.sampling_window_length / 2)
+                <= radius
+                / 2,  # TODO: probably should change this to actually compare the distance from the optical axis which depends on the encoding we use among other things
+                np.mod(phase_shift, 2 * np.pi),
+                0,
+            )
+    else:
+
+        def signal_function(x):
+            return np.where(
+                np.abs(x - x_axis.sampling_window_length / 2)
+                <= radius
+                / 2,  # TODO: probably should change this to actually compare the distance from the optical axis which depends on the encoding we use among other things
+                phase_shift,
+                0,
+            )
 
     signal = GenericQuantumSignal(axis=x_axis, signal_function=signal_function)
     return signal
