@@ -26,9 +26,9 @@ class PositionDomainEvolutionQuadratic(QuantumCircuit):
         quadratic_signal: QuadraticQuantumSignal,
     ) -> None:
         """Initializes the PositionDomainEvolution with the given parameters."""
-        if not quadratic_signal.axis.is_fourier_domain_axis:
+        if quadratic_signal.axis.is_fourier_domain_axis:
             raise ValueError(
-                "The axis of the quadratic signal must be a Fourier domain axis."
+                "The axis of the quadratic signal must be a position domain axis."
             )
 
         self.quadratic_signal = quadratic_signal
