@@ -24,6 +24,7 @@ dev = [
     "qiskit-pytest-helper",
     "qiskit[visualization]>=2.2.1",
     "ruff>=0.14.0",
+    "qiskit-aer-gpu-cu11>=0.17.2",
 ]
 
 [tool.coverage.run]
