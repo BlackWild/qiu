@@ -7,7 +7,7 @@ from hypothesis import strategies as st
 from qiskit import transpile
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import Operator, Statevector, state_fidelity
-from qiskit_aer import AerSimulator
+from qiskit_aer_encore.simulator import generate_aer_simulator
 from qiskit_encore.state_preparation import StatePreparationCircuit
 from qiskit_pytest_helper.hypothesis_strategies import valid_qiskit_statevector
 
@@ -29,7 +29,7 @@ def test_state_preparation(state: Statevector, transpilation: bool) -> None:
     assert operator.dim == (2**state.num_qubits, 2**state.num_qubits)
     assert np.allclose(operator.data[:, 0], state.data)  # type: ignore
 
-    backend = AerSimulator()
+    backend = generate_aer_simulator()
     circuit_to_simulate = (
         transpile(prep_circuit, backend) if transpilation else prep_circuit
     )
@@ -56,7 +56,7 @@ def test_state_de_preparation(state: Statevector, transpilation: bool) -> None:
     assert operator.dim == (2**state.num_qubits, 2**state.num_qubits)
     assert np.allclose(operator.data[0, :], state.data.conj())  # type: ignore
 
-    backend = AerSimulator()
+    backend = generate_aer_simulator()
     circuit_to_simulate = (
         transpile(prep_circuit, backend) if transpilation else prep_circuit
     )

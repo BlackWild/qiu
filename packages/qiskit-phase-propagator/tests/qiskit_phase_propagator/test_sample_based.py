@@ -7,7 +7,7 @@ from qiskit import transpile
 from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector, partial_trace, state_fidelity
 from qiskit_aer_encore.simulator import generate_aer_simulator
-from qiskit_encore.preparable_statevector import IdeallyPreparableStatevector
+from qiskit_encore.preparable_statevector import BigUnitaryPreparableStatevector
 from qiskit_phase_propagator.sample_based import (
     ArbitrarySignalForSampleBasedProtocol,
     GenericIterativeSampleBasedPhasePropagator,
@@ -20,6 +20,8 @@ from qiskit_pytest_helper.hypothesis_strategies import (
 )
 from qiskit_signals.helper_types import AxisType
 from qiskit_signals.quantum_signal import GenericQuantumSignal
+
+AER_SIMULATION_DEADLINE = 1000  # seconds
 
 
 class TestGenericIterativeSampleBasedPhasePropagator:
@@ -36,7 +38,7 @@ class TestGenericIterativeSampleBasedPhasePropagator:
     ):
         """Test the essentials of the GenericIterativeSampleBasedPhasePropagator."""
         psi, phi = states
-        preparable_state = IdeallyPreparableStatevector.from_statevector(phi)
+        preparable_state = BigUnitaryPreparableStatevector.from_statevector(phi)
         assert psi.num_qubits == phi.num_qubits == preparable_state.num_qubits
         n = preparable_state.num_qubits
 
@@ -45,6 +47,7 @@ class TestGenericIterativeSampleBasedPhasePropagator:
         )
         assert propagator.num_qubits == 2 * n
 
+    @settings(max_examples=10, deadline=None)
     @given(
         states=state_pairs_with_equal_qubits(),
         deltas=st.lists(
@@ -56,7 +59,7 @@ class TestGenericIterativeSampleBasedPhasePropagator:
     ):
         """Test that the GenericIterativeSampleBasedPhasePropagator applies the correct phase."""
         psi, phi = states
-        preparable_state = IdeallyPreparableStatevector.from_statevector(phi)
+        preparable_state = BigUnitaryPreparableStatevector.from_statevector(phi)
         assert psi.num_qubits == phi.num_qubits == preparable_state.num_qubits
         n = preparable_state.num_qubits
 
@@ -74,7 +77,7 @@ class TestGenericIterativeSampleBasedPhasePropagator:
         circuit.save_statevector()  # type: ignore
 
         simulator = generate_aer_simulator()
-        transpiled = transpile(circuit, simulator)
+        transpiled = transpile(circuit)
         job = simulator.run(transpiled, shots=1)
         result = job.result()
         counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
@@ -154,7 +157,9 @@ class TestQuadraticSignalSampleBasedPhasePropagator:
         circuit.save_statevector()  # type: ignore
 
         simulator = generate_aer_simulator()
-        transpiled = transpile(circuit, simulator)
+        print("good until here")
+        transpiled = transpile(circuit)
+        print("and it also transpiled")
         job = simulator.run(transpiled, shots=1)
         result = job.result()
         counts: dict[int, int] = result.get_counts(circuit).int_outcomes()

@@ -91,7 +91,7 @@ class TestPotentialEvolutionSampleBased:
         circuit.save_statevector()  # type: ignore
 
         simulator = generate_aer_simulator()
-        transpiled = transpile(circuit, simulator)
+        transpiled = transpile(circuit)
         job = simulator.run(transpiled, shots=1)
         result = job.result()
         counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
@@ -185,7 +185,7 @@ class TestKineticEvolutionSampleBased:
         circuit.save_statevector()  # type: ignore
 
         simulator = generate_aer_simulator()
-        transpiled = transpile(circuit, simulator)
+        transpiled = transpile(circuit)
         job = simulator.run(transpiled, shots=1)
         result = job.result()
         counts: dict[int, int] = result.get_counts(circuit).int_outcomes()

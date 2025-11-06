@@ -1,7 +1,7 @@
 """Module implementing time-independent evolution under several polynomial Hamiltonians using direct phase application."""
 
 from qiskit.circuit import QuantumCircuit, QuantumRegister
-from qiskit.circuit.library.basis_change import QFTGate
+from qiskit_encore.qft import generate_big_matrix_qft_circuit
 from qiskit_phase_propagator.direct import Order2DirectPhase
 from qiskit_signals.quantum_axis import MomentumAxis, PositionAxis
 from qiskit_signals.quantum_signal import QuadraticQuantumSignal
@@ -82,9 +82,9 @@ class MomentumDomainEvolutionQuadratic(QuantumCircuit):
             encoding=quadratic_signal.encoding,
         )
 
-        qft = QFTGate(n)
-        iqft = qft.inverse()
+        qft = generate_big_matrix_qft_circuit(n)
+        iqft = generate_big_matrix_qft_circuit(n, inverse=True)
 
-        self.append(qft, psi_reg)
+        self.compose(qft, psi_reg, inplace=True)
         self.compose(propagator, psi_reg, inplace=True)
-        self.append(iqft, psi_reg)
+        self.compose(iqft, psi_reg, inplace=True)

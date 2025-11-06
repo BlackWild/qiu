@@ -2,9 +2,10 @@
 
 import numpy as np
 import numpy.typing as npt
-from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
+from qiskit.circuit import ClassicalRegister, Gate, QuantumCircuit, QuantumRegister
+from qiskit.circuit.library import StatePreparation
 from qiskit_encore.preparable_statevector import (
-    IdeallyPreparableStatevector,
+    BigUnitaryPreparableStatevector,
     PreparableStatevector,
 )
 from qiskit_signals.sample_based_signal import ArbitrarySignalForSampleBasedProtocol
@@ -114,6 +115,89 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
         )
 
 
+# TODO: this construct enforces collapse of the secondary register to the zero states because the plan was to use it not inside the aer simulator but Statevector.from_instruction. The reason of doing this is that Statevector.from_instruction does not support measurements to the classical registers.
+class GenericIterativeSampleBasedPhasePropagatorWithAllClassicalRegisters(
+    QuantumCircuit
+):
+    num_of_cycles: int
+
+    def __init__(
+        self,
+        deltas: npt.NDArray | list[float],
+        U_phi: QuantumCircuit,
+        U_phi_dagger: QuantumCircuit,
+        take_snapshot: bool = False,
+    ) -> None:
+        n = U_phi.num_qubits
+
+        psi_reg = QuantumRegister(n, name=r"\psi")
+        phi_reg = QuantumRegister(n, name=r"\phi")
+        success_flags = [
+            ClassicalRegister(n, name="success_flag") for _ in range(len(deltas))
+        ]
+
+        super().__init__(
+            psi_reg, phi_reg, *success_flags, name="Iterative phase propagator"
+        )
+
+        number_of_cycles = len(deltas)
+        self.num_of_cycles = number_of_cycles
+
+        for r in range(number_of_cycles):
+            delta = deltas[r]
+
+            # Step 1: initializing the |phi> register
+            self.compose(U_phi, phi_reg, inplace=True)
+
+            # Step 2: the partial phase operator
+            # Flag qubit computation
+            for i in range(psi_reg.size):
+                self.cx(
+                    phi_reg[psi_reg.size - 1 - i],
+                    psi_reg[psi_reg.size - 1 - i],
+                    ctrl_state=0,
+                )
+
+            # The application of the phase
+            self.mcp(delta, psi_reg[0:-1], psi_reg[-1])
+
+            # "Un-computing" the flag qubits
+            for i in range(psi_reg.size):
+                self.cx(phi_reg[i], psi_reg[i], ctrl_state=0)
+
+            # Step 3: partial measurement of the secondary register
+            self.compose(U_phi_dagger, phi_reg, inplace=True)
+            # self.measure(phi_reg, success_flags[r])
+
+            # Reset the secondary state to |0> after the Step 3 (partial measurement) of the previous cycle. We expect the result of the measurement to almost always be 0 and if it is not, the protocol has failed. Therefore, this resetting in not strictly required but we are doing it to still see the corrupt output even though an error occurs.
+            self.reset(phi_reg)
+
+            # Take a snapshot of the wavefunction at this point
+            if take_snapshot:
+                self.save_statevector(f"{r}")  # type: ignore
+
+            # with else_:
+            #     self.metadata["failed_at_cycle"] = r
+
+            # self.metadata = {
+            #     "num_of_cycles": number_of_cycles,
+            #     "n": n,
+            #     "deltas": deltas,
+            #     "phi_normalized": phi,
+            # }
+
+    @classmethod
+    def from_state(
+        cls, state: PreparableStatevector, deltas: npt.NDArray | list[float]
+    ) -> "GenericIterativeSampleBasedPhasePropagatorWithAllClassicalRegisters":
+        # Create an instance of the propagator
+        return GenericIterativeSampleBasedPhasePropagatorWithAllClassicalRegisters(
+            deltas=deltas,
+            U_phi=state.initializer_circuit,
+            U_phi_dagger=state.de_initializer_circuit,
+        )
+
+
 class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
     """A quadratic signal phase propagator.
 
@@ -145,7 +229,7 @@ class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
         alpha, state = signal.alpha, signal.statevector
         deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
 
-        preparable_state = IdeallyPreparableStatevector.from_statevector(state)
+        preparable_state = BigUnitaryPreparableStatevector.from_statevector(state)
 
         propagator = GenericIterativeSampleBasedPhasePropagator.from_state(
             state=preparable_state, deltas=deltas

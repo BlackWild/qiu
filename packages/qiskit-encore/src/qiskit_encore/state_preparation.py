@@ -1,6 +1,6 @@
 """State preparation circuit with decomposition to elementary gates."""
 
-from qiskit.circuit import QuantumCircuit
+from qiskit.circuit import Gate, QuantumCircuit
 from qiskit.circuit.library import StatePreparation as QiskitStatePreparation
 from qiskit.quantum_info import Statevector
 

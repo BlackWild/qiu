@@ -3,7 +3,7 @@
 from collections.abc import Callable
 
 import numpy as np
-from qiskit.circuit import Instruction, QuantumCircuit
+from qiskit.circuit import Gate, Instruction, QuantumCircuit
 from qiskit.quantum_info import Operator, Statevector
 
 QiskitStatevectorDataType = (
