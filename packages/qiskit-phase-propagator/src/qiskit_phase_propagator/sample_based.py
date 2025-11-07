@@ -115,6 +115,96 @@ class GenericIterativeSampleBasedPhasePropagator(QuantumCircuit):
         )
 
 
+class GenericIterativeSampleBasedPhasePropagatorWithConstantDelta(QuantumCircuit):
+    num_of_cycles: int
+
+    def __init__(
+        self,
+        delta: float,
+        number_of_cycles: int,
+        U_phi: QuantumCircuit,
+        U_phi_dagger: QuantumCircuit,
+        take_snapshot: bool = False,
+    ) -> None:
+        n = U_phi.num_qubits
+
+        psi_reg = QuantumRegister(n, name=r"\psi")
+        phi_reg = QuantumRegister(n, name=r"\phi")
+        success_flag = ClassicalRegister(n, name="success_flag")
+
+        super().__init__(
+            psi_reg, phi_reg, success_flag, name="Iterative phase propagator"
+        )
+
+        self.num_of_cycles = number_of_cycles
+
+        with self.for_loop(range(number_of_cycles)) as j:  # type: ignore
+            # Step 1: initializing the |phi> register
+            self.compose(U_phi, phi_reg, inplace=True)
+
+            # Step 2: the partial phase operator
+            # Flag qubit computation
+            for i in range(psi_reg.size):
+                self.cx(
+                    phi_reg[psi_reg.size - 1 - i],
+                    psi_reg[psi_reg.size - 1 - i],
+                    ctrl_state=0,
+                )
+
+            # The application of the phase
+            self.mcp(delta, psi_reg[0:-1], psi_reg[-1])
+
+            # "Un-computing" the flag qubits
+            for i in range(psi_reg.size):
+                self.cx(phi_reg[i], psi_reg[i], ctrl_state=0)
+
+            # Step 3: partial measurement of the secondary register
+            self.compose(U_phi_dagger, phi_reg, inplace=True)
+            self.measure(phi_reg, success_flag)
+            self.reset(phi_reg)
+
+            with self.if_test((success_flag, 0)) as _else:
+                self.continue_loop()
+            with _else:
+                self.break_loop()
+
+        # for r in range(number_of_cycles):
+        #     with self.if_test((success_flag, 0)) as else_:  # noqa: F841, TODO: remove if not used
+        #         delta = deltas[r]
+
+        #         # Reset the secondary state to |0> after the Step 3 (partial measurement) of the previous cycle. We expect the result of the measurement to almost always be 0 and if it is not, the protocol has failed. Therefore, this resetting in not strictly required but we are doing it to still see the corrupt output even though an error occurs.
+        #         self.reset(phi_reg)
+
+        #         # Take a snapshot of the wavefunction at this point
+        #         if take_snapshot:
+        #             self.save_statevector(f"{r}")  # type: ignore
+
+        #     # with else_:
+        #     #     self.metadata["failed_at_cycle"] = r
+
+        #     # self.metadata = {
+        #     #     "num_of_cycles": number_of_cycles,
+        #     #     "n": n,
+        #     #     "deltas": deltas,
+        #     #     "phi_normalized": phi,
+        #     # }
+
+    @classmethod
+    def from_state(
+        cls,
+        state: PreparableStatevector,
+        delta: float,
+        number_of_cycles: int,
+    ) -> "GenericIterativeSampleBasedPhasePropagatorWithConstantDelta":
+        # Create an instance of the propagator
+        return GenericIterativeSampleBasedPhasePropagatorWithConstantDelta(
+            delta=delta,
+            number_of_cycles=number_of_cycles,
+            U_phi=state.initializer_circuit,
+            U_phi_dagger=state.de_initializer_circuit,
+        )
+
+
 # TODO: this construct enforces collapse of the secondary register to the zero states because the plan was to use it not inside the aer simulator but Statevector.from_instruction. The reason of doing this is that Statevector.from_instruction does not support measurements to the classical registers.
 class GenericIterativeSampleBasedPhasePropagatorWithAllClassicalRegisters(
     QuantumCircuit
@@ -227,12 +317,16 @@ class QuadraticSignalSampleBasedPhasePropagator(QuantumCircuit):
         )
 
         alpha, state = signal.alpha, signal.statevector
-        deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
+        deltas = slice_alpha_to_deltas_evenly(
+            alpha, max_delta
+        )  # TODO: simplify this even thingy
 
         preparable_state = BigUnitaryPreparableStatevector.from_statevector(state)
 
-        propagator = GenericIterativeSampleBasedPhasePropagator.from_state(
-            state=preparable_state, deltas=deltas
+        propagator = (
+            GenericIterativeSampleBasedPhasePropagatorWithConstantDelta.from_state(
+                state=preparable_state, delta=deltas[0], number_of_cycles=len(deltas)
+            )
         )
 
         self.num_of_cycles = propagator.num_of_cycles

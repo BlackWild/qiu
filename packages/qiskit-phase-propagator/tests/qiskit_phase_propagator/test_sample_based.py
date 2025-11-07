@@ -11,6 +11,7 @@ from qiskit_encore.preparable_statevector import BigUnitaryPreparableStatevector
 from qiskit_phase_propagator.sample_based import (
     ArbitrarySignalForSampleBasedProtocol,
     GenericIterativeSampleBasedPhasePropagator,
+    GenericIterativeSampleBasedPhasePropagatorWithConstantDelta,
     QuadraticSignalSampleBasedPhasePropagator,
 )
 from qiskit_pytest_helper.constants import FIDELITY_TOLERANCE
@@ -98,6 +99,69 @@ class TestGenericIterativeSampleBasedPhasePropagator:
         expected_output = np.exp(1j * alpha * np.abs(phi.data) ** 2) * psi.data
         assert np.isclose(
             state_fidelity(output_state.data.tolist(), expected_output), 1.0
+        )
+
+
+class TestGenericIterativeSampleBasedPhasePropagatorWithConstantDelta:
+    """Test the GenericIterativeSampleBasedPhasePropagatorWithConstantDelta."""
+
+    @settings(max_examples=10, deadline=None)
+    @given(
+        states=state_pairs_with_equal_qubits(),
+        delta=st.floats(min_value=0.0, max_value=0.1),
+        number_of_cycles=st.integers(min_value=1, max_value=10),
+    )
+    def test_correct_phase_application(
+        self,
+        states: tuple[Statevector, Statevector],
+        delta: float,
+        number_of_cycles: int,
+    ):
+        """Test that the GenericIterativeSampleBasedPhasePropagatorWithConstantDelta applies the correct phase."""
+        psi, phi = states
+        preparable_state = BigUnitaryPreparableStatevector.from_statevector(phi)
+        assert psi.num_qubits == phi.num_qubits == preparable_state.num_qubits
+        n = preparable_state.num_qubits
+
+        propagator = (
+            GenericIterativeSampleBasedPhasePropagatorWithConstantDelta.from_state(
+                preparable_state, delta, number_of_cycles
+            )
+        )
+
+        psi_reg = QuantumRegister(n, name=r"\psi")
+        phi_reg = QuantumRegister(n, name=r"\phi")
+        success_flag = ClassicalRegister(n, name="success_flag")
+
+        circuit = QuantumCircuit(psi_reg, phi_reg, success_flag)
+        circuit.initialize(psi.data.tolist(), psi_reg)
+        circuit.compose(propagator, circuit.qubits, circuit.clbits, inplace=True)
+        circuit.save_statevector()  # type: ignore
+
+        simulator = generate_aer_simulator()
+        transpiled = transpile(circuit)
+        job = simulator.run(transpiled, shots=1)
+        result = job.result()
+        counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
+        output_state_full = result.get_statevector(circuit)
+
+        # Check that all measured qubits are 0
+        assert counts[0] == 1
+
+        # Check the output state
+        traced = partial_trace(
+            output_state_full,
+            np.arange(
+                preparable_state.num_qubits, 2 * preparable_state.num_qubits
+            ).tolist(),
+        )
+        output_state = traced.to_statevector()
+        alpha = delta * number_of_cycles
+        expected_output = np.exp(1j * alpha * np.abs(phi.data) ** 2) * psi.data
+
+        assert (
+            state_fidelity(output_state, Statevector(expected_output))
+            >= 1.0 - FIDELITY_TOLERANCE
         )
 
 
