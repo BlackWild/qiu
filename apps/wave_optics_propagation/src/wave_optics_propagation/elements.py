@@ -33,7 +33,7 @@ def thin_transparent_plate_signal_generator(
     thickness: float,
     radius: float,
     wavelength: float,
-    scale_down: bool = True,
+    scale_down: bool,
 ) -> GenericQuantumSignal:
     """Generates a quantum signal for a finite transparent plate.
 
@@ -48,7 +48,7 @@ def thin_transparent_plate_signal_generator(
         A GenericQuantumSignal representing the phase shift introduced by the plate.
     """
     k_0 = 2 * np.pi / wavelength
-    phase_shift = -refractive_index * k_0 * thickness
+    phase_shift = -(refractive_index - 1) * k_0 * thickness
 
     if scale_down:
 

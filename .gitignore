@@ -19,3 +19,6 @@ wheels/
 
 # Temporary files, such as Jupyter Notebook tryouts
 temp
+
+# simulation results
+.result
