@@ -18,7 +18,7 @@ wheels/
 .DS_Store
 
 # Temporary files, such as Jupyter Notebook tryouts
-temp
+# temp
 
 # simulation results
 .result
