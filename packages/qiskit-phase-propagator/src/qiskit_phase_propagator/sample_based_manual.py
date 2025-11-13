@@ -96,8 +96,47 @@ def phase_propagate_state(
     psi_in: Statevector,
     deltas: npt.NDArray | list[float],
     phi: PreparableStatevector,
-):
+) -> Statevector:
     psi_current = psi_in
     for delta in deltas:
         psi_current = phase_propagate_one_cycle(psi_current, delta, phi)
     return psi_current
+
+
+def phase_propagate_state_with_arbitrary_signal(
+    psi_in: Statevector,
+    signal: ArbitrarySignalForSampleBasedProtocol,
+    max_delta: float,
+) -> Statevector:
+    alpha, state = signal.alpha, signal.statevector
+    deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
+
+    preparable_state = BigUnitaryPreparableStatevector.from_statevector(state)
+
+    psi_out = phase_propagate_state(psi_in, deltas, preparable_state)
+
+    return psi_out
+
+
+def slice_alpha_to_deltas_evenly(alpha: float, max_delta: float) -> npt.NDArray:
+    """Slices the alpha value into a list of deltas, each with a maximum value of max_delta.
+
+    Args:
+        alpha (float): The total alpha value to be sliced.
+        max_delta (float): The maximum value for each delta slice.
+
+    Returns:
+        npt.NDArray: An array of delta values that sum up to alpha.
+    """
+
+    # assure delta is positive
+    if max_delta <= 0:
+        raise ValueError("The max_delta must be positive.")
+
+    max_delta *= np.sign(alpha)
+
+    number_of_deltas = int(np.ceil(np.abs(alpha / max_delta)))
+    delta = alpha / number_of_deltas
+    deltas = delta * np.ones(number_of_deltas)
+
+    return deltas
