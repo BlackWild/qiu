@@ -37,6 +37,15 @@ class GenericQuantumSignal:
         """Returns the dimension of the signal."""
         return self.axis.dimension
 
+    @property
+    def normalized_data(self) -> npt.NDArray[np.float64]:
+        """Returns the normalized data of the quantum signal."""
+        data = self.data
+        norm = np.linalg.norm(data)
+        if norm == 0:
+            return data
+        return data / norm
+
 
 class PolynomialQuantumSignal:
     """A polynomial quantum signal."""

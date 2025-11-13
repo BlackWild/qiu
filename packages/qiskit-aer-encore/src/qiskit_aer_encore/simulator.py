@@ -3,7 +3,9 @@
 from qiskit_aer import AerError, AerSimulator
 
 
-def generate_aer_simulator(force_gpu: bool = False) -> AerSimulator:
+def generate_aer_simulator(
+    force_gpu: bool = False, force_cpu: bool = False
+) -> AerSimulator:
     """A function to prepare the Aer simulator with desired configuration. GPU accelerated in case available.
 
     Args:
@@ -13,7 +15,14 @@ def generate_aer_simulator(force_gpu: bool = False) -> AerSimulator:
         AerSimulator: The prepared Aer simulator.
     """
     available_devices: tuple[str] = AerSimulator().available_devices()  # type: ignore[]
-    if "GPU" in available_devices:
+
+    # if specifically asked for CPU, use CPU (note that cpu is always available)
+    if force_cpu:
+        simulator = AerSimulator(
+            device="CPU",
+        )
+    # if not, use GPU if available
+    elif "GPU" in available_devices:
         simulator = AerSimulator(
             device="GPU",
             # enable accelerating using Nvidia's cuStateVec library
@@ -23,8 +32,10 @@ def generate_aer_simulator(force_gpu: bool = False) -> AerSimulator:
             # distribute shots to different available GPUs
             batched_shots_gpu=True,
         )
+    # if gpu not available but was asked for, raise error
     elif force_gpu:
         raise AerError("Asked for GPU-accelerated simulation but no GPU was available.")
+    # otherwise, fallback to the default CPU choice
     else:
         simulator = AerSimulator(
             device="CPU",

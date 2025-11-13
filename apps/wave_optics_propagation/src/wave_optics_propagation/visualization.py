@@ -60,3 +60,5 @@ def plot_wavefunction(psi, plot_size_scale=1, normalize=True):
 
     ax1.set_ylabel(r"$|\psi(x)|$")
     ax2.set_ylabel(r"$\angle\psi(x)$")
+
+    return fig, (ax1, ax2)
