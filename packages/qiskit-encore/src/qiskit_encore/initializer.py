@@ -16,7 +16,6 @@ def ideal_state_initializer(state: Statevector) -> QuantumCircuit:
     Returns:
         QuantumCircuit: A quantum circuit that initializes a quantum state to the given state.
     """
-    print("Using ideal state initializer.")  # TODO: remove this
     circ = StatePreparationCircuit(state)
     return circ
 
@@ -36,7 +35,6 @@ def ideal_state_de_initializer(state: Statevector) -> QuantumCircuit:
 
 
 def generic_qiskit_state_initializer(state: Statevector) -> QuantumCircuit:
-    print("Using generic qiskit state initializer.")  # TODO: remove this
     qiskit_prep = QiskitStatePreparation(state)
     init_circ = QuantumCircuit(qiskit_prep.num_qubits)
     init_circ.append(qiskit_prep, init_circ.qubits)
@@ -44,7 +42,6 @@ def generic_qiskit_state_initializer(state: Statevector) -> QuantumCircuit:
 
 
 def big_unitary_matrix_state_initializer(state: Statevector) -> QuantumCircuit:
-    print("Using big matrix state initializer.")  # TODO: remove this
     qiskit_prep = QiskitStatePreparation(state)
     init_op = Operator(qiskit_prep)
     init_gate = init_op.to_instruction()
@@ -54,7 +51,6 @@ def big_unitary_matrix_state_initializer(state: Statevector) -> QuantumCircuit:
 
 
 def big_unitary_matrix_state_de_initializer(state: Statevector) -> QuantumCircuit:
-    print("Using big matrix state de-initializer.")  # TODO: remove this
     qiskit_prep = QiskitStatePreparation(state)
     inv = qiskit_prep.inverse()
     de_init_op = Operator(inv)

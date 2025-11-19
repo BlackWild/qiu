@@ -54,10 +54,8 @@ class PreparableStatevector(Statevector):
     def de_initializer_circuit(self) -> QuantumCircuit:
         """The de-initializer circuit for the quantum state."""
         if self.de_initializer_generator is not None:
-            print("direct de-initializer")
             return self.de_initializer_generator(self)
         else:
-            print("qiskit inverse de-initializer")
             return self.initializer_circuit.inverse()
 
 
