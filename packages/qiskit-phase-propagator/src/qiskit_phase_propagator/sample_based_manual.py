@@ -49,6 +49,7 @@ class PhaseProtocolUnitCycleWithoutMeasurement(QuantumCircuit):
         self.compose(U_phi_dagger, phi_reg, inplace=True)
 
 
+# TODO: maybe it is more performant if I just cut out the 0 projected part instead of using partial trace and stuff!
 def phase_propagate_one_cycle(
     psi_in: Statevector,
     delta: float,
