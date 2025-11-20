@@ -55,8 +55,7 @@ def thin_transparent_plate_signal_generator(
         def signal_function(x):
             return np.where(
                 np.abs(x - x_axis.sampling_window_length / 2)
-                <= radius
-                / 2,  # TODO: probably should change this to actually compare the distance from the optical axis which depends on the encoding we use among other things
+                <= radius,  # TODO: probably should change this to actually compare the distance from the optical axis which depends on the encoding we use among other things
                 np.mod(phase_shift, 2 * np.pi),
                 0,
             )
@@ -65,8 +64,7 @@ def thin_transparent_plate_signal_generator(
         def signal_function(x):
             return np.where(
                 np.abs(x - x_axis.sampling_window_length / 2)
-                <= radius
-                / 2,  # TODO: probably should change this to actually compare the distance from the optical axis which depends on the encoding we use among other things
+                <= radius,  # TODO: probably should change this to actually compare the distance from the optical axis which depends on the encoding we use among other things
                 phase_shift,
                 0,
             )

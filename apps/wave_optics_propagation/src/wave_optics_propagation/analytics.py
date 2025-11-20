@@ -1,4 +1,5 @@
 import numpy as np
+from qiskit_signals.quantum_axis import GenericAxis
 from qiskit_signals.quantum_signal import GenericQuantumSignal
 
 import wave_optics_propagation.BeamProp_Script as bs
@@ -66,7 +67,7 @@ def gaussian_wavefront_generator(w0, mean):
     return gaussian_func
 
 
-def gaussian_signal(x, w0, mean):
+def gaussian_signal(x: GenericAxis, w0: float, mean: float) -> GenericQuantumSignal:
     function = gaussian_wavefront_generator(w0, mean)
     signal = GenericQuantumSignal(x, function)
     return signal
