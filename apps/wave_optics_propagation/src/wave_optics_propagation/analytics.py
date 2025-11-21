@@ -36,7 +36,7 @@ def propagated_gaussian_wavefront_hitting_lens(w0, z, f, wavelength, refractive_
     w0 : float
         Initial beam waist (at z=0) in meters.
     z : float
-        Distance from the beam waist to the lens in meters.
+        Propagation distance after the lens in meters.
     f : float
         Focal length of the lens in meters.
     wavelength : float
@@ -51,7 +51,7 @@ def propagated_gaussian_wavefront_hitting_lens(w0, z, f, wavelength, refractive_
 
     mat1 = bs.lens(f)
     mat2 = bs.prop(z)
-    total_mat = bs.mult(mat1, mat2)
+    total_mat = bs.mult(mat2, mat1)  # unintuitive but correct order
 
     adjusted_wavelength = wavelength / refractive_index
 
