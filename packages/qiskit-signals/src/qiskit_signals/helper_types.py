@@ -16,6 +16,7 @@ class EncodingType(ExtendedEnum):
 
     TWOS_COMPLEMENT = "twos_complement"
     UNSIGNED = "unsigned"
+    TWOS_COMPLEMENT_MIRRORED = "twos_complement_mirrored"
 
 
 class AxisType(ExtendedEnum):
