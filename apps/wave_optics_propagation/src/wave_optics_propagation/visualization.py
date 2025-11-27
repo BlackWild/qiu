@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_wavefunction(psi, plot_size_scale=1, normalize=True):
+def plot_wavefunction(
+    psi, plot_size_scale=1, normalize=True, fixed_ylim: float | None = None
+):
     abs_part = np.abs(psi)
     if normalize:
         abs_part = abs_part / np.linalg.norm(abs_part)
@@ -36,6 +38,9 @@ def plot_wavefunction(psi, plot_size_scale=1, normalize=True):
     ax1.plot(abs_part)
     ax2.plot(phase_part)
     ax2.set_ylim(-np.pi - 0.3, np.pi + 0.3)
+
+    if fixed_ylim:
+        ax1.set_ylim(0, fixed_ylim)
 
     # ax1.set_xticks(x_axis, ket_labels, rotation=45)
     # ax2.set_xticks(x_axis, ket_labels, rotation=45)
