@@ -118,7 +118,6 @@ class BigUnitaryPreparableStatevector(PreparableStatevector):
         super().__init__(
             data,
             initializer_generator=big_unitary_matrix_state_initializer,
-            de_initializer_generator=big_unitary_matrix_state_de_initializer,
             normalize=normalize,
         )
 

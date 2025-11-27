@@ -62,6 +62,10 @@ def phase_propagate_one_cycle(
     # input_state = psi_in.tensor(ZERO_STATE)
     input_state = ZERO_STATE.tensor(psi_in)
 
+    # TODO: for each phi, this circuit is the same, so you have to cache it before the loop, probably you should actually just convert it to an operator if .evolve() is not caching it and doing the conversion every time
+
+    # TODO: I checked and it seems it does not cache actually and converts it to Operator every time, so you should do it manually outside the loop
+
     # Create the circuit for one cycle of the phase propagation protocol
     circuit = PhaseProtocolUnitCycleWithoutMeasurement(
         delta=delta,
@@ -69,8 +73,12 @@ def phase_propagate_one_cycle(
         U_phi_dagger=phi.de_initializer_circuit,
     )
 
+    print("There!")
+
     # Evolve the input state through the circuit
     psi_out_pre_projection = input_state.evolve(circuit)
+
+    # TODO: just directly extract the relevant part of the statevector instead of doing all this projection and tracing out
 
     # Post-select on the |0...0> outcome of the phi register measurement
     zero_state_projector = ZERO_STATE.to_operator()
@@ -98,10 +106,69 @@ def phase_propagate_state(
     deltas: npt.NDArray | list[float],
     phi: PreparableStatevector,
 ) -> Statevector:
-    psi_current = psi_in
+    psi_current = psi_in.copy()
+    print(f"number of cycles: {len(deltas)}")
     for delta in deltas:
         psi_current = phase_propagate_one_cycle(psi_current, delta, phi)
     return psi_current
+
+
+def phase_propagate_state_with_constant_delta(
+    psi_in: Statevector,
+    delta: float,
+    num_cycles: int,
+    phi: PreparableStatevector,
+) -> Statevector:
+    initializer = phi.initializer_circuit
+    print("There -2!")
+    de_initializer = phi.de_initializer_circuit
+    print("There -1!")
+
+    circuit = PhaseProtocolUnitCycleWithoutMeasurement(
+        delta=delta,
+        U_phi=initializer,
+        U_phi_dagger=de_initializer,
+    )
+    print("There 2!")
+    operator = Operator(circuit)
+
+    print("There 3!")
+
+    n = phi.num_qubits
+
+    # Prepare the input state |0...0> ⊗ |psi>
+    ZERO_STATE = Statevector.from_label("0" * n)
+
+    output_state = psi_in.copy()
+
+    for _ in range(num_cycles):
+        # input_state = psi_in.tensor(ZERO_STATE)
+        input_state = ZERO_STATE.tensor(psi_in)
+
+        # Evolve the input state through the circuit
+        psi_out_pre_projection = input_state.evolve(operator)
+
+        # TODO: just directly extract the relevant part of the statevector instead of doing all this projection and tracing out
+
+        # Post-select on the |0...0> outcome of the phi register measurement
+        zero_state_projector = ZERO_STATE.to_operator()
+
+        psi_out_post_projection = psi_out_pre_projection.evolve(
+            zero_state_projector, np.arange(n, 2 * n).tolist()
+        )
+
+        # renormalize
+        normalized_psi_out_post_projection = Statevector(
+            psi_out_post_projection.data / np.linalg.norm(psi_out_post_projection.data)
+        )
+
+        # obtain the reduced state by tracing out the phi register
+        trace_out_rho = partial_trace(
+            normalized_psi_out_post_projection, np.arange(n, 2 * n).tolist()
+        )  # REMARK: I do not really kno why (0, n) and not (n, 2 * n)
+        output_state = trace_out_rho.to_statevector()
+
+    return output_state
 
 
 def phase_propagate_state_with_arbitrary_signal(
@@ -114,7 +181,13 @@ def phase_propagate_state_with_arbitrary_signal(
 
     preparable_state = BigUnitaryPreparableStatevector.from_statevector(state)
 
-    psi_out = phase_propagate_state(psi_in, deltas, preparable_state)
+    print("Here!")
+
+    # psi_out = phase_propagate_state(psi_in, deltas, preparable_state)
+
+    psi_out = phase_propagate_state_with_constant_delta(
+        psi_in, deltas[0], len(deltas), preparable_state
+    )
 
     return psi_out
 
