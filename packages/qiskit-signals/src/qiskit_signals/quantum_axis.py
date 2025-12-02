@@ -36,6 +36,9 @@ class GenericAxis(ABC):
         elif self.encoding == EncodingType.TWOS_COMPLEMENT:
             half = 2 ** (self.num_qubits - 1)
             return np.concatenate((np.arange(0, half), np.arange(-half, 0)))
+        elif self.encoding == EncodingType.TWOS_COMPLEMENT_MIRRORED:
+            half = 2 ** (self.num_qubits - 1)
+            return np.concatenate((np.arange(-half, 0), np.arange(0, half)))
         else:
             raise ValueError(f"Unknown encoding type: {self.encoding}")
 

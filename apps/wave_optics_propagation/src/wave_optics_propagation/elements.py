@@ -11,7 +11,10 @@ from qiskit_signals.quantum_signal import (
 
 
 def radius_of_convex_planar_lens_as_a_func_of_z(
-    radius_of_curvature: float, z: float, lens_thickness: float
+    radius_of_curvature: float,
+    z: float,
+    lens_thickness: float,
+    fresnel_approximation: bool,
 ) -> float:
     """Calculates the radius of a convex planar lens as a function of z.
 
@@ -23,7 +26,11 @@ def radius_of_convex_planar_lens_as_a_func_of_z(
     Returns:
         The radius of the lens at distance z. If z is outside the lens thickness, returns 0.
     """
-    x = np.sqrt(radius_of_curvature**2 - (radius_of_curvature - z) ** 2)
+    if fresnel_approximation:
+        x = np.sqrt(2 * radius_of_curvature * z)
+    else:
+        x = np.sqrt(radius_of_curvature**2 - (radius_of_curvature - z) ** 2)
+
     return x if np.abs(z) < lens_thickness else 0
 
 
@@ -48,7 +55,7 @@ def thin_transparent_plate_signal_generator(
         A GenericQuantumSignal representing the phase shift introduced by the plate.
     """
     k_0 = 2 * np.pi / wavelength
-    phase_shift = -(refractive_index - 1) * k_0 * thickness
+    phase_shift = (refractive_index - 1) * k_0 * thickness
 
     if scale_down:
 
