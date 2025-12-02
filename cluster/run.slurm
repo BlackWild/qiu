@@ -1,14 +1,16 @@
 #!/bin/bash
 #SBATCH --job-name=wave_optics_propagation
-#SBATCH --time=04:00:00
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=128G
-#SBATCH --output=slurm-%j.out
+#SBATCH --time=24:00:00
+#SBATCH --partition=standard,long
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=200G
+#SBATCH --output=.result/slurm-%j.out
 
 # ──────────────────────────────────────────────────────────────
 # 1. Go to project directory (where .venv and uv.lock are)
 # ──────────────────────────────────────────────────────────────
 cd $SLURM_SUBMIT_DIR
+cd ..
 
 # ──────────────────────────────────────────────────────────────
 # 2. Activate the local .venv manually
@@ -20,9 +22,9 @@ source .venv/bin/activate
 # 3. (Optional) Ensure packages are installed within local .venv
 #    uv respects the active venv, so this installs locally
 # ──────────────────────────────────────────────────────────────
-uv sync        # or: uv pip install -r requirements.txt
+uv sync
 
 # ──────────────────────────────────────────────────────────────
 # 4. Run your Python script inside the venv using uv
 # ──────────────────────────────────────────────────────────────
-uv run python simulation_script.py
+uv run python apps/wave_optics_propagation/src/wave_optics_propagation/simulation_script.py
