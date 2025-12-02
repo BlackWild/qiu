@@ -14,6 +14,7 @@ from qiskit_encore.initializer import (
     big_unitary_matrix_state_initializer,
     generic_qiskit_state_initializer,
     ideal_state_initializer,
+    kernel_based_initializer,
 )
 
 
@@ -126,4 +127,27 @@ class BigUnitaryPreparableStatevector(PreparableStatevector):
         cls, statevector: Statevector
     ) -> "BigUnitaryPreparableStatevector":
         """Creates an IdealPreparableStatevector from a Qiskit Statevector."""
+        return cls(statevector.data, normalize=False)
+
+
+class KernelBasedPreparableStatevector(PreparableStatevector):
+    """A PreparableStatevector that uses kernel-based method for initialization."""
+
+    def __init__(
+        self,
+        data: npt.ArrayLike,
+        normalize: bool = False,
+    ) -> None:
+        """Initializes the KernelBasedPreparableStatevector with the given wavefunction."""
+        super().__init__(
+            data,
+            initializer_generator=kernel_based_initializer,
+            normalize=normalize,
+        )
+
+    @classmethod
+    def from_statevector(
+        cls, statevector: Statevector
+    ) -> "KernelBasedPreparableStatevector":
+        """Creates a KernelBasedPreparableStatevector from a Qiskit Statevector."""
         return cls(statevector.data, normalize=False)

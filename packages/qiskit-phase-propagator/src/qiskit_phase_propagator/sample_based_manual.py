@@ -5,8 +5,10 @@ import numpy.typing as npt
 from qiskit.circuit import ClassicalRegister, Gate, QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import StatePreparation
 from qiskit.quantum_info import Operator, Statevector, partial_trace
+from qiskit_encore.initializer import kernel_based_initializer_operator
 from qiskit_encore.preparable_statevector import (
     BigUnitaryPreparableStatevector,
+    KernelBasedPreparableStatevector,
     PreparableStatevector,
 )
 from qiskit_signals.sample_based_signal import ArbitrarySignalForSampleBasedProtocol
@@ -47,6 +49,34 @@ class PhaseProtocolUnitCycleWithoutMeasurement(QuantumCircuit):
 
         # Step 3: partial measurement of the secondary register
         self.compose(U_phi_dagger, phi_reg, inplace=True)
+
+
+class PhaseProtocolUnitCycleWithoutMeasurementAndStatePrep(QuantumCircuit):
+    def __init__(
+        self,
+        delta: float,
+        n: int,
+    ):
+        psi_reg = QuantumRegister(n, name=r"\psi")
+        phi_reg = QuantumRegister(n, name=r"\phi")
+
+        super().__init__(psi_reg, phi_reg, name="Phase propagator unit")
+
+        # Step 2: the partial phase operator
+        # Flag qubit computation
+        for i in range(psi_reg.size):
+            self.cx(
+                phi_reg[psi_reg.size - 1 - i],
+                psi_reg[psi_reg.size - 1 - i],
+                ctrl_state=0,
+            )
+
+        # The application of the phase
+        self.mcp(delta, psi_reg[0:-1], psi_reg[-1])
+
+        # "Un-computing" the flag qubits
+        for i in range(psi_reg.size):
+            self.cx(phi_reg[i], psi_reg[i], ctrl_state=0)
 
 
 # TODO: maybe it is more performant if I just cut out the 0 projected part instead of using partial trace and stuff!
@@ -119,22 +149,25 @@ def phase_propagate_state_with_constant_delta(
     num_cycles: int,
     phi: PreparableStatevector,
 ) -> Statevector:
-    initializer = phi.initializer_circuit
+    # TODO: make work and clean up
+
+    n = phi.num_qubits
+
+    # initializer = phi.initializer_circuit
+    initializer = kernel_based_initializer_operator(phi)
     print("There -2!")
-    de_initializer = phi.de_initializer_circuit
+    de_initializer = Operator(initializer.data.conj().T)
     print("There -1!")
 
-    circuit = PhaseProtocolUnitCycleWithoutMeasurement(
+    circuit = PhaseProtocolUnitCycleWithoutMeasurementAndStatePrep(
         delta=delta,
-        U_phi=initializer,
-        U_phi_dagger=de_initializer,
+        n=n,
     )
+
     print("There 2!")
     operator = Operator(circuit)
 
     print("There 3!")
-
-    n = phi.num_qubits
 
     # Prepare the input state |0...0> ⊗ |psi>
     ZERO_STATE = Statevector.from_label("0" * n)
@@ -145,8 +178,18 @@ def phase_propagate_state_with_constant_delta(
         # input_state = psi_in.tensor(ZERO_STATE)
         input_state = ZERO_STATE.tensor(psi_in)
 
+        # applying phi initializer
+        psi_before_phase_unit = input_state.evolve(
+            initializer, np.arange(n, 2 * n).tolist()
+        )
+
         # Evolve the input state through the circuit
-        psi_out_pre_projection = input_state.evolve(operator)
+        psi_after_phase_unit = psi_before_phase_unit.evolve(operator)
+
+        # applying phi de-initializer
+        psi_out_pre_projection = psi_after_phase_unit.evolve(
+            de_initializer, np.arange(n, 2 * n).tolist()
+        )
 
         # TODO: just directly extract the relevant part of the statevector instead of doing all this projection and tracing out
 
@@ -179,7 +222,7 @@ def phase_propagate_state_with_arbitrary_signal(
     alpha, state = signal.alpha, signal.statevector
     deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
 
-    preparable_state = BigUnitaryPreparableStatevector.from_statevector(state)
+    preparable_state = KernelBasedPreparableStatevector.from_statevector(state)
 
     print("Here!")
 
