@@ -1,7 +1,4 @@
-# %%
-JUPYTER_NAME = "3-lens-simulation-tuning-before-decoupling"
-
-# %%
+JUPYTER_NAME = "13-lens-simulation-after-classical-numerics"
 from datetime import datetime
 
 import matplotlib.pyplot as plt
@@ -54,50 +51,41 @@ from wave_optics_propagation.storage import (
 )
 from wave_optics_propagation.visualization import plot_wavefunction
 
-# %%
 experiment_datetime = datetime.now()
 
-# %% [markdown]
-# ---
-#
 
-# %% [markdown]
-# ### Initial parameters
-#
+### Initial parameters
 
-# %%
 # beam parameters
-vacuum_wavelength = 1e-6  # 1 micron
-beam_FWHM = 5e-3  # 5 mm
+# vacuum_wavelength = 1e-6
+vacuum_wavelength = 1e-6 * 1e1
+# beam_FWHM = 5e-3 * 1e-2
+beam_FWHM = 20e-3 * 1e-2
 
 # lens parameters
-focal_length = 200e-3  # 200 mm
-lens_diameter = 25e-3  # 25 mm
-refractive_index = 1.5
+focal_length = 200e-3 * 1e-2
+# lens_diameter = 25e-3
+# refractive_index = 1.5
+refractive_index = 1.25
 
 # free space propagation parameters
 propagation_after_lens = 1.5 * focal_length
 
 # simulation parameters
-transverse_length = 100e-3  # 100 mm, transverse simulation window
-num_of_steps_after_lens = 100
+transverse_length = 100e-3 * 1e-2  # transverse simulation window
+num_of_steps_after_lens = 10
 lens_slices = 10000
 num_qubits = 8
 max_delta = 0.01
 
-# %% [markdown]
-# ### Constants
-#
+# lens_diameter = 50e-3 * 1e-2
+lens_diameter = transverse_length
+### Constants
 
-# %%
 c = constants.c
 # hbar = constants.hbar
+### Derived parameters
 
-# %% [markdown]
-# ### Derived parameters
-#
-
-# %%
 # geometry
 radius_of_curvature = focal_length * (refractive_index - 1)
 lens_radius = lens_diameter / 2
@@ -118,50 +106,37 @@ gaussian_beam_waist = beam_FWHM / np.sqrt(2 * np.log(2))
 
 lens_slice_thickness = lens_thickness / lens_slices
 step_size_after_lens = propagation_after_lens / num_of_steps_after_lens
+print(delta_x, vacuum_wavelength)
+### Derived objects
 
-# %% [markdown]
-# ### Derived objects
-#
-
-# %%
 lens_slice_positions = (
     np.linspace(0, lens_thickness, lens_slices, endpoint=False)
     + lens_slice_thickness / 2
 )  # choosing the midpoint in each transverse slice
 
 lens_transverse_radii = [
-    radius_of_convex_planar_lens_as_a_func_of_z(radius_of_curvature, z, lens_thickness)
+    radius_of_convex_planar_lens_as_a_func_of_z(
+        radius_of_curvature, z, lens_thickness, fresnel_approximation=True
+    )
     for z in lens_slice_positions
 ]
 print(lens_thickness)
 print(lens_slice_positions)
 print(lens_transverse_radii)
+### Approximations checks
 
-# %% [markdown]
-# ### Approximations checks
-#
-
-# %%
 assert (
     gaussian_beam_waist > 10 * vacuum_wavelength
 )  # ensure paraxial approximation validity
+### Axes
 
-# %% [markdown]
-# ### Axes
-#
-
-# %%
 x_axis = PositionAxis(
     num_qubits=num_qubits, delta_x=delta_x, encoding=EncodingType.UNSIGNED
 )
 k_axis = AngularWavenumberAxis.from_position_axis(x_axis)
 # p_axis = MomentumAxis.from_position_axis(x_axis, hbar=hbar)
+### Initial beam profile
 
-# %% [markdown]
-# ### Initial beam profile
-#
-
-# %%
 # def psi_signal_function(x):
 #     norm_factor = 1 / (gaussian_sigma * (2 * constants.pi) ** 0.25)
 #     return norm_factor * np.exp(-(((x - gaussian_mean) / gaussian_beam_waist) ** 2))
@@ -190,13 +165,9 @@ psi = gaussian_signal(x_axis, gaussian_beam_waist, gaussian_mean)
 
 # print(np.linalg.norm(psi.data) ** 2)
 print(gaussian_beam_waist, beam_FWHM, gaussian_mean)
-plot_wavefunction(psi.data, normalize=False)
+# plot_wavefunction(psi.data, normalize=False)
+### Lens potentials
 
-# %% [markdown]
-# ### Lens potentials
-#
-
-# %%
 lens_signals = [
     thin_transparent_plate_signal_generator(
         x_axis=x_axis,
@@ -209,27 +180,17 @@ lens_signals = [
     for lens_radius in lens_transverse_radii
 ]
 
-# %%
-NUM_OF_PROFILES_TO_PLOT = 5
+# NUM_OF_PROFILES_TO_PLOT = 5
 
-for i in range(NUM_OF_PROFILES_TO_PLOT):
-    plot_wavefunction(lens_signals[i].data, normalize=False)
+# for i in range(NUM_OF_PROFILES_TO_PLOT):
+#     plot_wavefunction(lens_signals[i].data, normalize=False)
+# plot_wavefunction(lens_signals[-1].data, normalize=False)
+# sum_signal = np.zeros_like(lens_signals[0].data)
+# for signal in lens_signals:
+#     sum_signal += signal.data
 
-# %%
-plot_wavefunction(lens_signals[-1].data, normalize=False)
+# plot_wavefunction(sum_signal, normalize=False)
 
-# %%
-sum_signal = np.zeros_like(lens_signals[0].data)
-for signal in lens_signals:
-    sum_signal += signal.data
-
-plot_wavefunction(sum_signal, normalize=False)
-
-# %% [markdown]
-# ---
-#
-
-# %%
 current_state = Statevector(psi.data / np.linalg.norm(psi.data))
 snapshots = dict([])
 
@@ -259,7 +220,6 @@ for i, lens_radius in enumerate(lens_transverse_radii):
 
     else:
         print("Skipped the lens slice because it is a flat phase.")
-        break
 
     propagator_signal = free_space_signal_generator(
         k_axis=k_axis,
@@ -304,8 +264,6 @@ for i in range(num_of_steps_after_lens):
     snapshots[f"step_after_lens_{i + 1}"] = current_state
 
 snapshots["final"] = current_state
-
-# %%
 save_numpy_results(snapshots, experiment_datetime, wrapper_folder=JUPYTER_NAME)
 initial_parameters = {
     "timestamp": experiment_datetime.isoformat(),
@@ -326,3 +284,89 @@ initial_parameters = {
 save_initial_parameters(
     initial_parameters, experiment_datetime, wrapper_folder=JUPYTER_NAME
 )
+# data = snapshots
+
+
+# # def process_statevector(statevector):
+# #     return statevector
+# def process_statevector(statevector):
+#     """Process the statevector to extract position probabilities."""
+#     # n = statevector.num_qubits
+#     # rho = partial_trace(statevector, np.arange(int(n // 2), n).tolist())
+#     # reduced_state = rho.to_statevector()
+
+#     # return reduced_state
+#     return statevector
+
+
+# initial_statevector = process_statevector(data[f"step_{0}"])
+
+# lens_statevectors = [
+#     process_statevector(data[f"step_lens_{i}"]) if f"step_lens_{i}" in data else None
+#     for i in range(lens_slices)
+# ]
+# after_lens_statevectors = [
+#     process_statevector(data[f"step_after_lens_{i + 1}"])
+#     if f"step_after_lens_{i + 1}" in data
+#     else None
+#     for i in range(num_of_steps_after_lens)
+# ]
+# print("Plotting initial state")
+# plot_wavefunction(initial_statevector, plot_size_scale=1, normalize=True)
+# plt.suptitle("Initial state")
+# plt.show()
+
+# NUM_OF_LENS_SLICES_TO_PLOT = 5
+# NUM_OF_AFTER_LENS_SLICES_TO_PLOT = 5
+
+# for i, statevector in enumerate(lens_statevectors):
+#     if statevector is None:
+#         continue
+#     if (
+#         total_lenses_simulated > NUM_OF_LENS_SLICES_TO_PLOT
+#         and i % (total_lenses_simulated // NUM_OF_LENS_SLICES_TO_PLOT) != 0
+#     ):
+#         continue
+
+#     print(f"Plotting lens slice {i + 1}/{lens_slices}")
+
+#     fig, (ax1, ax2) = plot_wavefunction(statevector, plot_size_scale=1, normalize=True)
+
+#     z = lens_slice_thickness * (i + 1)
+#     R_z, w_z = propagated_gaussian_wavefront_hitting_lens(
+#         gaussian_beam_waist, z, focal_length, vacuum_wavelength, refractive_index
+#     )
+#     signal = gaussian_signal(x_axis, w_z, gaussian_mean)
+#     ax1.plot(np.abs(signal.normalized_data), "r--", label="thin lens analytical")
+
+#     plt.suptitle(f"After lens slice {i + 1}/{lens_slices}")
+#     plt.show()
+
+# for i, statevector in enumerate(after_lens_statevectors):
+#     if statevector is None:
+#         continue
+#     if i % (num_of_steps_after_lens // NUM_OF_AFTER_LENS_SLICES_TO_PLOT) != 0:
+#         continue
+
+#     print(f"Plotting free space step {i + 1}/{num_of_steps_after_lens}")
+#     fig, (ax1, ax2) = plot_wavefunction(statevector, plot_size_scale=1, normalize=True)
+
+#     z = step_size_after_lens * (i + 1) + lens_thickness
+#     R_z, w_z = free_space_propagated_gaussian_wavefront(
+#         gaussian_beam_waist, z, vacuum_wavelength, refractive_index=1.0
+#     )
+#     signal = gaussian_signal(x_axis, w_z, gaussian_mean)
+#     ax1.plot(np.abs(signal.normalized_data), "y--", label="free space analytical")
+
+#     R_z, w_z = propagated_gaussian_wavefront_hitting_lens(
+#         gaussian_beam_waist,
+#         z,
+#         focal_length,
+#         vacuum_wavelength,
+#         refractive_index,
+#     )
+#     signal = gaussian_signal(x_axis, w_z, gaussian_mean)
+#     ax1.plot(np.abs(signal.normalized_data), "r--", label="thin lens analytical")
+
+#     plt.suptitle(f"After free space step {i + 1}/{num_of_steps_after_lens}")
+#     plt.show()

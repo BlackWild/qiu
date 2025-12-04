@@ -149,7 +149,7 @@ def phase_propagate_state_with_constant_delta(
     num_cycles: int,
     phi: PreparableStatevector,
 ) -> Statevector:
-    # TODO: make work and clean up
+    # TODO: make work and clean up prints
 
     n = phi.num_qubits
 
@@ -165,7 +165,7 @@ def phase_propagate_state_with_constant_delta(
     )
 
     print("There 2!")
-    operator = Operator(circuit)
+    # operator = Operator(circuit)
 
     print("There 3!")
 
@@ -177,39 +177,57 @@ def phase_propagate_state_with_constant_delta(
     for _ in range(num_cycles):
         # input_state = psi_in.tensor(ZERO_STATE)
         input_state = ZERO_STATE.tensor(psi_in)
+        print("11")
 
         # applying phi initializer
         psi_before_phase_unit = input_state.evolve(
             initializer, np.arange(n, 2 * n).tolist()
         )
 
+        print("12")
+
         # Evolve the input state through the circuit
-        psi_after_phase_unit = psi_before_phase_unit.evolve(operator)
+        psi_after_phase_unit = psi_before_phase_unit.evolve(circuit)
+
+        print("13")
 
         # applying phi de-initializer
         psi_out_pre_projection = psi_after_phase_unit.evolve(
             de_initializer, np.arange(n, 2 * n).tolist()
         )
 
+        print("14")
+
         # TODO: just directly extract the relevant part of the statevector instead of doing all this projection and tracing out
 
         # Post-select on the |0...0> outcome of the phi register measurement
         zero_state_projector = ZERO_STATE.to_operator()
 
+        print("15")
+
         psi_out_post_projection = psi_out_pre_projection.evolve(
             zero_state_projector, np.arange(n, 2 * n).tolist()
         )
+
+        print("16")
 
         # renormalize
         normalized_psi_out_post_projection = Statevector(
             psi_out_post_projection.data / np.linalg.norm(psi_out_post_projection.data)
         )
 
+        print("17")
+
         # obtain the reduced state by tracing out the phi register
         trace_out_rho = partial_trace(
             normalized_psi_out_post_projection, np.arange(n, 2 * n).tolist()
         )  # REMARK: I do not really kno why (0, n) and not (n, 2 * n)
+
+        print("18")
+
         output_state = trace_out_rho.to_statevector()
+
+        print("19")
 
     return output_state
 

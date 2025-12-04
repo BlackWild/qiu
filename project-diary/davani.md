@@ -1,5 +1,11 @@
 # Project Diary
 
+### Log 02.12.2025
+
+- For some reason, transforming a `QuantumCircuit` to and an `Operator` is super inefficient and takes a lot of memory+time.
+- Avoid that!
+- But `evolve()` using a quantum circuit seems to work much faster.
+
 ### Log 15.10.2025
 
 - make sure to use `norm="ortho"` in all Fourier transforms. This ensures that the Fourier transform is unitary and preserves the norm of the state vector.

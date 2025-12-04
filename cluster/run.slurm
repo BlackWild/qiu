@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=wave_optics_propagation
-#SBATCH --time=24:00:00
+#SBATCH --time=120:00:00
 #SBATCH --partition=standard,long
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=200G
