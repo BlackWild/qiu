@@ -1,5 +1,14 @@
 # Project Diary
 
+### Log 05.12.2025
+
+- To make CUDA work locally in this project, I had to
+  - Add `module load nvidia/x.x.x` to the `.bashrc` file to load the ENVs
+  - Also super duper important was that I needed to exactly match the version with the version I get from `nvidia-smi` inside the compute node UP TO THE EXACT DIGITS and not just `11.x.x` vs `12.x.x`.
+  - Then I added a local `.env` file to the repo to make sure vscode reads it.
+  - But that did not really fix the issue for the interactive sessions and I had to work with ChatGPT to create a python kernel specification that loads the ENV from the system.
+  - Now it works.
+
 ### Log 02.12.2025
 
 - For some reason, transforming a `QuantumCircuit` to and an `Operator` is super inefficient and takes a lot of memory+time.
