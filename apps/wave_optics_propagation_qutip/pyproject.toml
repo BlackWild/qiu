@@ -6,13 +6,11 @@ readme = "README.md"
 authors = [
     { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "qutip>=5.2.2",
+    "qutip-cuquantum[cuda12]>=0.1.2",
 ]
-
-[project.scripts]
-wave-optics-propagation-qutip = "wave_optics_propagation_qutip:main"
 
 [build-system]
 requires = ["uv_build>=0.8.22,<0.9.0"]
