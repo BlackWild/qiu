@@ -1,13 +1,20 @@
 # Project Diary
 
+### Log 08.12.2025
+
+- The GPU edition of QuTiP does not work in my case because it works on top of `CuOperator` which only supports square matrices. Thus I cannot use it for matrix\*ket operations.
+
 ### Log 05.12.2025
 
 - To make CUDA work locally in this project, I had to
+
   - Add `module load nvidia/x.x.x` to the `.bashrc` file to load the ENVs
   - Also super duper important was that I needed to exactly match the version with the version I get from `nvidia-smi` inside the compute node UP TO THE EXACT DIGITS and not just `11.x.x` vs `12.x.x`.
   - Then I added a local `.env` file to the repo to make sure vscode reads it.
   - But that did not really fix the issue for the interactive sessions and I had to work with ChatGPT to create a python kernel specification that loads the ENV from the system.
   - Now it works.
+
+  - Also the backtick issue where vscode wrote `` `' `` whenever I hit the `` ` `` key is fixed by not forcing `markdown_latex_combined` as the language mode of `.md` files since it needs tha LatTeX Workshop extension which is not necessarily installed in all workspaces, especially remote ones.
 
 ### Log 02.12.2025
 
