@@ -11,11 +11,11 @@ from qiskit_encore.preparable_statevector import (
     PreparableStatevector,
 )
 from qiskit_signals.sample_based_signal import ArbitrarySignalForSampleBasedProtocol
+from tqdm import tqdm
 
-
-def dm_to_ket(rho):
-    eigvals, eigkets = rho.eigenstates()
-    return eigkets[np.argmax(eigvals)]
+# def dm_to_ket(rho):
+#     eigvals, eigkets = rho.eigenstates()
+#     return eigkets[np.argmax(eigvals)]
 
 
 def apply_phase_protocol(
@@ -40,7 +40,7 @@ def apply_phase_protocol(
 
     print(f"number of cycles: {num_cycles}")
     current_state = psi_in.copy()
-    for _ in range(num_cycles):
+    for _ in tqdm(range(num_cycles)):
         # TODO: remove initializers and manually tensor product the phi state, the same should happen to the projection step, do not start from the zero state
 
         current_state = qt.tensor(phi, current_state)
@@ -57,12 +57,13 @@ def apply_phase_protocol(
         current_state = temp_state
 
         # projection
-        operator = qt.tensor(phi.proj(), qt.qeye(N))
+        projector = qt.basis(N, 0) @ phi.dag()
+        operator = qt.tensor(projector, qt.qeye(N))
         current_state = operator @ current_state
 
-        rho = current_state.ptrace(1)
+        # rho = current_state.ptrace(1)
 
-        current_state = dm_to_ket(rho)
+        # current_state = dm_to_ket(rho)
 
         # TODO: just directly extract the relevant part of the statevector instead of doing all this projection and tracing out
 
@@ -77,8 +78,8 @@ def apply_phase_protocol(
         # print(test.dims)
         # psi_out_traced_phi = psi_out_post_projection.proj().ptrace(0)
         # print(psi_out_traced_phi.dims)
-        # state_array = current_state[0:N]
-        # current_state = qt.Qobj(state_array)
+        state_array = current_state[0:N]
+        current_state = qt.Qobj(state_array)
 
         # renormalize
         current_state = current_state.unit()

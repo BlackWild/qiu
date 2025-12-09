@@ -5,6 +5,7 @@ import numpy as np
 import qutip as qt
 import qutip_cuquantum as qtc
 from cuquantum.densitymat import WorkStream
+from tqdm import tqdm
 
 from wave_optics_propagation_qutip.helpers import apply_phase_protocol
 
@@ -89,12 +90,11 @@ experiment_datetime = datetime.now()
 
 # beam parameters
 # vacuum_wavelength = 1e-6
-vacuum_wavelength = 1e-6 * 1e1
-# beam_FWHM = 5e-3 * 1e-2
-beam_FWHM = 20e-3 * 1e-2
+vacuum_wavelength = 1e-6
+beam_FWHM = 20e-3 * 1e-3
 
 # lens parameters
-focal_length = 200e-3 * 1e-2
+focal_length = 200e-3 * 1e-3
 # lens_diameter = 25e-3
 # refractive_index = 1.5
 refractive_index = 1.25
@@ -103,13 +103,13 @@ refractive_index = 1.25
 propagation_after_lens = 1.5 * focal_length
 
 # simulation parameters
-transverse_length = 100e-3 * 1e-2  # transverse simulation window
+transverse_length = 100e-3 * 1e-3  # transverse simulation window
 num_of_steps_after_lens = 10
 lens_slices = 100
 num_qubits = 8
-max_delta = 0.1
+max_delta = 0.01
 
-# lens_diameter = 50e-3 * 1e-2
+# lens_diameter = 50e-3 * 1e-3
 lens_diameter = transverse_length
 ### Constants
 
