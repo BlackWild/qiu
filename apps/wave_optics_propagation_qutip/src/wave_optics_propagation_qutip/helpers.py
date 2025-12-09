@@ -13,6 +13,11 @@ from qiskit_encore.preparable_statevector import (
 from qiskit_signals.sample_based_signal import ArbitrarySignalForSampleBasedProtocol
 
 
+def dm_to_ket(rho):
+    eigvals, eigkets = rho.eigenstates()
+    return eigkets[np.argmax(eigvals)]
+
+
 def apply_phase_protocol(
     psi_in: qt.Qobj,
     signal: ArbitrarySignalForSampleBasedProtocol,
@@ -23,24 +28,22 @@ def apply_phase_protocol(
     deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
 
     # create the initializer for the state
-    U_phi = householder_unitary(state)
-    U_phi_dagger = U_phi.dag()
+    # U_phi = householder_unitary(state)
+    # U_phi_dagger = U_phi.dag()
 
     # define tools
     N = state.dim
     delta = deltas[0]  # deltas are all the same here
-    ZERO_STATE = qt.basis(N, 0)
+    # ZERO_STATE = qt.basis(N, 0)
     num_cycles = len(deltas)
+    phi = qt.Qobj(state.data)
 
     print(f"number of cycles: {num_cycles}")
     current_state = psi_in.copy()
     for _ in range(num_cycles):
-        # input_state = psi_in.tensor(ZERO_STATE)
-        current_state = qt.tensor(ZERO_STATE, current_state)
+        # TODO: remove initializers and manually tensor product the phi state, the same should happen to the projection step, do not start from the zero state
 
-        # applying phi initializer
-        operator = qt.tensor(U_phi, qt.qeye(N))
-        current_state = operator @ current_state
+        current_state = qt.tensor(phi, current_state)
 
         # Evolve the input state through the circuit
         # TODO: this might be the tricky part, but the operator I think was actually just diagonal so we do not really need to build the full circuit here
@@ -53,9 +56,13 @@ def apply_phase_protocol(
             temp_state += operator @ current_state
         current_state = temp_state
 
-        # applying phi de-initializer
-        operator = qt.tensor(U_phi_dagger, qt.qeye(N))
+        # projection
+        operator = qt.tensor(phi.proj(), qt.qeye(N))
         current_state = operator @ current_state
+
+        rho = current_state.ptrace(1)
+
+        current_state = dm_to_ket(rho)
 
         # TODO: just directly extract the relevant part of the statevector instead of doing all this projection and tracing out
 
@@ -70,8 +77,8 @@ def apply_phase_protocol(
         # print(test.dims)
         # psi_out_traced_phi = psi_out_post_projection.proj().ptrace(0)
         # print(psi_out_traced_phi.dims)
-        state_array = current_state[0:N]
-        current_state = qt.Qobj(state_array)
+        # state_array = current_state[0:N]
+        # current_state = qt.Qobj(state_array)
 
         # renormalize
         current_state = current_state.unit()

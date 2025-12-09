@@ -105,7 +105,7 @@ propagation_after_lens = 1.5 * focal_length
 # simulation parameters
 transverse_length = 100e-3 * 1e-2  # transverse simulation window
 num_of_steps_after_lens = 10
-lens_slices = 1000
+lens_slices = 100
 num_qubits = 8
 max_delta = 0.1
 
@@ -233,7 +233,7 @@ current_state = qt.Qobj(psi.data / np.linalg.norm(psi.data))
 
 snapshots = dict([])
 
-snapshots[f"step_{0}"] = current_state
+snapshots[f"step_{0}"] = current_state.full()
 
 inside_lens_propagation_remained = lens_thickness
 total_lenses_simulated = 0
@@ -272,7 +272,7 @@ for i, lens_radius in enumerate(lens_transverse_radii):
     # current_state = current_state.evolve(propagator)
     # inside_lens_propagation_remained -= lens_slice_thickness
 
-    snapshots[f"step_lens_{i}"] = current_state
+    snapshots[f"step_lens_{i}"] = current_state.full()
 
 # # remaining propagation once the lens slice grows larger than the simulation window
 # while inside_lens_propagation_remained > 0:
