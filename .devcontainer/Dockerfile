@@ -24,6 +24,10 @@ ENV RUFF_CACHE_DIR=/vscode/.cache/ruff
 RUN apt-get update && \
   apt-get install -y git
 
+# install build tools, needed for some python packages
+RUN apt-get update && \
+  apt-get install -y build-essential
+
 # Clean up
 RUN apt-get clean && \
   rm -rf /var/lib/apt/lists/*
