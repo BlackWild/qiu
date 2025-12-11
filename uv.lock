@@ -16,6 +16,7 @@ members = [
     "qiskit-pytest-helper",
     "qiskit-signals",
     "wave-optics-propagation",
+    "wave-optics-propagation-enhanced",
     "wave-optics-propagation-qutip",
 ]
 
@@ -1966,6 +1967,17 @@ wheels = [
 name = "wave-optics-propagation"
 version = "0.1.0"
 source = { editable = "apps/wave_optics_propagation" }
+
+[[package]]
+name = "wave-optics-propagation-enhanced"
+version = "0.1.0"
+source = { editable = "apps/wave_optics_propagation_enhanced" }
+dependencies = [
+    { name = "qutip" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "qutip", specifier = ">=5.2.2" }]
 
 [[package]]
 name = "wave-optics-propagation-qutip"
