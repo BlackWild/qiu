@@ -38,9 +38,14 @@ def apply_phase_protocol(
     num_cycles = len(deltas)
     phi = qt.Qobj(state.data)
 
-    print(f"number of cycles: {num_cycles}")
+    # print(f"number of cycles: {num_cycles}")
     current_state = psi_in.copy()
-    for _ in tqdm(range(num_cycles)):
+
+    tqdm_loop = tqdm(
+        range(num_cycles), desc="Cycles for a lens slice", total=num_cycles, leave=False
+    )
+
+    for _ in tqdm_loop:
         # TODO: remove initializers and manually tensor product the phi state, the same should happen to the projection step, do not start from the zero state
 
         current_state = qt.tensor(phi, current_state)

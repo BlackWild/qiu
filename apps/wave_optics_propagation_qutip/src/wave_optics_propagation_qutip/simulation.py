@@ -105,9 +105,10 @@ propagation_after_lens = 1.5 * focal_length
 # simulation parameters
 transverse_length = 100e-3 * 1e-3  # transverse simulation window
 num_of_steps_after_lens = 10
-lens_slices = 100
-num_qubits = 8
-max_delta = 0.01
+lens_slices = 10000
+num_qubits = 6
+max_delta = 0.2
+lens_reverse_order = True
 
 # lens_diameter = 50e-3 * 1e-3
 lens_diameter = transverse_length
@@ -151,9 +152,9 @@ lens_transverse_radii = [
     )
     for z in lens_slice_positions
 ]
-print(lens_thickness)
-print(lens_slice_positions)
-print(lens_transverse_radii)
+# print(lens_thickness)
+# print(lens_slice_positions)
+# print(lens_transverse_radii)
 ### Approximations checks
 
 assert (
@@ -195,7 +196,7 @@ k_axis = AngularWavenumberAxis.from_position_axis(x_axis)
 psi = gaussian_signal(x_axis, gaussian_beam_waist, gaussian_mean)
 
 # print(np.linalg.norm(psi.data) ** 2)
-print(gaussian_beam_waist, beam_FWHM, gaussian_mean)
+# print(gaussian_beam_waist, beam_FWHM, gaussian_mean)
 # plot_wavefunction(psi.data, normalize=False)
 
 ### Lens potentials
@@ -238,19 +239,25 @@ snapshots[f"step_{0}"] = current_state.full()
 inside_lens_propagation_remained = lens_thickness
 total_lenses_simulated = 0
 ### Lens
-for i, lens_radius in enumerate(lens_transverse_radii):
-    print(f"Doing lens slice {i + 1}/{lens_slices}")
+tqdm_loop = tqdm(
+    enumerate(lens_transverse_radii),
+    desc="Lens Slices",
+    total=lens_slices,
+)
+for i, lens_radius in tqdm_loop:
+    # print(f"Doing lens slice {i + 1}/{lens_slices}")
 
-    lens_signal = lens_signals[i]
+    lens_signal = lens_signals[-i] if lens_reverse_order else lens_signals[i]
+
     sample_based_lens_signal = (
         ArbitrarySignalForSampleBasedProtocol.from_generic_signal(lens_signal)
     )
 
     if not np.isclose(np.std(sample_based_lens_signal.data), 0):
-        print(f"max value in signal: {np.max(np.abs(sample_based_lens_signal.data))}")
-        print(
-            f"sum of amplitude square: {np.sum(np.abs(sample_based_lens_signal.data) ** 2)}"
-        )
+        # print(f"max value in signal: {np.max(np.abs(sample_based_lens_signal.data))}")
+        # print(
+        #     f"sum of amplitude square: {np.sum(np.abs(sample_based_lens_signal.data) ** 2)}"
+        # )
 
         current_state = apply_phase_protocol(
             current_state, sample_based_lens_signal, max_delta
@@ -259,51 +266,67 @@ for i, lens_radius in enumerate(lens_transverse_radii):
         total_lenses_simulated += 1
 
     else:
-        print("Skipped the lens slice because it is a flat phase.")
+        pass
+        # print("Skipped the lens slice because it is a flat phase.")
 
-    # propagator_signal = free_space_signal_generator(
-    #     k_axis=k_axis,
-    #     delta_t=lens_slice_thickness / c,
-    #     wavelength=vacuum_wavelength,
-    #     c=constants.c,
-    # )
-    # propagator = MomentumDomainEvolutionQuadratic(quadratic_signal=propagator_signal)
+    propagator_signal = free_space_signal_generator(
+        k_axis=k_axis,
+        delta_t=lens_slice_thickness / c,
+        wavelength=vacuum_wavelength,
+        c=constants.c,
+    )
+    propagator = MomentumDomainEvolutionQuadratic(quadratic_signal=propagator_signal)
 
-    # current_state = current_state.evolve(propagator)
-    # inside_lens_propagation_remained -= lens_slice_thickness
+    # TODO: this is for now the easiest way to do it which is to fall back to qiskit for the evolution in the momentum domain,
+    qiskit_statevector = Statevector(current_state.full().flatten())
+    evolved_statevector = qiskit_statevector.evolve(propagator)
+    current_state = qt.Qobj(evolved_statevector.data)
+
+    inside_lens_propagation_remained -= lens_slice_thickness
 
     snapshots[f"step_lens_{i}"] = current_state.full()
 
-# # remaining propagation once the lens slice grows larger than the simulation window
-# while inside_lens_propagation_remained > 0:
-#     propagator_signal = free_space_signal_generator(
-#         k_axis=k_axis,
-#         delta_t=inside_lens_propagation_remained / c,
-#         wavelength=reduced_wavelength,
-#         c=constants.c,
-#     )
-#     propagator = MomentumDomainEvolutionQuadratic(quadratic_signal=propagator_signal)
+# remaining propagation once the lens slice grows larger than the simulation window
+while inside_lens_propagation_remained > 0:
+    propagator_signal = free_space_signal_generator(
+        k_axis=k_axis,
+        delta_t=inside_lens_propagation_remained / c,
+        wavelength=reduced_wavelength,
+        c=constants.c,
+    )
+    propagator = MomentumDomainEvolutionQuadratic(quadratic_signal=propagator_signal)
 
-#     current_state = current_state.evolve(propagator)
-#     inside_lens_propagation_remained -= inside_lens_propagation_remained
+    qiskit_statevector = Statevector(current_state.full().flatten())
+    evolved_statevector = qiskit_statevector.evolve(propagator)
+    current_state = qt.Qobj(evolved_statevector.data)
 
-# snapshots["after_lens"] = current_state
+    inside_lens_propagation_remained -= inside_lens_propagation_remained
 
-# for i in range(num_of_steps_after_lens):
-#     print(f"Doing free space step {i + 1}/{num_of_steps_after_lens}")
+snapshots["after_lens"] = current_state.full()
 
-#     propagator_signal = free_space_signal_generator(
-#         k_axis=k_axis,
-#         delta_t=step_size_after_lens / c,
-#         wavelength=vacuum_wavelength,
-#         c=constants.c,
-#     )
-#     propagator = MomentumDomainEvolutionQuadratic(quadratic_signal=propagator_signal)
+tqdm_loop = tqdm(
+    range(num_of_steps_after_lens),
+    desc="Free space steps",
+    total=num_of_steps_after_lens,
+)
+for i in tqdm_loop:
+    # print(f"Doing free space step {i + 1}/{num_of_steps_after_lens}")
 
-#     current_state = current_state.evolve(propagator)
-#     snapshots[f"step_after_lens_{i + 1}"] = current_state
+    propagator_signal = free_space_signal_generator(
+        k_axis=k_axis,
+        delta_t=step_size_after_lens / c,
+        wavelength=vacuum_wavelength,
+        c=constants.c,
+    )
+    propagator = MomentumDomainEvolutionQuadratic(quadratic_signal=propagator_signal)
 
-# snapshots["final"] = current_state
+    qiskit_statevector = Statevector(current_state.full().flatten())
+    evolved_statevector = qiskit_statevector.evolve(propagator)
+    current_state = qt.Qobj(evolved_statevector.data)
+
+    snapshots[f"step_after_lens_{i + 1}"] = current_state.full()
+
+snapshots["final"] = current_state.full()
 
 # %%
 
@@ -324,7 +347,10 @@ initial_parameters = {
     "num_qubits": num_qubits,
     "max_delta": max_delta,
     "total_lenses_simulated": total_lenses_simulated,
+    "reverse_order": lens_reverse_order,
 }
 save_initial_parameters(
     initial_parameters, experiment_datetime, wrapper_folder=JUPYTER_NAME
 )
+
+print(f"Simulation complete. ID: {experiment_datetime.isoformat()}")
