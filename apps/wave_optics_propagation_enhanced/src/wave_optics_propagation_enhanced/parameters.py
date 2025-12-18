@@ -12,6 +12,7 @@ from wave_optics_propagation.elements import (
     radius_of_convex_planar_lens_as_a_func_of_z,
     thin_transparent_plate_signal_generator,
 )
+from wave_optics_propagation.storage import load_initial_parameters
 
 
 class ExperimentParameters:
@@ -174,3 +175,26 @@ class ExperimentParameters:
         for signal in self.lens_signals:
             sum_signal += signal.data
         return sum_signal
+
+    @classmethod
+    def from_file(cls, path: str) -> "ExperimentParameters":
+        initial_parameters = load_initial_parameters(path)
+
+        return cls(
+            vacuum_wavelength=initial_parameters["vacuum_wavelength"],
+            beam_FWHM=initial_parameters["beam_FWHM"],
+            focal_length=initial_parameters["focal_length"],
+            refractive_index=initial_parameters["refractive_index"],
+            propagation_after_lens=initial_parameters["propagation_after_lens"],
+            transverse_length=initial_parameters["transverse_length"],
+            num_of_steps_after_lens=initial_parameters["num_of_steps_after_lens"],
+            lens_slices=initial_parameters["lens_slices"],
+            num_qubits=initial_parameters["num_qubits"],
+            max_delta=initial_parameters["max_delta"],
+            lens_reverse_order=initial_parameters["lens_reverse_order"],
+            fresnel_approximation=initial_parameters["fresnel_approximation"],
+            scale_down_phases=initial_parameters["scale_down_phases"],
+            experiment_datetime=datetime.fromisoformat(
+                initial_parameters["experiment_datetime"]
+            ),
+        )

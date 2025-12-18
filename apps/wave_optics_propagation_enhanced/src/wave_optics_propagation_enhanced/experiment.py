@@ -46,7 +46,7 @@ class Experiment:
         reduced_wavelength = self.parameters.reduced_wavelength
         experiment_datetime = self.parameters.experiment_datetime
 
-        current_state = qt.Qobj(initial_beam.data / np.linalg.norm(initial_beam.data))
+        current_state = qt.Qobj(initial_beam.normalized_data)
 
         snapshots = dict([])
 
@@ -169,7 +169,7 @@ class Experiment:
         # TODO: make it nicer by handling the items directly using the ExperimentParameters class, probably makes more sense to define save methods internal to the Parameters and Result classes, and not mix total_lenses_simulated with others for example
 
         initial_parameters = {
-            "timestamp": self.parameters.experiment_datetime.isoformat(),
+            "experiment_datetime": self.parameters.experiment_datetime.isoformat(),
             "vacuum_wavelength": self.parameters.vacuum_wavelength,
             "beam_FWHM": self.parameters.beam_FWHM,
             "focal_length": self.parameters.focal_length,
@@ -183,8 +183,11 @@ class Experiment:
             "num_qubits": self.parameters.num_qubits,
             "max_delta": self.parameters.max_delta,
             "total_lenses_simulated": self.result.total_lenses_simulated,
-            "reverse_order": self.parameters.lens_reverse_order,
+            "lens_reverse_order": self.parameters.lens_reverse_order,
+            "fresnel_approximation": self.parameters.fresnel_approximation,
+            "scale_down_phases": self.parameters.scale_down_phases,
         }
+
         save_initial_parameters(
             initial_parameters, self.parameters.experiment_datetime, wrapper_folder=None
         )
