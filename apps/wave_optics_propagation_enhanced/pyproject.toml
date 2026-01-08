@@ -2,7 +2,6 @@
 name = "wave-optics-propagation-enhanced"
 version = "0.1.0"
 description = "Add your description here"
-readme = "README.md"
 authors = [
     { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
 ]
