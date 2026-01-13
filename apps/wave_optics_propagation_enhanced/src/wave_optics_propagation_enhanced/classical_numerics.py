@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.constants as constants
 from wave_optics_propagation.analytics import (
+    free_space_propagated_gaussian_wavefront,
     gaussian_signal,
     propagated_gaussian_wavefront_hitting_lens,
 )
@@ -83,15 +84,25 @@ def classical_numerics_simulation(
 
 
 def thin_lens_simulation(
-    params: ExperimentParameters, propagation_after_lens: float
+    params: ExperimentParameters,
+    propagation_before_lens: float,
+    propagation_after_lens: float,
 ) -> np.ndarray:
-    z = propagation_after_lens + params.lens_thickness
-    R_z, w_z = propagated_gaussian_wavefront_hitting_lens(
-        params.gaussian_beam_waist,
-        z,
-        params.focal_length,
-        params.vacuum_wavelength,
-        1,
+    R_z_1, w_z_1 = free_space_propagated_gaussian_wavefront(
+        w0=params.gaussian_beam_waist,
+        z=propagation_before_lens,
+        wavelength=params.vacuum_wavelength,
+        refractive_index=1,
     )
-    signal = gaussian_signal(params.x_axis, w_z, params.gaussian_mean)
+
+    R_z_2, w_z_2 = propagated_gaussian_wavefront_hitting_lens(
+        w0=params.gaussian_beam_waist,
+        z=propagation_after_lens,
+        f=params.focal_length,
+        wavelength=params.vacuum_wavelength,
+        refractive_index=1,
+        position_of_beam_waist=propagation_before_lens,
+    )
+
+    signal = gaussian_signal(params.x_axis, w_z_2, params.gaussian_mean)
     return signal.normalized_data

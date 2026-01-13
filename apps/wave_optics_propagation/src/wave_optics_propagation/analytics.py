@@ -29,7 +29,9 @@ def free_space_propagated_gaussian_wavefront(w0, z, wavelength, refractive_index
     return R_z, w_z
 
 
-def propagated_gaussian_wavefront_hitting_lens(w0, z, f, wavelength, refractive_index):
+def propagated_gaussian_wavefront_hitting_lens(
+    w0, z, f, wavelength, refractive_index, position_of_beam_waist=0.0
+):
     """Calculate the beam waist of a Gaussian beam after hitting a lens and propagating for a distance.
 
     Parameters:
@@ -55,7 +57,9 @@ def propagated_gaussian_wavefront_hitting_lens(w0, z, f, wavelength, refractive_
 
     adjusted_wavelength = wavelength / refractive_index
 
-    R_f, w_f = bs.q1_inv_func(0, w0, adjusted_wavelength, total_mat)
+    R_f, w_f = bs.q1_inv_func(
+        position_of_beam_waist, w0, adjusted_wavelength, total_mat
+    )
 
     return R_f, w_f
 
