@@ -22,7 +22,7 @@ def apply_phase_protocol(
     psi_in: qt.Qobj,
     signal: ArbitrarySignalForSampleBasedProtocol,
     max_delta: float,
-) -> qt.Qobj:
+) -> tuple[qt.Qobj, float]:
     # calculate the deltas from the signal and the corresponding statevector
     alpha, state = signal.alpha, signal.statevector
     deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
@@ -45,6 +45,7 @@ def apply_phase_protocol(
         range(num_cycles), desc="Cycles for a lens slice", total=num_cycles, leave=False
     )
 
+    local_probability_of_success = 1.0
     for _ in tqdm_loop:
         # TODO: remove initializers and manually tensor product the phi state, the same should happen to the projection step, do not start from the zero state
 
@@ -86,10 +87,13 @@ def apply_phase_protocol(
         state_array = current_state[0:N]
         current_state = qt.Qobj(state_array)
 
-        # renormalize
+        # renormalize & extract probability of success
+        cycle_probability_of_success = current_state.norm("l2") ** 2
         current_state = current_state.unit()
 
-    return current_state
+        local_probability_of_success *= cycle_probability_of_success
+
+    return current_state, local_probability_of_success
 
 
 def slice_alpha_to_deltas_evenly(alpha: float, max_delta: float) -> npt.NDArray:

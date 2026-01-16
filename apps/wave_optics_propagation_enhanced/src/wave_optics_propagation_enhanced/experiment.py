@@ -54,6 +54,7 @@ class Experiment:
 
         inside_lens_propagation_remained = lens_thickness
         total_lenses_simulated = 0
+        total_probability_of_success = 1.0
         ### Lens
         tqdm_loop = tqdm(
             range(lens_slices),
@@ -75,11 +76,12 @@ class Experiment:
                 #     f"sum of amplitude square: {np.sum(np.abs(sample_based_lens_signal.data) ** 2)}"
                 # )
 
-                current_state = apply_phase_protocol(
+                current_state, local_probability_of_success = apply_phase_protocol(
                     current_state, sample_based_lens_signal, max_delta
                 )
 
                 total_lenses_simulated += 1
+                total_probability_of_success *= local_probability_of_success
 
             else:
                 pass
@@ -153,6 +155,7 @@ class Experiment:
         self.result = ExperimentResult(
             snapshots=snapshots,
             total_lenses_simulated=total_lenses_simulated,
+            total_probability_of_success=total_probability_of_success,
         )
 
         if save_results:
@@ -161,6 +164,7 @@ class Experiment:
         print(
             f"Simulation complete. ID: {experiment_datetime.strftime('%Y-%m-%d_%H-%M-%S')}"
         )
+        print(f"Total probability of success: {total_probability_of_success}")
 
     def save_result(self) -> None:
         if self.result is None:
@@ -186,6 +190,7 @@ class Experiment:
             "lens_reverse_order": self.parameters.lens_reverse_order,
             "fresnel_approximation": self.parameters.fresnel_approximation,
             "scale_down_phases": self.parameters.scale_down_phases,
+            "total_probability_of_success": self.result.total_probability_of_success,
         }
 
         save_initial_parameters(

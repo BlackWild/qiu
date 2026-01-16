@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
 
@@ -15,41 +16,22 @@ from wave_optics_propagation.elements import (
 from wave_optics_propagation.storage import load_initial_parameters
 
 
+@dataclass
 class ExperimentParameters:
-    def __init__(
-        self,
-        vacuum_wavelength: float,
-        beam_FWHM: float,
-        focal_length: float,
-        refractive_index: float,
-        propagation_after_lens: float,
-        transverse_length: float,
-        num_of_steps_after_lens: int,
-        lens_slices: int,
-        num_qubits: int,
-        max_delta: float,
-        lens_reverse_order: bool,
-        fresnel_approximation: bool,
-        scale_down_phases: bool = True,
-        experiment_datetime: datetime | None = None,
-    ):
-        # Input parameters
-        self.vacuum_wavelength = vacuum_wavelength
-        self.beam_FWHM = beam_FWHM
-        self.focal_length = focal_length
-        self.refractive_index = refractive_index
-        self.propagation_after_lens = propagation_after_lens
-        self.transverse_length = transverse_length
-        self.num_of_steps_after_lens = num_of_steps_after_lens
-        self.lens_slices = lens_slices
-        self.num_qubits = num_qubits
-        self.max_delta = max_delta
-        self.lens_reverse_order = lens_reverse_order
-        self.fresnel_approximation = fresnel_approximation
-        self.scale_down_phases = scale_down_phases
-
-        # Experiment metadata
-        self.experiment_datetime = experiment_datetime or datetime.now()
+    vacuum_wavelength: float
+    beam_FWHM: float
+    focal_length: float
+    refractive_index: float
+    propagation_after_lens: float
+    transverse_length: float
+    num_of_steps_after_lens: int
+    lens_slices: int
+    num_qubits: int
+    max_delta: float
+    lens_reverse_order: bool
+    fresnel_approximation: bool
+    scale_down_phases: bool = True
+    experiment_datetime: datetime = datetime.now()
 
     def is_valid(self) -> bool:
         # TODO: Add any necessary validation logic here
