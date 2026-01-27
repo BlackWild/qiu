@@ -22,13 +22,14 @@ experiment_params = ExperimentParameters(
     transverse_length=100e-3 * length_scaling,
     num_of_steps_after_lens=300,
     lens_slices=10000,
-    num_qubits=7,
+    num_qubits=6,
     max_delta=0.1,
     lens_reverse_order=True,
     fresnel_approximation=False,
     scale_down_phases=True,
 )
 
+print(experiment_params)
 
 # %% Experiment simulation
 

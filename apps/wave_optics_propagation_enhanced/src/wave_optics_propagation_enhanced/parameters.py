@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from datetime import datetime
 from functools import cached_property
 
@@ -180,3 +180,6 @@ class ExperimentParameters:
                 initial_parameters["experiment_datetime"]
             ),
         )
+
+    def __str__(self):
+        return "\n".join(f"{f.name}={getattr(self, f.name)}" for f in fields(self))

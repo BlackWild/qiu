@@ -7,6 +7,11 @@
 #SBATCH --output=.result/slurm-%j.out
 
 # ──────────────────────────────────────────────────────────────
+# 0. How to use this script:
+#    Submit this script to SLURM with: sbatch run.slurm
+# ──────────────────────────────────────────────────────────────
+
+# ──────────────────────────────────────────────────────────────
 # 1. Go to project directory (where .venv and uv.lock are)
 # ──────────────────────────────────────────────────────────────
 cd $SLURM_SUBMIT_DIR
@@ -27,4 +32,4 @@ uv sync
 # ──────────────────────────────────────────────────────────────
 # 4. Run your Python script inside the venv using uv
 # ──────────────────────────────────────────────────────────────
-uv run python apps/wave_optics_propagation/src/wave_optics_propagation/simulation_script.py
+uv run python apps/wave_optics_propagation_enhanced/src/wave_optics_propagation_enhanced/simulation.py
