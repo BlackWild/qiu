@@ -57,6 +57,36 @@ def thin_transparent_plate_signal_generator(
     k_0 = 2 * np.pi / wavelength
     phase_shift = (refractive_index - 1) * k_0 * thickness
 
+    # rectangular_pulse = np.where(
+    #     np.abs(x_axis.axis_values - x_axis.sampling_window_length / 2)
+    #     <= radius,  # TODO: probably should change this to actually compare the distance from the optical axis which depends on the encoding we use among other things
+    #     1,
+    #     0,
+    # )
+
+    # refractive_index_distribution = refractive_index * rectangular_pulse
+    # average_refractive_index = np.average(refractive_index_distribution)
+    # the_other_phase_shift = (
+    #     (refractive_index_distribution**2 - average_refractive_index**2)
+    #     / (2 * average_refractive_index**2)
+    #     * k_0
+    #     * thickness
+    # )
+
+    # in_material = (
+    #     (refractive_index**2 - average_refractive_index**2)
+    #     / (2 * average_refractive_index**2)
+    #     * k_0
+    #     * thickness
+    # )
+    # out_material = (
+    #     ((1) ** 2 - average_refractive_index**2)
+    #     / (2 * average_refractive_index**2)
+    #     * k_0
+    #     * thickness
+    # )
+    # phase_shift = in_material - out_material
+
     if scale_down:
 
         def signal_function(x):
