@@ -59,10 +59,8 @@ def save_numpy_results(
 ):
     timestamp = time_object.strftime("%Y-%m-%d_%H-%M-%S")
 
-    folder_path = (
-        os.path.join(PARENT_FOLDER_NAME, timestamp)
-        if wrapper_folder is None
-        else os.path.join(PARENT_FOLDER_NAME, wrapper_folder, timestamp)
+    folder_path = os.path.join(
+        PARENT_FOLDER_NAME, wrapper_folder if wrapper_folder else timestamp
     )
     os.makedirs(folder_path, exist_ok=True)
 
@@ -83,10 +81,8 @@ def save_initial_parameters(
 ):
     timestamp = time_object.strftime("%Y-%m-%d_%H-%M-%S")
 
-    folder_path = (
-        os.path.join(PARENT_FOLDER_NAME, timestamp)
-        if wrapper_folder is None
-        else os.path.join(PARENT_FOLDER_NAME, wrapper_folder, timestamp)
+    folder_path = os.path.join(
+        PARENT_FOLDER_NAME, wrapper_folder if wrapper_folder else timestamp
     )
     os.makedirs(folder_path, exist_ok=True)
 

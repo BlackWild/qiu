@@ -22,3 +22,7 @@ wheels/
 
 # simulation results
 .result
+.output
+
+# local files (not committed)
+.local

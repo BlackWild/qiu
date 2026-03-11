@@ -45,12 +45,15 @@ class Experiment:
         lens_slice_thickness = self.parameters.lens_slice_thickness
         reduced_wavelength = self.parameters.reduced_wavelength
         experiment_datetime = self.parameters.experiment_datetime
+        direct_propagator = self.parameters.direct_propagator
 
         current_state = qt.Qobj(initial_beam.normalized_data)
 
         snapshots = dict([])
+        success_probabilities = []
 
         snapshots[f"step_{0}"] = current_state.full()
+        success_probabilities.append(1.0)
 
         inside_lens_propagation_remained = lens_thickness
         total_lenses_simulated = 0
@@ -93,18 +96,33 @@ class Experiment:
                 wavelength=vacuum_wavelength,
                 c=constants.c,
             )
-            propagator = MomentumDomainEvolutionQuadratic(
-                quadratic_signal=propagator_signal
-            )
 
-            # TODO: this is for now the easiest way to do it which is to fall back to qiskit for the evolution in the momentum domain,
-            qiskit_statevector = Statevector(current_state.full().flatten())
-            evolved_statevector = qiskit_statevector.evolve(propagator)
-            current_state = qt.Qobj(evolved_statevector.data)
+            if direct_propagator:
+                propagator = MomentumDomainEvolutionQuadratic(
+                    quadratic_signal=propagator_signal
+                )
+
+                # TODO: this is for now the easiest way to do it which is to fall back to qiskit for the evolution in the momentum domain,
+                qiskit_statevector = Statevector(current_state.full().flatten())
+                evolved_statevector = qiskit_statevector.evolve(propagator)
+                current_state = qt.Qobj(evolved_statevector.data)
+            else:
+                ft = qt.Qobj(np.fft.fft(current_state.full().flatten(), norm="ortho"))
+                sigsig = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
+                    propagator_signal.to_generic()
+                )
+                ft_prop, local_probability_of_success = apply_phase_protocol(
+                    ft, sigsig, max_delta
+                )
+                current_state = qt.Qobj(
+                    np.fft.ifft(ft_prop.full().flatten(), norm="ortho")
+                )
+                total_probability_of_success *= local_probability_of_success
 
             inside_lens_propagation_remained -= lens_slice_thickness
 
             snapshots[f"step_lens_{i}"] = current_state.full()
+            success_probabilities.append(total_probability_of_success)
 
         # remaining propagation once the lens slice grows larger than the simulation window
         while inside_lens_propagation_remained > 0:
@@ -114,17 +132,36 @@ class Experiment:
                 wavelength=reduced_wavelength,
                 c=constants.c,
             )
-            propagator = MomentumDomainEvolutionQuadratic(
-                quadratic_signal=propagator_signal
-            )
 
-            qiskit_statevector = Statevector(current_state.full().flatten())
-            evolved_statevector = qiskit_statevector.evolve(propagator)
-            current_state = qt.Qobj(evolved_statevector.data)
+            # if np.isclose(propagator_signal.alpha, 0):
+            #     break
+
+            if direct_propagator:
+                propagator = MomentumDomainEvolutionQuadratic(
+                    quadratic_signal=propagator_signal
+                )
+
+                # TODO: this is for now the easiest way to do it which is to fall back to qiskit for the evolution in the momentum domain,
+                qiskit_statevector = Statevector(current_state.full().flatten())
+                evolved_statevector = qiskit_statevector.evolve(propagator)
+                current_state = qt.Qobj(evolved_statevector.data)
+            else:
+                ft = qt.Qobj(np.fft.fft(current_state.full().flatten(), norm="ortho"))
+                sigsig = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
+                    propagator_signal.to_generic()
+                )
+                ft_prop, local_probability_of_success = apply_phase_protocol(
+                    ft, sigsig, max_delta
+                )
+                current_state = qt.Qobj(
+                    np.fft.ifft(ft_prop.full().flatten(), norm="ortho")
+                )
+                total_probability_of_success *= local_probability_of_success
 
             inside_lens_propagation_remained -= inside_lens_propagation_remained
 
         snapshots["after_lens"] = current_state.full()
+        success_probabilities.append(total_probability_of_success)
 
         tqdm_loop = tqdm(
             range(num_of_steps_after_lens),
@@ -132,37 +169,52 @@ class Experiment:
             total=num_of_steps_after_lens,
         )
         for i in tqdm_loop:
-            # print(f"Doing free space step {i + 1}/{num_of_steps_after_lens}")
-
             propagator_signal = free_space_signal_generator(
                 k_axis=k_axis,
                 delta_t=step_size_after_lens / constants.c,
                 wavelength=vacuum_wavelength,
                 c=constants.c,
             )
-            propagator = MomentumDomainEvolutionQuadratic(
-                quadratic_signal=propagator_signal
-            )
+            if direct_propagator:
+                propagator = MomentumDomainEvolutionQuadratic(
+                    quadratic_signal=propagator_signal
+                )
 
-            qiskit_statevector = Statevector(current_state.full().flatten())
-            evolved_statevector = qiskit_statevector.evolve(propagator)
-            current_state = qt.Qobj(evolved_statevector.data)
+                # TODO: this is for now the easiest way to do it which is to fall back to qiskit for the evolution in the momentum domain,
+                qiskit_statevector = Statevector(current_state.full().flatten())
+                evolved_statevector = qiskit_statevector.evolve(propagator)
+                current_state = qt.Qobj(evolved_statevector.data)
+            else:
+                ft = qt.Qobj(np.fft.fft(current_state.full().flatten(), norm="ortho"))
+                sigsig = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
+                    propagator_signal.to_generic()
+                )
+                ft_prop, local_probability_of_success = apply_phase_protocol(
+                    ft, sigsig, max_delta
+                )
+                current_state = qt.Qobj(
+                    np.fft.ifft(ft_prop.full().flatten(), norm="ortho")
+                )
+                total_probability_of_success *= local_probability_of_success
 
             snapshots[f"step_after_lens_{i + 1}"] = current_state.full()
+            success_probabilities.append(total_probability_of_success)
 
         snapshots["final"] = current_state.full()
+        success_probabilities.append(total_probability_of_success)
 
         self.result = ExperimentResult(
             snapshots=snapshots,
             total_lenses_simulated=total_lenses_simulated,
             total_probability_of_success=total_probability_of_success,
+            success_probabilities=success_probabilities,
         )
 
         if save_results:
             self.save_result()
 
         print(
-            f"Simulation complete. ID: {experiment_datetime.strftime('%Y-%m-%d_%H-%M-%S')}"
+            f"Simulation complete. ID: {self.parameters.uuid}, time: {experiment_datetime.strftime('%Y-%m-%d_%H-%M-%S')}"
         )
         print(f"Total probability of success: {total_probability_of_success}")
 
@@ -190,14 +242,19 @@ class Experiment:
             "lens_reverse_order": self.parameters.lens_reverse_order,
             "fresnel_approximation": self.parameters.fresnel_approximation,
             "scale_down_phases": self.parameters.scale_down_phases,
+            "direct_propagator": self.parameters.direct_propagator,
             "total_probability_of_success": self.result.total_probability_of_success,
+            "uuid": self.parameters.uuid,
+            "success_probabilities": self.result.success_probabilities,
         }
 
         save_initial_parameters(
-            initial_parameters, self.parameters.experiment_datetime, wrapper_folder=None
+            initial_parameters,
+            self.parameters.experiment_datetime,
+            wrapper_folder=self.parameters.uuid,
         )
         save_numpy_results(
             self.result.snapshots,
             self.parameters.experiment_datetime,
-            wrapper_folder=None,
+            wrapper_folder=self.parameters.uuid,
         )

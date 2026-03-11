@@ -34,8 +34,8 @@ class ArbitrarySignalForSampleBasedProtocol(GenericQuantumSignal):
         # normalization factor
         alpha = np.sum(signal)
 
-        if np.isclose(alpha, 0):
-            raise ValueError("The signal cannot be all zeros.")
+        # if np.isclose(alpha, 0):
+        #     raise ValueError("The signal cannot be all zeros.")
 
         return alpha
 

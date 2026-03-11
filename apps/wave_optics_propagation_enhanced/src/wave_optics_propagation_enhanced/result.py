@@ -9,6 +9,7 @@ class ExperimentResult:
     snapshots: dict[str, np.ndarray]
     total_lenses_simulated: int
     total_probability_of_success: float | None
+    success_probabilities: list[float] | None
 
     @classmethod
     def from_file(cls, path: str) -> "ExperimentResult":
@@ -20,9 +21,11 @@ class ExperimentResult:
         total_probability_of_success = initial_parameters.get(
             "total_probability_of_success", None
         )
+        success_probabilities = initial_parameters.get("success_probabilities", None)
 
         return cls(
             snapshots=snapshots,
             total_lenses_simulated=total_lenses_simulated,
             total_probability_of_success=total_probability_of_success,
+            success_probabilities=success_probabilities,
         )

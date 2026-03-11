@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=wave_optics_propagation
+#SBATCH --array=0-29
 #SBATCH --time=120:00:00
 #SBATCH --partition=long,standard,gpu,gpu-test
 #SBATCH --cpus-per-task=8
@@ -32,4 +33,12 @@ uv sync
 # ──────────────────────────────────────────────────────────────
 # 4. Run your Python script inside the venv using uv
 # ──────────────────────────────────────────────────────────────
-uv run python apps/wave_optics_propagation_enhanced/src/wave_optics_propagation_enhanced/simulation.py --max-delta=0.01 --reverse-order --fresnel-approximation
+
+DELTAS=($(python - << 'EOF'
+import numpy as np
+for x in np.linspace(1e-3, 3e-1, 30):
+    print(x)
+EOF
+))
+
+uv run python apps/wave_optics_propagation_enhanced/src/wave_optics_propagation_enhanced/simulation.py --max-delta=${DELTAS[$SLURM_ARRAY_TASK_ID]} --reverse-order

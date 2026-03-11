@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass, fields
 from datetime import datetime
 from functools import cached_property
@@ -30,8 +31,10 @@ class ExperimentParameters:
     max_delta: float
     lens_reverse_order: bool
     fresnel_approximation: bool
-    scale_down_phases: bool = True
+    scale_down_phases: bool
+    direct_propagator: bool
     experiment_datetime: datetime = datetime.now()
+    uuid: str = uuid.uuid4().hex
 
     def is_valid(self) -> bool:
         # TODO: Add any necessary validation logic here
@@ -176,9 +179,11 @@ class ExperimentParameters:
             lens_reverse_order=initial_parameters["lens_reverse_order"],
             fresnel_approximation=initial_parameters["fresnel_approximation"],
             scale_down_phases=initial_parameters["scale_down_phases"],
+            direct_propagator=initial_parameters.get("direct_propagator", True),
             experiment_datetime=datetime.fromisoformat(
                 initial_parameters["experiment_datetime"]
             ),
+            uuid=initial_parameters.get("uuid", ""),
         )
 
     def __str__(self):
