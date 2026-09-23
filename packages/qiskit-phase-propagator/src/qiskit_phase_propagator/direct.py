@@ -35,6 +35,28 @@ def c_unsigned(i: int, n: int) -> int:
     raise ValueError("Out of range!")
 
 
+def c_twos_complement_mirrored(i: int, n: int) -> int:
+    """Mirrored two's complement binary coefficients.
+
+    Such that any integer can be represented as
+        $x = -2^{n-1} + sum_{i=0}^{n-1} 2^i x_i
+           = -2^{n-1} (1 - x_{n-1}) + sum_{i=0}^{n-2} 2^i x_i
+           = sum_{i=0}^{n-1} c(i, n) x'_i$,
+    where $x_i$ are the binary digits, and $x'_i = x_i$ except for the flipped
+    most significant bit $x'_{n-1} = 1 - x_{n-1}$. The coefficients are thus the
+    two's complement ones, and circuits must flip the most significant qubit
+    before and after applying them (see `is_msb_flipped`).
+    """
+
+    return c_twos_complement(i, n)
+
+
+def is_msb_flipped(encoding: EncodingType) -> bool:
+    """Whether the coefficients of `c` refer to the flipped most significant bit."""
+
+    return encoding == EncodingType.TWOS_COMPLEMENT_MIRRORED
+
+
 def c(i: int, n: int, encoding: EncodingType) -> int:
     """Binary coefficients.
 
@@ -46,6 +68,8 @@ def c(i: int, n: int, encoding: EncodingType) -> int:
         return c_twos_complement(i, n)
     elif encoding == EncodingType.UNSIGNED:
         return c_unsigned(i, n)
+    elif encoding == EncodingType.TWOS_COMPLEMENT_MIRRORED:
+        return c_twos_complement_mirrored(i, n)
     else:
         raise ValueError(f"Unsupported encoding type: {encoding}")
 
@@ -59,8 +83,15 @@ class Order1DirectPhase(QuantumCircuit):
         self.coef = coef
         self.encoding = encoding
 
-        for i in range(num_qubits):
-            self.p(coef * c(i, num_qubits, encoding), i)
+        n = num_qubits
+        if is_msb_flipped(encoding):
+            self.x(n - 1)
+
+        for i in range(n):
+            self.p(coef * c(i, n, encoding), i)
+
+        if is_msb_flipped(encoding):
+            self.x(n - 1)
 
 
 class Order2DirectPhase(QuantumCircuit):
@@ -73,6 +104,9 @@ class Order2DirectPhase(QuantumCircuit):
         self.encoding = encoding
 
         n = num_qubits
+        if is_msb_flipped(encoding):
+            self.x(n - 1)
+
         # the case of k = 1
         for i in range(n):
             self.p(coef * (c(i, n, encoding) ** 2), i)
@@ -81,6 +115,9 @@ class Order2DirectPhase(QuantumCircuit):
         for i in range(n):
             for j in range(i):
                 self.cp(coef * 2 * (c(i, n, encoding) * c(j, n, encoding)), i, j)
+
+        if is_msb_flipped(encoding):
+            self.x(n - 1)
 
 
 class Order3DirectPhase(QuantumCircuit):
@@ -93,6 +130,8 @@ class Order3DirectPhase(QuantumCircuit):
         self.encoding = encoding
 
         n = num_qubits
+        if is_msb_flipped(encoding):
+            self.x(n - 1)
 
         # the case of k = 1
         for i in range(n):
@@ -123,3 +162,6 @@ class Order3DirectPhase(QuantumCircuit):
                         [i, j],
                         k,
                     )
+
+        if is_msb_flipped(encoding):
+            self.x(n - 1)
