@@ -5,6 +5,8 @@ qiskit-aer-encore = { workspace = true }
 qiskit-phase-propagator = { workspace = true }
 qiskit-hamiltonian-simulation = { workspace = true }
 qiskit-pytest-helper = { workspace = true }
+python-encore = { workspace = true }
+python-signals = { workspace = true }
 
 [tool.uv.workspace]
 members = [

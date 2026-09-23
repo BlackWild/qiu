@@ -9,6 +9,7 @@ resolution-markers = [
 [manifest]
 members = [
     "python-encore",
+    "python-signals",
     "qiskit-aer-encore",
     "qiskit-encore",
     "qiskit-hamiltonian-simulation",
@@ -1171,6 +1172,21 @@ version = "0.1.0"
 source = { editable = "shareable-packages/python-encore" }
 
 [[package]]
+name = "python-signals"
+version = "0.1.0"
+source = { editable = "shareable-packages/python-signals" }
+dependencies = [
+    { name = "numpy" },
+    { name = "python-encore" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "python-encore", editable = "shareable-packages/python-encore" },
+]
+
+[[package]]
 name = "pytz"
 version = "2025.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1413,12 +1429,16 @@ name = "qiskit-signals"
 version = "0.1.0"
 source = { editable = "packages/qiskit-signals" }
 dependencies = [
+    { name = "python-encore" },
+    { name = "python-signals" },
     { name = "qiskit" },
     { name = "qiskit-encore" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "python-encore", editable = "shareable-packages/python-encore" },
+    { name = "python-signals", editable = "shareable-packages/python-signals" },
     { name = "qiskit", specifier = ">=2.2.1" },
     { name = "qiskit-encore", editable = "packages/qiskit-encore" },
 ]
