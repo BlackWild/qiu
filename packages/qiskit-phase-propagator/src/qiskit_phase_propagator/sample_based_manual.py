@@ -2,12 +2,10 @@
 
 import numpy as np
 import numpy.typing as npt
-from qiskit.circuit import ClassicalRegister, Gate, QuantumCircuit, QuantumRegister
-from qiskit.circuit.library import StatePreparation
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Operator, Statevector, partial_trace
 from qiskit_encore.initializer import kernel_based_initializer_operator
 from qiskit_encore.preparable_statevector import (
-    BigUnitaryPreparableStatevector,
     KernelBasedPreparableStatevector,
     PreparableStatevector,
 )

@@ -1,16 +1,14 @@
 """A Statevector that can be prepared by a quantum circuit."""
 
-from collections.abc import Callable
 from functools import cached_property
 
 import numpy as np
 import numpy.typing as npt
-from qiskit.circuit import Gate, QuantumCircuit
+from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
 from qiskit_encore.helper_types import InitializerType
 from qiskit_encore.initializer import (
-    big_unitary_matrix_state_de_initializer,
     big_unitary_matrix_state_initializer,
     generic_qiskit_state_initializer,
     ideal_state_initializer,

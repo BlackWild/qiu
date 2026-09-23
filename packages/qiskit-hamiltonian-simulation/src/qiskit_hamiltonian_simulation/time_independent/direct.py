@@ -3,7 +3,6 @@
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit_encore.qft import generate_big_matrix_qft_circuit
 from qiskit_phase_propagator.direct import Order2DirectPhase
-from qiskit_signals.quantum_axis import MomentumAxis, PositionAxis
 from qiskit_signals.quantum_signal import QuadraticQuantumSignal
 
 # TODO: move these classes to qiskit-phase-propagator, only keep things related to actual terms in the Hamiltonian here; like potential and kinetic energy terms

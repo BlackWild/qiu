@@ -2,8 +2,7 @@
 
 import numpy as np
 import numpy.typing as npt
-from qiskit.circuit import ClassicalRegister, Gate, QuantumCircuit, QuantumRegister
-from qiskit.circuit.library import StatePreparation
+from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit_encore.preparable_statevector import (
     BigUnitaryPreparableStatevector,
     PreparableStatevector,

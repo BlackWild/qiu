@@ -1,7 +1,5 @@
 """Module for time-independent Hamiltonian simulation."""
 
-import numpy as np
-import numpy.typing as npt
 from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit_encore.qft import generate_big_matrix_qft_circuit
 from qiskit_phase_propagator.sample_based import (

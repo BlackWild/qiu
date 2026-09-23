@@ -2,7 +2,7 @@
 
 import numpy as np
 import scipy
-from qiskit.circuit import Gate, QuantumCircuit
+from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import StatePreparation as QiskitStatePreparation
 from qiskit.quantum_info import Operator, Statevector
 
