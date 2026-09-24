@@ -45,6 +45,17 @@ A signal lives on a `PhysicalAxis`, and comes in two forms:
 
 The `SignalFunctionType` aliases for the functions of algebraic signals live in `algebraic_signal` as well.
 
+### Arithmetic
+
+Signals support `+`, `-`, `*`, `/`, `**` and negation, elementwise, with scalars (from either side) and with signals on an equal axis (axes compare by value). Raw NumPy arrays are rejected rather than silently broadcast.
+
+| operands                                   | result                                                                 |
+| ------------------------------------------ | ---------------------------------------------------------------------- |
+| `Signal` and scalar or `Signal`            | a `Signal` of the combined samples                                     |
+| `AlgebraicSignal` and scalar or `AlgebraicSignal` | an `AlgebraicSignal` of the composed functions, and of the composed SymPy expressions if both operands have one |
+| `AlgebraicSignal` and `Signal`             | a `Signal`, sampling the algebraic operand first                       |
+| `PolynomialSignal` `*` or `/` scalar       | a `PolynomialSignal` (or `QuadraticSignal`) with the scaled `alpha`, so `effective_alpha` stays available |
+
 ## Usage
 
 ```python
@@ -72,6 +83,13 @@ assert np.allclose(f_axis.values, np.fft.fftfreq(256, d=0.1))
 # a quadratic phase profile, and its coefficient in terms of the integer indices
 lens = QuadraticSignal(x_axis, alpha=-0.5)
 assert np.allclose(lens.data, lens.effective_alpha * x_axis.index**2)
+
+# arithmetic: scaled monomials stay monomials, other combinations are algebraic
+phase = -0.1 * lens
+assert isinstance(phase, QuadraticSignal)
+beam = 2 * gaussian + symbolic
+assert beam.expression is None and np.allclose(beam.data, 3 * gaussian.data)
+assert (2 * symbolic + 1).expression == 2 * sympy.exp(-(x**2)) + 1
 ```
 
 ## Tests

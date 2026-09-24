@@ -94,3 +94,27 @@ class TestIntegerAxis:
         """Test that unknown orderings are rejected."""
         with pytest.raises(ValueError):
             IntegerAxis(4, "unknown")  # type: ignore
+
+
+class TestIntegerAxisEquality:
+    """Test the equality and hashing of integer axes."""
+
+    def test_equal_axes(self):
+        """Test that axes with equal attributes are equal and hash equally."""
+        assert IntegerAxis(4, IndexOrdering.FFT) == IntegerAxis(4, "fft")  # type: ignore[arg-type]
+        assert hash(IntegerAxis(4, IndexOrdering.FFT)) == hash(
+            IntegerAxis(4, IndexOrdering.FFT)
+        )
+        assert len({IntegerAxis(4, IndexOrdering.FFT), IntegerAxis(4, "fft")}) == 1  # type: ignore[arg-type]
+
+    @pytest.mark.parametrize(
+        "other",
+        [IntegerAxis(5, IndexOrdering.FFT), IntegerAxis(4, IndexOrdering.CENTERED)],
+    )
+    def test_different_axes(self, other: IntegerAxis):
+        """Test that axes differing in any attribute are not equal."""
+        assert IntegerAxis(4, IndexOrdering.FFT) != other
+
+    def test_other_objects(self):
+        """Test that axes are not equal to unrelated objects."""
+        assert IntegerAxis(4, IndexOrdering.FFT) != (4, IndexOrdering.FFT)

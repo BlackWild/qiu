@@ -105,7 +105,7 @@ class TestHashing:
     def test_hash_is_consistent_with_equality(self):
         """Test that equal objects hash equally, so lookups by raw value work."""
         assert hash(Color.RED) == hash("red")
-        assert {Color.RED: 1}["red"] == 1
+        assert {Color.RED: 1}["red"] == 1  # type: ignore[index]  # by design
         assert "red" in {Color.RED}
         assert hash(Color.RED) == hash(Shade.RED)
 

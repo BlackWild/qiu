@@ -34,6 +34,13 @@ def position_axes(draw) -> PositionAxis:
 
 
 alphas = st.floats(min_value=-10.0, max_value=10.0)
+
+UNDERFLOW_ATOL = float(np.finfo(np.float64).tiny)
+"""The smallest normal float, below which floats lose their relative precision.
+
+Monomials of tiny coefficients underflow to subnormal values, which only agree
+absolutely at this scale.
+"""
 powers = st.integers(min_value=0, max_value=4)
 
 
@@ -217,7 +224,7 @@ class TestPolynomialSignal:
         np.testing.assert_allclose(
             signal.data,
             signal.effective_alpha * axis.index.astype(float) ** power,
-            atol=1e-12,
+            atol=UNDERFLOW_ATOL,
         )
 
     @given(axis=position_axes(), alpha=alphas, power=powers)
@@ -226,7 +233,9 @@ class TestPolynomialSignal:
         x = sympy.Symbol("x")
         symbolic = AlgebraicSignal.from_sympy(axis, alpha * x**power, x)
         np.testing.assert_allclose(
-            PolynomialSignal(axis, alpha, power).data, symbolic.data, atol=1e-12
+            PolynomialSignal(axis, alpha, power).data,
+            symbolic.data,
+            atol=UNDERFLOW_ATOL,
         )
 
 

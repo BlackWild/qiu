@@ -1,15 +1,27 @@
 """Signals given by their samples on a physical axis."""
 
+from typing import Any
+
 import numpy as np
 import numpy.typing as npt
 
+from python_signals.arithmetic import (
+    ArithmeticOperators,
+    BinaryOperator,
+    is_scalar,
+    require_same_axis,
+)
 from python_signals.physical_axis import PhysicalAxis
 
 
-class Signal:
+class Signal(ArithmeticOperators):
     """A signal given by its sampled values on a physical axis.
 
     The sample `data[k]` is the value of the signal at `axis.values[k]`.
+
+    Signals support the arithmetic operators `+`, `-`, `*`, `/` and `**`, elementwise
+    with scalars and with signals on an equal axis, e.g. `2 * signal + other`. The
+    result is a new `Signal`.
     """
 
     axis: PhysicalAxis
@@ -56,3 +68,17 @@ class Signal:
         if norm == 0:
             return self.data
         return self.data / norm
+
+    def _binary(self, other: Any, op: BinaryOperator, reflected: bool) -> Any:
+        """Combine elementwise with a scalar or a signal on an equal axis."""
+        if is_scalar(other):
+            other_data = other
+        elif isinstance(other, Signal):
+            require_same_axis(self.axis, other.axis)
+            other_data = other.data
+        else:
+            return NotImplemented
+
+        if reflected:
+            return Signal(self.axis, op(other_data, self.data))
+        return Signal(self.axis, op(self.data, other_data))

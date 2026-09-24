@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
+import operator
 from collections.abc import Callable
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 import numpy.typing as npt
 
+from python_signals.arithmetic import (
+    ArithmeticOperators,
+    BinaryOperator,
+    is_scalar,
+    require_same_axis,
+)
 from python_signals.signal import Signal
 
 if TYPE_CHECKING:
@@ -16,20 +23,28 @@ if TYPE_CHECKING:
 
     from python_signals.physical_axis import PhysicalAxis
 
-SignalFunctionType = Callable[[npt.NDArray[np.float64]], npt.ArrayLike]
+SignalFunctionType = Callable[[npt.NDArray[Any]], npt.ArrayLike]
 """A vectorized function, mapping an array of axis values to the signal values.
 
-It may return a scalar for constant signals, which is broadcast to the axis values.
+It is called once with all values as an array, e.g. `axis.values`, so it must act
+elementwise on arrays, e.g. with NumPy functions. The dtype of the array is not fixed,
+so that functions annotated for a specific dtype are accepted. It may return a scalar
+for constant signals, which is broadcast to the axis values.
 """
 
 
-class AlgebraicSignal:
+class AlgebraicSignal(ArithmeticOperators):
     """A signal given by an algebraic expression of the axis values.
 
     The expression is held as a vectorized function, mapping an array of axis values
     to the array of signal values. It is either given directly, e.g. as a lambda or
     a NumPy function, or compiled from a SymPy expression with `from_sympy`, which
     also keeps the symbolic expression.
+
+    Algebraic signals support the arithmetic operators `+`, `-`, `*`, `/` and `**`
+    with scalars and with algebraic signals on an equal axis, composing their
+    functions, and their SymPy expressions if both operands have one. Combined with a
+    sampled `Signal`, they are sampled first, and the result is a sampled `Signal`.
     """
 
     axis: PhysicalAxis
@@ -147,6 +162,52 @@ class AlgebraicSignal:
         """Return the signal sampled on its axis."""
         return Signal(axis=self.axis, data=self.data)
 
+    def _binary(self, other: Any, op: BinaryOperator, reflected: bool) -> Any:
+        """Combine with a scalar, an algebraic signal or a sampled signal."""
+        if isinstance(other, Signal):
+            sampled = self.to_signal()
+            return op(other, sampled) if reflected else op(sampled, other)
+
+        if is_scalar(other):
+            other_function = _constant_function(other)
+            other_expression = other
+        elif isinstance(other, AlgebraicSignal):
+            require_same_axis(self.axis, other.axis)
+            other_function = other.function
+            other_expression = other._expression_in(self.symbol)
+        else:
+            return NotImplemented
+
+        left, right = (
+            (other_function, self.function)
+            if reflected
+            else (self.function, other_function)
+        )
+        result = AlgebraicSignal(
+            self.axis, lambda x: op(np.asarray(left(x)), np.asarray(right(x)))
+        )
+        if self.expression is not None and other_expression is not None:
+            result.expression = (
+                op(other_expression, self.expression)
+                if reflected
+                else op(self.expression, other_expression)
+            )
+            result.symbol = self.symbol
+        return result
+
+    def _expression_in(self, symbol: sympy.Symbol | None) -> sympy.Expr | None:
+        """Return the expression in terms of the given symbol, if both exist."""
+        if self.expression is None or symbol is None or self.symbol is None:
+            return None
+        # replacing a symbol by a symbol keeps the expression an expression, which
+        # SymPy's annotations do not tell
+        return cast("sympy.Expr", self.expression.xreplace({self.symbol: symbol}))
+
+
+def _constant_function(value: Any) -> SignalFunctionType:
+    """Return the function of a constant signal."""
+    return lambda x: value
+
 
 class PolynomialSignal(AlgebraicSignal):
     """A monomial signal of the form f(x) = alpha * x^power."""
@@ -161,6 +222,19 @@ class PolynomialSignal(AlgebraicSignal):
         super().__init__(axis=axis, function=lambda x: alpha * x**power)
         self.alpha = alpha
         self.power = power
+
+    def _with_alpha(self, alpha: Any) -> PolynomialSignal:
+        """Return the monomial of the same power with another coefficient."""
+        return PolynomialSignal(self.axis, alpha, self.power)
+
+    def _binary(self, other: Any, op: BinaryOperator, reflected: bool) -> Any:
+        """Keep monomials monomial under scaling, i.e. `*` and `/` by scalars."""
+        if is_scalar(other):
+            if op is operator.mul:
+                return self._with_alpha(self.alpha * other)
+            if op is operator.truediv and not reflected:
+                return self._with_alpha(self.alpha / other)
+        return super()._binary(other, op, reflected)
 
     @property
     def effective_alpha(self) -> float:
@@ -177,3 +251,7 @@ class QuadraticSignal(PolynomialSignal):
     def __init__(self, axis: PhysicalAxis, alpha: float) -> None:
         """Initialize the quadratic signal."""
         super().__init__(axis=axis, alpha=alpha, power=2)
+
+    def _with_alpha(self, alpha: Any) -> QuadraticSignal:
+        """Return the quadratic signal with another coefficient."""
+        return QuadraticSignal(self.axis, alpha)

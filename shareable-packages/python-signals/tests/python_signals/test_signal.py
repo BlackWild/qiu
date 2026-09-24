@@ -82,7 +82,13 @@ class TestSignal:
             np.testing.assert_array_equal(normalized, signal.data)
         else:
             assert np.isclose(np.linalg.norm(normalized), 1.0)
-            np.testing.assert_allclose(normalized * norm, signal.data, atol=1e-9)
+            # samples below the smallest normal float (of float64 and complex128)
+            # times the norm underflow when normalized, losing their relative precision
+            np.testing.assert_allclose(
+                normalized * norm,
+                signal.data,
+                atol=float(np.finfo(np.float64).tiny * norm),
+            )
 
     @given(signal=signals(dtype=np.complex128))
     def test_normalized_complex_data(self, signal: Signal):

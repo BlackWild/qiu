@@ -53,6 +53,23 @@ class IntegerAxis:
             f"{type(self).__name__}(size={self.size}, ordering={self.ordering.value})"
         )
 
+    def _key(self) -> tuple:
+        """Return the attributes defining the axis, for equality and hashing."""
+        return (self.size, self.ordering)
+
+    def __eq__(self, other: object) -> bool:
+        """Whether both axes have the same samples, i.e. equal defining attributes.
+
+        Axes of different kinds, e.g. an integer and a physical axis, are not equal.
+        """
+        if not isinstance(other, IntegerAxis):
+            return NotImplemented
+        return self._key() == other._key()
+
+    def __hash__(self) -> int:
+        """Hash consistently with the equality."""
+        return hash(self._key())
+
     @property
     def index(self) -> npt.NDArray[np.int_]:
         """Return the integer indices of the samples according to the ordering."""

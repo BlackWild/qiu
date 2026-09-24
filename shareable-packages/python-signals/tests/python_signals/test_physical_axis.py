@@ -257,3 +257,35 @@ class TestFourierConjugateAxes:
 
         spectrum = np.fft.fft(np.exp(2j * np.pi * f0 * x_axis.values))
         assert np.argmax(np.abs(spectrum)) == m
+
+
+class TestPhysicalAxisEquality:
+    """Test the equality and hashing of physical axes."""
+
+    def test_equal_axes(self):
+        """Test that axes with equal attributes are equal, whatever their class."""
+        position = PositionAxis(8, 0.5, IndexOrdering.FFT)
+        generic = PhysicalAxis(8, 0.5, IndexOrdering.FFT, AxisDomain.POSITION)
+        assert position == generic
+        assert hash(position) == hash(generic)
+
+    def test_derived_axes_are_equal(self):
+        """Test that conjugate axes derived twice from the same axis are equal."""
+        x_axis = PositionAxis(8, 0.5, IndexOrdering.NATURAL)
+        assert AngularWavenumberAxis.from_position_axis(
+            x_axis
+        ) == AngularWavenumberAxis.from_position_axis(x_axis)
+
+    @pytest.mark.parametrize(
+        "other",
+        [
+            PhysicalAxis(8, 0.25, IndexOrdering.FFT, AxisDomain.POSITION),
+            PhysicalAxis(8, 0.5, IndexOrdering.FFT, AxisDomain.MOMENTUM),
+            PhysicalAxis(8, 0.5, IndexOrdering.NATURAL, AxisDomain.POSITION),
+            PhysicalAxis(4, 0.5, IndexOrdering.FFT, AxisDomain.POSITION),
+            IntegerAxis(8, IndexOrdering.FFT),
+        ],
+    )
+    def test_different_axes(self, other: IntegerAxis):
+        """Test that axes differing in any attribute, or in kind, are not equal."""
+        assert PositionAxis(8, 0.5, IndexOrdering.FFT) != other

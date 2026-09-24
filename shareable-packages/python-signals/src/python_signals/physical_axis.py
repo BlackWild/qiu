@@ -113,6 +113,10 @@ class PhysicalAxis(IntegerAxis):
             f"ordering={self.ordering.value}, domain={self.domain.value})"
         )
 
+    def _key(self) -> tuple:
+        """Return the attributes defining the axis, for equality and hashing."""
+        return (self.size, self.ordering, self.period, self.domain)
+
     @property
     def values(self) -> npt.NDArray[np.number]:
         """Return the physical values of the samples."""
