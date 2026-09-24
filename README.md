@@ -11,11 +11,11 @@ The repository is structured as follows:
   - `python-signals`: A package for uniformly sampled axes and signals on them, for classical and quantum numerics alike.
 
 - `dev-packages/`: Contains packages which are not meant to be published for others but just to be used inside this monorepo for development purposes.
-  - `qiskit-pytest-helper`: A package that implements custom strategies for `hypothesis` and other stuff to be used in the unit tests of the other packages.
+  - `qiskit-pytest-helper`: A package that implements custom strategies for `hypothesis` and typed circuit helpers to be used in the unit tests of the other packages.
 
 - `packages/`: Contains reusable libraries and tools for quantum computing.
-  - `qiskit-encore`: A package for enhancing base Qiskit functionalities.
-  - `qiskit-aer-encore`: A package for extending Qiskit's Aer simulator capabilities.
+  - `qiskit-encore`: Circuit building blocks on top of Qiskit (robust state preparation, QFT, uniformly controlled rotations), each available as a dense unitary, a Qiskit gate or a decomposed circuit.
+  - `qiskit-aer-encore`: Aer simulators configured for the available hardware (CPU or GPU).
   - `qiskit-signals`: A package for handling signals for quantum applications, i.e. the signals of `python-signals` encoded in qubit registers.
   - `qiskit-phase-propagator`: A package for simulating phase propagation in quantum circuits.
   - `qiskit-hamiltonian-simulation`: A package for simulating Hamiltonian dynamics.

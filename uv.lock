@@ -1180,11 +1180,18 @@ dependencies = [
     { name = "python-encore" },
 ]
 
+[package.optional-dependencies]
+sympy = [
+    { name = "sympy" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "python-encore", editable = "shareable-packages/python-encore" },
+    { name = "sympy", marker = "extra == 'sympy'", specifier = ">=1.14.0" },
 ]
+provides-extras = ["sympy"]
 
 [[package]]
 name = "pytz"
@@ -1352,11 +1359,15 @@ name = "qiskit-aer-encore"
 version = "0.1.0"
 source = { editable = "packages/qiskit-aer-encore" }
 dependencies = [
+    { name = "python-encore" },
     { name = "qiskit-aer" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "qiskit-aer", specifier = ">=0.17.2" }]
+requires-dist = [
+    { name = "python-encore", editable = "shareable-packages/python-encore" },
+    { name = "qiskit-aer", specifier = ">=0.17.2" },
+]
 
 [[package]]
 name = "qiskit-encore"
@@ -1364,22 +1375,28 @@ version = "0.1.0"
 source = { editable = "packages/qiskit-encore" }
 dependencies = [
     { name = "numpy" },
+    { name = "python-encore" },
     { name = "qiskit" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "qiskit-aer-encore" },
     { name = "qiskit-pytest-helper" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
+    { name = "python-encore", editable = "shareable-packages/python-encore" },
     { name = "qiskit", specifier = ">=2.2.1" },
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" }]
+dev = [
+    { name = "qiskit-aer-encore", editable = "packages/qiskit-aer-encore" },
+    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
+]
 
 [[package]]
 name = "qiskit-hamiltonian-simulation"

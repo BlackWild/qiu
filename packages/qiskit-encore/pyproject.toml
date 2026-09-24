@@ -1,7 +1,7 @@
 [project]
 name = "qiskit-encore"
 version = "0.1.0"
-description = "Add your description here"
+description = "Robust circuit building blocks on top of Qiskit."
 readme = "README.md"
 authors = [
     { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "numpy>=2.2.6",
+    "python-encore",
     "qiskit>=2.2.1",
 ]
 
@@ -18,8 +19,11 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "qiskit-aer-encore",
     "qiskit-pytest-helper",
 ]
 
 [tool.uv.sources]
+python-encore = { workspace = true }
+qiskit-aer-encore = { workspace = true }
 qiskit-pytest-helper = { workspace = true }
