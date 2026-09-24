@@ -58,7 +58,7 @@ class ArbitrarySignalForSampleBasedProtocol(GenericQuantumSignal):
         if isinstance(other, (int, float)):
 
             def new_signal_function(x):
-                return self.signal_function(x) * other
+                return np.asarray(self.signal_function(x)) * other
 
             new_signal = ArbitrarySignalForSampleBasedProtocol(
                 self.axis, new_signal_function

@@ -1,167 +1,136 @@
-"""Direct implementation of phase operator circuits up to 3rd order."""
+"""Direct phase circuits, applying `e^(i coef x^k)` for powers `k` up to 3.
 
+The integer `x` encoded by a basis state is a weighted sum of its bits, see
+`qubit_encoding`. Expanding `x^k` with `x_i^2 = x_i` for bits gives a sum of
+products of at most `k` bits, each applied as a (multi-)controlled phase gate.
+"""
+
+from typing import ClassVar
+
+from python_signals.algebraic_signal import PolynomialSignal
+from python_signals.integer_axis import IndexOrdering
 from qiskit.circuit import QuantumCircuit
-from qiskit_signals.helper_types import EncodingType
+
+from qiskit_phase_propagator.qubit_encoding import (
+    bit_weights,
+    is_msb_flipped,
+    num_qubits_of,
+)
 
 
-# Binary coefficients for local use in this file
-def c_twos_complement(i: int, n: int) -> int:
-    """Two's complement binary coefficients.
+class DirectPhase(QuantumCircuit):
+    """Base class of the circuits applying `e^(i coef x^exponent)`.
 
-    Such that any integer can be represented as
-        $x = -2^{n-1} + sum_{i=0}^{n-2} 2^i x_i = sum_{i=0}^{n-1} c(i, n) x_i$,
-    where $x_i$ are the binary digits.
+    Subclasses define the `exponent` and apply the phases for the bit weights in
+    `_apply_phases`.
     """
 
-    if i == n - 1:
-        return -(2 ** (i))
-    if i < n - 1:
-        return 2 ** (i)
+    exponent: ClassVar[int]
+    """The power of the encoded integer in the phase.
 
-    raise ValueError("Out of range!")
-
-
-def c_unsigned(i: int, n: int) -> int:
-    """Unsigned binary coefficients.
-
-    Such that any integer can be represented as
-        $x = sum_{i=0}^{n-1} 2^i x_i = sum_{i=0}^{n-1} c(i, n) x_i$,
-    where $x_i$ are the binary digits.
+    Not named `power`, which would shadow `QuantumCircuit.power`.
     """
 
-    if i < n:
-        return 2 ** (i)
+    coef: float
+    """The coefficient of the phase."""
+    ordering: IndexOrdering
+    """The index ordering encoding the integers in the basis states."""
 
-    raise ValueError("Out of range!")
+    def __init__(self, num_qubits: int, coef: float, ordering: IndexOrdering) -> None:
+        """Initialize the phase circuit.
 
-
-def c_twos_complement_mirrored(i: int, n: int) -> int:
-    """Mirrored two's complement binary coefficients.
-
-    Such that any integer can be represented as
-        $x = -2^{n-1} + sum_{i=0}^{n-1} 2^i x_i
-           = -2^{n-1} (1 - x_{n-1}) + sum_{i=0}^{n-2} 2^i x_i
-           = sum_{i=0}^{n-1} c(i, n) x'_i$,
-    where $x_i$ are the binary digits, and $x'_i = x_i$ except for the flipped
-    most significant bit $x'_{n-1} = 1 - x_{n-1}$. The coefficients are thus the
-    two's complement ones, and circuits must flip the most significant qubit
-    before and after applying them (see `is_msb_flipped`).
-    """
-
-    return c_twos_complement(i, n)
-
-
-def is_msb_flipped(encoding: EncodingType) -> bool:
-    """Whether the coefficients of `c` refer to the flipped most significant bit."""
-
-    return encoding == EncodingType.TWOS_COMPLEMENT_MIRRORED
-
-
-def c(i: int, n: int, encoding: EncodingType) -> int:
-    """Binary coefficients.
-
-    Such that any integer can be represented as
-        $x = sum_{i=0}^{n-1} c(i, n) x_i$, where $x_i$ are the binary digits.
-    """
-
-    if encoding == EncodingType.TWOS_COMPLEMENT:
-        return c_twos_complement(i, n)
-    elif encoding == EncodingType.UNSIGNED:
-        return c_unsigned(i, n)
-    elif encoding == EncodingType.TWOS_COMPLEMENT_MIRRORED:
-        return c_twos_complement_mirrored(i, n)
-    else:
-        raise ValueError(f"Unsupported encoding type: {encoding}")
-
-
-class Order1DirectPhase(QuantumCircuit):
-    """1st-order phase circuit as e^(i * coef * x)."""
-
-    def __init__(self, num_qubits: int, coef: float, encoding: EncodingType) -> None:
-        """Initialize the 1st-order phase circuit."""
-        super().__init__(num_qubits)
+        Args:
+            num_qubits: The number of qubits encoding the integers.
+            coef: The coefficient of the phase.
+            ordering: The index ordering encoding the integers, see `qubit_encoding`.
+        """
+        super().__init__(num_qubits, name=f"direct_phase_{self.exponent}")
         self.coef = coef
-        self.encoding = encoding
+        self.ordering = IndexOrdering(ordering)
 
-        n = num_qubits
-        if is_msb_flipped(encoding):
-            self.x(n - 1)
+        flip_msb = is_msb_flipped(self.ordering)
+        if flip_msb:
+            self.x(num_qubits - 1)
+        self._apply_phases(coef, bit_weights(num_qubits, self.ordering))
+        if flip_msb:
+            self.x(num_qubits - 1)
 
-        for i in range(n):
-            self.p(coef * c(i, n, encoding), i)
-
-        if is_msb_flipped(encoding):
-            self.x(n - 1)
-
-
-class Order2DirectPhase(QuantumCircuit):
-    """2nd-order phase circuit as e^(i * coef * x^2)."""
-
-    def __init__(self, num_qubits: int, coef: float, encoding: EncodingType) -> None:
-        """Initialize the 2nd-order phase circuit."""
-        super().__init__(num_qubits)
-        self.coef = coef
-        self.encoding = encoding
-
-        n = num_qubits
-        if is_msb_flipped(encoding):
-            self.x(n - 1)
-
-        # the case of k = 1
-        for i in range(n):
-            self.p(coef * (c(i, n, encoding) ** 2), i)
-
-        # the case of k = 2
-        for i in range(n):
-            for j in range(i):
-                self.cp(coef * 2 * (c(i, n, encoding) * c(j, n, encoding)), i, j)
-
-        if is_msb_flipped(encoding):
-            self.x(n - 1)
+    def _apply_phases(self, coef: float, weights: list[int]) -> None:
+        raise NotImplementedError
 
 
-class Order3DirectPhase(QuantumCircuit):
-    """3rd-order phase circuit as e^(i * coef * x^3)."""
+class Order1DirectPhase(DirectPhase):
+    """The phase circuit `e^(i coef x)`, with `x = sum_i w_i x_i`."""
 
-    def __init__(self, num_qubits: int, coef: float, encoding: EncodingType) -> None:
-        """Initialize the 3rd-order phase circuit."""
-        super().__init__(num_qubits)
-        self.coef = coef
-        self.encoding = encoding
+    exponent = 1
 
-        n = num_qubits
-        if is_msb_flipped(encoding):
-            self.x(n - 1)
+    def _apply_phases(self, coef: float, weights: list[int]) -> None:
+        for i, w_i in enumerate(weights):
+            self.p(coef * w_i, i)
 
-        # the case of k = 1
-        for i in range(n):
-            self.p(coef * (c(i, n, encoding) ** 3), i)
 
-        # the case of k = 2
-        for i in range(n):
-            for j in range(i):
-                self.cp(
-                    coef
-                    * 3
-                    * (
-                        c(i, n, encoding) ** 2 * c(j, n, encoding)
-                        + c(i, n, encoding) * c(j, n, encoding) ** 2
-                    ),
-                    i,
-                    j,
-                )
+class Order2DirectPhase(DirectPhase):
+    """The phase circuit `e^(i coef x^2)`.
 
-        # the case of k = 3
-        for i in range(n):
-            for j in range(i):
-                for k in range(j):
-                    self.mcp(
-                        coef
-                        * 6
-                        * (c(i, n, encoding) * c(j, n, encoding) * c(k, n, encoding)),
-                        [i, j],
-                        k,
-                    )
+    With `x^2 = sum_i w_i^2 x_i + 2 sum_(j<i) w_i w_j x_i x_j`.
+    """
 
-        if is_msb_flipped(encoding):
-            self.x(n - 1)
+    exponent = 2
+
+    def _apply_phases(self, coef: float, weights: list[int]) -> None:
+        for i, w_i in enumerate(weights):
+            self.p(coef * w_i**2, i)
+            for j, w_j in enumerate(weights[:i]):
+                self.cp(coef * 2 * w_i * w_j, i, j)
+
+
+class Order3DirectPhase(DirectPhase):
+    """The phase circuit `e^(i coef x^3)`.
+
+    With `x^3 = sum_i w_i^3 x_i + 3 sum_(j<i) (w_i^2 w_j + w_i w_j^2) x_i x_j
+    + 6 sum_(k<j<i) w_i w_j w_k x_i x_j x_k`.
+    """
+
+    exponent = 3
+
+    def _apply_phases(self, coef: float, weights: list[int]) -> None:
+        for i, w_i in enumerate(weights):
+            self.p(coef * w_i**3, i)
+            for j, w_j in enumerate(weights[:i]):
+                self.cp(coef * 3 * (w_i**2 * w_j + w_i * w_j**2), i, j)
+                for k, w_k in enumerate(weights[:j]):
+                    self.mcp(coef * 6 * w_i * w_j * w_k, [i, j], k)
+
+
+DIRECT_PHASES: dict[int, type[DirectPhase]] = {
+    phase.exponent: phase
+    for phase in (Order1DirectPhase, Order2DirectPhase, Order3DirectPhase)
+}
+"""The direct phase circuits by exponent."""
+
+
+def polynomial_phase_circuit(signal: PolynomialSignal) -> QuantumCircuit:
+    """Return the circuit applying `e^(i signal(x))` to the basis states of its axis.
+
+    The phase of the basis state `|k>` is the signal at the axis value of the
+    sample `k`, i.e. `e^(i alpha x_k^power)`.
+
+    Args:
+        signal: A monomial of power at most 3, on an axis of `2**n` samples.
+
+    Returns:
+        The phase circuit on `n` qubits.
+    """
+    num_qubits = num_qubits_of(signal.axis)
+
+    if signal.power == 0:
+        circuit = QuantumCircuit(num_qubits, name="direct_phase_0")
+        circuit.global_phase = signal.alpha
+        return circuit
+
+    phase = DIRECT_PHASES.get(signal.power)
+    if phase is None:
+        raise NotImplementedError(
+            f"Direct phase circuits exist for powers up to 3, got {signal.power}."
+        )
+    return phase(num_qubits, signal.effective_alpha, signal.axis.ordering)

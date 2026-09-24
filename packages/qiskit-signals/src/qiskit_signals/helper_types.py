@@ -1,43 +1,40 @@
 """Helper types for the qiskit_signals package."""
 
-from collections.abc import Callable
-
-import numpy as np
-import numpy.typing as npt
 from python_encore.enum import ExtendedEnum
+from python_signals.algebraic_signal import (
+    SignalFunctionType,
+)
+from python_signals.integer_axis import IndexOrdering
+from python_signals.physical_axis import AxisDomain
 
-SignalFunctionType = Callable[[np.ndarray], np.ndarray]
-RealSignalFunctionType = Callable[[np.ndarray], npt.NDArray[np.float64]]
-ComplexSignalFunctionType = Callable[[np.ndarray], npt.NDArray[np.complex128]]
+__all__ = [
+    "AxisType",
+    "EncodingType",
+    "SignalFunctionType",
+]
+
+AxisType = AxisDomain
+"""Types of quantum axes, i.e. the physical domain the axis lives in."""
 
 
 class EncodingType(ExtendedEnum):
-    """Encoding types for the quantum signals."""
+    """Encoding types for the quantum signals.
+
+    The encoding fixes which integer index each computational basis state
+    represents, and thus the index ordering of the underlying axis.
+    """
 
     TWOS_COMPLEMENT = "twos_complement"
     UNSIGNED = "unsigned"
     TWOS_COMPLEMENT_MIRRORED = "twos_complement_mirrored"
 
-
-class AxisType(ExtendedEnum):
-    """Types of quantum axes.
-
-    Tracks which domain the axis lives in. Options are the position domain or its conjugate momentum domain.
-    """
-
-    POSITION = "position"
-    MOMENTUM = "momentum"
-    ANGULAR_WAVENUMBER = "angular_wavenumber"
-    SPATIAL_FREQUENCY = "spatial_frequency"
-
     @property
-    def is_in_fourier_domain(self) -> bool:
-        if (
-            self == AxisType.MOMENTUM
-            or self == AxisType.ANGULAR_WAVENUMBER
-            or self == AxisType.SPATIAL_FREQUENCY
-        ):
-            return True
-        if self == AxisType.POSITION:
-            return False
-        raise ValueError("Undefined axis domain")
+    def index_ordering(self) -> IndexOrdering:
+        """Return the index ordering of an axis with this encoding."""
+        if self == EncodingType.UNSIGNED:
+            return IndexOrdering.NATURAL
+        if self == EncodingType.TWOS_COMPLEMENT:
+            return IndexOrdering.FFT
+        if self == EncodingType.TWOS_COMPLEMENT_MIRRORED:
+            return IndexOrdering.CENTERED
+        raise ValueError(f"Unknown encoding type: {self}")

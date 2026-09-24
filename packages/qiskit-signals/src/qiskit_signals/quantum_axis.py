@@ -1,20 +1,21 @@
-"""Module defining quantum axes for position, momentum, and angular frequency."""
+"""Module defining quantum axes for position, momentum, and angular frequency.
 
-from abc import ABC
+A quantum axis is an axis of `2**num_qubits` samples, whose index ordering is
+given by the encoding of the integers in the computational basis states.
+"""
 
 import numpy as np
 import numpy.typing as npt
+from python_signals.physical_axis import PhysicalAxis, reciprocal_period
 
 from qiskit_signals.helper_types import AxisType, EncodingType
 
 
-class GenericAxis(ABC):
+class GenericAxis(PhysicalAxis):
     """A generic quantum axis class."""
 
     encoding: EncodingType
-    period: float
     num_qubits: int
-    axis_type: AxisType
 
     def __init__(
         self,
@@ -23,43 +24,42 @@ class GenericAxis(ABC):
         encoding: EncodingType,
         axis_type: AxisType,
     ):
-        self.encoding = encoding
-        self.period = period
+        """Initialize a quantum axis.
+
+        Args:
+            num_qubits: Number of qubits representing the axis.
+            period: Spacing between neighboring axis values.
+            encoding: Encoding of the integer indices in the basis states.
+            axis_type: Physical domain the axis lives in.
+        """
         self.num_qubits = num_qubits
-        self.axis_type = axis_type
+        self.encoding = EncodingType(encoding)
+        super().__init__(
+            size=2**num_qubits,
+            period=period,
+            ordering=self.encoding.index_ordering,
+            domain=axis_type,
+        )
 
     @property
-    def index(self) -> npt.NDArray:
-        """Return the integer index values corresponding to the encoding."""
-        if self.encoding == EncodingType.UNSIGNED:
-            return np.arange(2**self.num_qubits)
-        elif self.encoding == EncodingType.TWOS_COMPLEMENT:
-            half = 2 ** (self.num_qubits - 1)
-            return np.concatenate((np.arange(0, half), np.arange(-half, 0)))
-        elif self.encoding == EncodingType.TWOS_COMPLEMENT_MIRRORED:
-            half = 2 ** (self.num_qubits - 1)
-            return np.concatenate((np.arange(-half, 0), np.arange(0, half)))
-        else:
-            raise ValueError(f"Unknown encoding type: {self.encoding}")
+    def axis_type(self) -> AxisType:
+        """Return the physical domain the axis lives in."""
+        return self.domain
 
     @property
     def axis_values(self) -> npt.NDArray[np.float64]:
         """Return the physical axis values corresponding to the encoding and period."""
-        return self.index * self.period
+        return self.values
 
     @property
     def dimension(self) -> int:
         """Return the dimension of the axis (number of discrete values)."""
-        return 2**self.num_qubits
-
-    @property
-    def sampling_window_length(self) -> float:
-        """Return the total length of the sampling window."""
-        return self.dimension * self.period
+        return self.size
 
     @property
     def is_fourier_domain_axis(self) -> bool:
-        return self.axis_type.is_in_fourier_domain
+        """Whether the axis lives in a Fourier conjugate domain of position."""
+        return self.is_fourier_domain
 
 
 class PositionAxis(GenericAxis):
@@ -71,7 +71,7 @@ class PositionAxis(GenericAxis):
         Args:
             num_qubits: Number of qubits representing the axis.
             delta_x: Spacing between discrete position values.
-            encoding: Encoding type, either 'twos_complement' or 'unsigned'.
+            encoding: Encoding type of the integer indices.
         """
         super().__init__(
             num_qubits=num_qubits,
@@ -92,13 +92,14 @@ class MomentumAxis(GenericAxis):
         Args:
             num_qubits: Number of qubits representing the axis.
             delta_x: Spacing between discrete position values (used to compute momentum spacing).
-            encoding: Encoding type, either 'twos_complement' or 'unsigned'.
+            encoding: Encoding type of the integer indices.
             hbar: Reduced Planck's constant.
         """
-        period = 2 * np.pi * hbar / (2**num_qubits * delta_x)
         super().__init__(
             num_qubits=num_qubits,
-            period=period,
+            period=reciprocal_period(
+                2**num_qubits, delta_x, AxisType.MOMENTUM, hbar=hbar
+            ),
             encoding=encoding,
             axis_type=AxisType.MOMENTUM,
         )
@@ -114,7 +115,7 @@ class MomentumAxis(GenericAxis):
 
         Args:
             position_axis: An instance of PositionAxis.
-            hbar: Reduced Planck's constant (default is 1.0 for natural units).
+            hbar: Reduced Planck's constant.
             keep_encoding: If True, retain the encoding of the position axis; otherwise, use 'twos_complement'.
 
         Returns:
@@ -139,12 +140,13 @@ class AngularWavenumberAxis(GenericAxis):
         Args:
             num_qubits: Number of qubits representing the axis.
             delta_x: Spacing between discrete position values (used to compute momentum spacing).
-            encoding: Encoding type, either 'twos_complement' or 'unsigned'.
+            encoding: Encoding type of the integer indices.
         """
-        period = 2 * np.pi / (2**num_qubits * delta_x)
         super().__init__(
             num_qubits=num_qubits,
-            period=period,
+            period=reciprocal_period(
+                2**num_qubits, delta_x, AxisType.ANGULAR_WAVENUMBER
+            ),
             encoding=encoding,
             axis_type=AxisType.ANGULAR_WAVENUMBER,
         )
@@ -155,6 +157,15 @@ class AngularWavenumberAxis(GenericAxis):
         position_axis: PositionAxis,
         keep_encoding: bool = False,
     ) -> "AngularWavenumberAxis":
+        """Create an AngularWavenumberAxis from a given PositionAxis.
+
+        Args:
+            position_axis: An instance of PositionAxis.
+            keep_encoding: If True, retain the encoding of the position axis; otherwise, use 'twos_complement'.
+
+        Returns:
+            An instance of AngularWavenumberAxis.
+        """
         return cls(
             num_qubits=position_axis.num_qubits,
             delta_x=position_axis.period,
@@ -173,12 +184,13 @@ class SpatialFrequencyAxis(GenericAxis):
         Args:
             num_qubits: Number of qubits representing the axis.
             delta_x: Spacing between discrete position values (used to compute momentum spacing).
-            encoding: Encoding type, either 'twos_complement' or 'unsigned'.
+            encoding: Encoding type of the integer indices.
         """
-        period = 1 / (2**num_qubits * delta_x)
         super().__init__(
             num_qubits=num_qubits,
-            period=period,
+            period=reciprocal_period(
+                2**num_qubits, delta_x, AxisType.SPATIAL_FREQUENCY
+            ),
             encoding=encoding,
             axis_type=AxisType.SPATIAL_FREQUENCY,
         )

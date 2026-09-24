@@ -1,28 +1,50 @@
-"""Unit tests for time_independent.sample_based."""
+"""Unit tests for time_independent/sample_based.py."""
 
 import numpy as np
-from hypothesis import given, settings
+import pytest
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
-from qiskit import transpile
-from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
-from qiskit.quantum_info import Statevector, partial_trace, state_fidelity
-from qiskit_aer_encore.simulator import generate_aer_simulator
+from python_signals.algebraic_signal import AlgebraicSignal
+from python_signals.integer_axis import IndexOrdering
+from python_signals.physical_axis import AxisDomain, MomentumAxis, PositionAxis
+from python_signals.signal import Signal
+from qiskit.quantum_info import Statevector, state_fidelity
+from qiskit_encore.synthesis_method import SynthesisMethod
 from qiskit_hamiltonian_simulation.time_independent.sample_based import (
     KineticEvolutionSampleBased,
     PotentialEvolutionSampleBased,
 )
+from qiskit_phase_propagator.sample_based import (
+    sample_based_decomposition,
+    slice_alpha_to_deltas_evenly,
+)
+from qiskit_pytest_helper.assertions import assert_equal_states
 from qiskit_pytest_helper.constants import (
-    FIDELITY_TOLERANCE,
     MAX_NUM_OF_CYCLES,
     REDUCED_FIDELITY_TOLERANCE,
 )
-from qiskit_pytest_helper.hypothesis_strategies import (
-    random_positive_signal,
-)
-from qiskit_signals.helper_types import AxisType, EncodingType
-from qiskit_signals.sample_based_signal import ArbitrarySignalForSampleBasedProtocol
+from qiskit_pytest_helper.hypothesis_strategies import random_positive_signal
+from qiskit_pytest_helper.propagation import exact_cycles, run_propagator
 
-# TODO: very important, check how many times the initializers are called and optimize
+HBAR = 1.0
+times = st.floats(0.1, 0.3)
+max_deltas = st.floats(min_value=0.01, max_value=0.1)
+# Qiskit fails to transpile its StatePreparation of nearly uniform states (qiskit 2.2)
+STATE_PREPARATION_METHOD = SynthesisMethod.DECOMPOSED
+
+
+def exact_phase_propagation(signal, max_delta: float, psi) -> np.ndarray:
+    """The exact output of the sample-based propagator for the signal on psi."""
+    alpha, state = sample_based_decomposition(signal)
+    deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
+    return exact_cycles(psi, state.data, deltas)
+
+
+def random_state(num_qubits: int, seed: int) -> Statevector:
+    """A random normalized state, generic in position and momentum space."""
+    rng = np.random.default_rng(seed)
+    data = rng.normal(size=2**num_qubits) + 1j * rng.normal(size=2**num_qubits)
+    return Statevector(data / np.linalg.norm(data))
 
 
 class TestPotentialEvolutionSampleBased:
@@ -30,89 +52,59 @@ class TestPotentialEvolutionSampleBased:
 
     @settings(max_examples=50, deadline=None)
     @given(
-        positive_potential=random_positive_signal(axis_type=AxisType.POSITION),
-        coef=st.floats(0.1, 0.3),
-        max_delta=st.floats(min_value=0.01, max_value=0.1),
+        V=random_positive_signal(domain=AxisDomain.POSITION),
+        t=times,
+        max_delta=max_deltas,
     )
-    def test_reasonable_num_of_iterations(
-        self, positive_potential, coef: float, max_delta: float
-    ):
-        """Tests that the number of iterations is reasonable."""
-
-        positive_potential = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
-            positive_potential
-        )
-        hbar = 1.0
-        t = coef
-
+    def test_reasonable_num_of_iterations(self, V, t: float, max_delta: float):
+        """Tests that the number of cycles is reasonable."""
         propagator = PotentialEvolutionSampleBased(
-            V=positive_potential,
-            t=t,
-            hbar=hbar,
-            max_delta=max_delta,
+            V=V, t=t, hbar=HBAR, max_delta=max_delta
         )
-
         assert propagator.num_of_cycles < MAX_NUM_OF_CYCLES
 
     @settings(max_examples=10, deadline=None)
     @given(
-        positive_potential=random_positive_signal(axis_type=AxisType.POSITION),
-        coef=st.floats(0.1, 0.3),
-        max_delta=st.floats(min_value=0.01, max_value=0.1),
+        V=random_positive_signal(domain=AxisDomain.POSITION),
+        t=times,
+        max_delta=max_deltas,
     )
-    def test_correct_phase_application(
-        self, positive_potential, coef: float, max_delta: float
-    ):
-        """Tests the PotentialEvolutionSampleBased circuit."""
-
-        positive_potential = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
-            positive_potential
-        )
-        num_qubits = positive_potential.num_qubits
-        hbar = 1.0
-        t = coef
-
+    def test_applies_the_evolution(self, V, t: float, max_delta: float):
+        """Tests that the position amplitudes are multiplied by e^(-i t V / hbar)."""
         propagator = PotentialEvolutionSampleBased(
-            V=positive_potential,
+            V=V,
             t=t,
-            hbar=hbar,
+            hbar=HBAR,
             max_delta=max_delta,
+            state_preparation_method=STATE_PREPARATION_METHOD,
         )
+        psi = random_state(propagator.num_qubits // 2, seed=1)
 
-        psi_reg = QuantumRegister(num_qubits, name=r"\psi")
-        phi_reg = QuantumRegister(num_qubits, name=r"\phi")
-        success_flag = ClassicalRegister(num_qubits, name="success_flag")
-        circuit = QuantumCircuit(psi_reg, phi_reg, success_flag)
+        succeeded, output = run_propagator(propagator, psi)
+        assume(succeeded)
 
-        psi = Statevector.from_label("+" * num_qubits)
-
-        circuit.initialize(psi.data.tolist(), psi_reg)
-        circuit.compose(propagator, circuit.qubits, circuit.clbits, inplace=True)
-        circuit.save_statevector()  # type: ignore
-
-        simulator = generate_aer_simulator()
-        transpiled = transpile(circuit)
-        job = simulator.run(transpiled, shots=1)
-        result = job.result()
-        counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
-        output_state_full = result.get_statevector(circuit)
-
-        # Check that all measured qubits are 0
-        assert counts[0] == 1
-
-        # Check the output state
-        traced = partial_trace(
-            output_state_full,
-            np.arange(num_qubits, 2 * num_qubits).tolist(),
+        assert_equal_states(
+            output, exact_phase_propagation((-t / HBAR) * V, max_delta, psi.data)
         )
-        output_state = traced.to_statevector()
-
-        expected_output = np.exp(1.0j * -t / hbar * positive_potential.data) * psi.data
-
+        expected = np.exp(-1j * t / HBAR * V.data) * psi.data
         assert (
-            state_fidelity(output_state, Statevector(expected_output))
-            >= 1.0 - FIDELITY_TOLERANCE
+            state_fidelity(Statevector(output), Statevector(expected))
+            >= 1 - REDUCED_FIDELITY_TOLERANCE
         )
+
+    def test_accepts_sampled_signals(self):
+        """Tests that sampled potentials are accepted."""
+        V = Signal(PositionAxis(4, 0.5, IndexOrdering.NATURAL), [0.1, 0.2, 0.3, 0.4])
+        propagator = PotentialEvolutionSampleBased(
+            V=V, t=0.5, hbar=HBAR, max_delta=0.05
+        )
+        assert propagator.num_of_cycles == 10
+
+    def test_rejects_momentum_axes(self):
+        """Tests that the potential must live in the position domain."""
+        V = AlgebraicSignal(MomentumAxis(4, 0.5, IndexOrdering.FFT), lambda p: 1 + p**2)
+        with pytest.raises(ValueError, match="position domain"):
+            PotentialEvolutionSampleBased(V=V, t=0.1, hbar=HBAR, max_delta=0.1)
 
 
 class TestKineticEvolutionSampleBased:
@@ -120,104 +112,70 @@ class TestKineticEvolutionSampleBased:
 
     @settings(max_examples=50, deadline=None)
     @given(
-        positive_kinetic=random_positive_signal(
-            axis_type=AxisType.MOMENTUM, forced_encoding=EncodingType.TWOS_COMPLEMENT
+        T=random_positive_signal(
+            domain=AxisDomain.MOMENTUM, forced_ordering=IndexOrdering.FFT
         ),
-        coef=st.floats(0.1, 0.3),
-        max_delta=st.floats(min_value=0.01, max_value=0.1),
+        t=times,
+        max_delta=max_deltas,
     )
-    def test_reasonable_num_of_iterations(
-        self, positive_kinetic, coef: float, max_delta: float
-    ):
-        """Tests that the number of iterations is reasonable."""
-
-        positive_kinetic = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
-            positive_kinetic
-        )
-        hbar = 1.0
-        t = coef
-
+    def test_reasonable_num_of_iterations(self, T, t: float, max_delta: float):
+        """Tests that the number of cycles is reasonable."""
         propagator = KineticEvolutionSampleBased(
-            T=positive_kinetic,
-            t=t,
-            hbar=hbar,
-            max_delta=max_delta,
+            T=T, t=t, hbar=HBAR, max_delta=max_delta
         )
-
         assert propagator.num_of_cycles < MAX_NUM_OF_CYCLES
 
     @settings(max_examples=10, deadline=None)
     @given(
-        positive_kinetic=random_positive_signal(
-            axis_type=AxisType.MOMENTUM, forced_encoding=EncodingType.TWOS_COMPLEMENT
+        T=random_positive_signal(
+            domain=AxisDomain.MOMENTUM, forced_ordering=IndexOrdering.FFT
         ),
-        coef=st.floats(0.1, 0.3),
-        max_delta=st.floats(min_value=0.01, max_value=0.1),
+        t=times,
+        max_delta=max_deltas,
     )
-    def test_correct_phase_application(
-        self, positive_kinetic, coef: float, max_delta: float
+    def test_applies_the_evolution_in_momentum_space(
+        self, T, t: float, max_delta: float
     ):
-        """Tests the KineticEvolutionSampleBased circuit."""
+        """Tests that the momentum amplitudes, fft(psi), get e^(-i t T(p) / hbar).
 
-        positive_kinetic = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
-            positive_kinetic
-        )
-        hbar = 1.0
-        t = coef
-
+        The random polynomial kinetic energies are not symmetric in p, which checks
+        the direction of the Fourier transforms.
+        """
         propagator = KineticEvolutionSampleBased(
-            T=positive_kinetic,
+            T=T,
             t=t,
-            hbar=hbar,
+            hbar=HBAR,
             max_delta=max_delta,
+            state_preparation_method=STATE_PREPARATION_METHOD,
         )
+        psi = random_state(propagator.num_qubits // 2, seed=2)
 
-        num_qubits = positive_kinetic.num_qubits
-        psi_reg = QuantumRegister(num_qubits, name=r"\psi")
-        phi_reg = QuantumRegister(num_qubits, name=r"\phi")
-        success_flag = ClassicalRegister(num_qubits, name="success_flag")
-        circuit = QuantumCircuit(psi_reg, phi_reg, success_flag)
+        succeeded, output = run_propagator(propagator, psi)
+        assume(succeeded)
 
-        psi = Statevector.from_label("0" * num_qubits)
-
-        circuit.initialize(psi.data.tolist(), psi_reg)
-        circuit.compose(propagator, circuit.qubits, circuit.clbits, inplace=True)
-        circuit.save_statevector()  # type: ignore
-
-        simulator = generate_aer_simulator()
-        transpiled = transpile(circuit)
-        job = simulator.run(transpiled, shots=1)
-        result = job.result()
-        counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
-        output_state_full = result.get_statevector(circuit)
-
-        # Check that all measured qubits are 0
-        assert counts[0] == 1
-
-        # Check the output state
-        traced = partial_trace(
-            output_state_full,
-            np.arange(num_qubits, 2 * num_qubits).tolist(),
+        momentum_amplitudes = np.fft.fft(psi.data, norm="ortho")
+        assert_equal_states(
+            output,
+            np.fft.ifft(
+                exact_phase_propagation(
+                    (-t / HBAR) * T, max_delta, momentum_amplitudes
+                ),
+                norm="ortho",
+            ),
         )
-        output_state = traced.to_statevector()
-
-        psi_fourier = np.fft.fft(psi.data, norm="ortho")
-        output_fourier = np.fft.fft(output_state.data, norm="ortho")
-
-        expected_output_fourier = (
-            np.exp(1j * -t / hbar * positive_kinetic.data) * psi_fourier
+        expected = np.fft.ifft(
+            np.exp(-1j * t / HBAR * T.data) * momentum_amplitudes, norm="ortho"
         )
-
-        state1 = Statevector(output_fourier)
-        state2 = Statevector(expected_output_fourier)
-
-        # TODO: remove these when you systematically took care of fourier transformations and ensured `norm="ortho"` is always used everywhere in the codebase. these assertions probably move to the corresponding unit test files.
-        assert state1.is_valid()
-        assert state2.is_valid()
-
         assert (
-            state_fidelity(
-                Statevector(output_fourier), Statevector(expected_output_fourier)
-            )
-            >= 1.0 - REDUCED_FIDELITY_TOLERANCE
+            state_fidelity(Statevector(output), Statevector(expected))
+            >= 1 - REDUCED_FIDELITY_TOLERANCE
         )
+
+    @pytest.mark.parametrize(
+        "ordering", [IndexOrdering.NATURAL, IndexOrdering.CENTERED]
+    )
+    def test_rejects_other_orderings(self, ordering: IndexOrdering):
+        """Tests that only the FFT ordering matches the Fourier basis states."""
+        T = AlgebraicSignal(MomentumAxis(4, 0.5, ordering), lambda p: 1 + p**2)
+        with pytest.raises(ValueError, match="FFT ordering"):
+            KineticEvolutionSampleBased(T=T, t=0.1, hbar=HBAR, max_delta=0.1)

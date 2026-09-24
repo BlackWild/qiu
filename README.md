@@ -16,9 +16,9 @@ The repository is structured as follows:
 - `packages/`: Contains reusable libraries and tools for quantum computing.
   - `qiskit-encore`: Circuit building blocks on top of Qiskit (robust state preparation, QFT, uniformly controlled rotations), each available as a dense unitary, a Qiskit gate or a decomposed circuit.
   - `qiskit-aer-encore`: Aer simulators configured for the available hardware (CPU or GPU).
-  - `qiskit-signals`: A package for handling signals for quantum applications, i.e. the signals of `python-signals` encoded in qubit registers.
-  - `qiskit-phase-propagator`: A package for simulating phase propagation in quantum circuits.
-  - `qiskit-hamiltonian-simulation`: A package for simulating Hamiltonian dynamics.
+  - `qiskit-signals`: **Legacy**, kept only for the applications in `apps/`; no package depends on it anymore (see its README for the migration).
+  - `qiskit-phase-propagator`: Circuits applying phases `e^(i f(x))` of `python-signals` signals to qubit registers, directly or sample-based.
+  - `qiskit-hamiltonian-simulation`: Time evolution under potentials and kinetic energies given as `python-signals` signals.
 
 - `apps/`: Contains standalone applications and projects that utilize the other packages.
 

@@ -1,105 +1,145 @@
 """Unit tests for sample_based.py."""
 
 import numpy as np
-from hypothesis import given, settings
+import pytest
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
-from qiskit import transpile
-from qiskit.circuit import ClassicalRegister, QuantumCircuit, QuantumRegister
-from qiskit.quantum_info import Statevector, partial_trace, state_fidelity
-from qiskit_aer_encore.simulator import generate_aer_simulator
-from qiskit_encore.preparable_statevector import BigUnitaryPreparableStatevector
+from python_signals.algebraic_signal import AlgebraicSignal
+from python_signals.integer_axis import IndexOrdering
+from python_signals.physical_axis import AxisDomain, PositionAxis
+from python_signals.signal import Signal
+from qiskit.quantum_info import Statevector, state_fidelity
+from qiskit_encore.preparable_state import PreparableState
+from qiskit_encore.synthesis_method import SynthesisMethod
 from qiskit_phase_propagator.sample_based import (
-    ArbitrarySignalForSampleBasedProtocol,
     GenericIterativeSampleBasedPhasePropagator,
     GenericIterativeSampleBasedPhasePropagatorWithConstantDelta,
     QuadraticSignalSampleBasedPhasePropagator,
+    partial_phase_circuit,
+    sample_based_decomposition,
+    slice_alpha_to_deltas_evenly,
+)
+from qiskit_pytest_helper.assertions import (
+    assert_equal_operators,
+    assert_equal_states,
 )
 from qiskit_pytest_helper.constants import FIDELITY_TOLERANCE
 from qiskit_pytest_helper.hypothesis_strategies import (
     random_positive_signal,
     state_pairs_with_equal_qubits,
 )
-from qiskit_signals.helper_types import AxisType
-from qiskit_signals.quantum_signal import GenericQuantumSignal
+from qiskit_pytest_helper.propagation import exact_cycles, run_propagator
 
-AER_SIMULATION_DEADLINE = 1000  # seconds
+AXIS = PositionAxis(4, 0.5, IndexOrdering.FFT)
+deltas_lists = st.lists(st.floats(min_value=0.0, max_value=0.1), min_size=1, max_size=4)
+
+
+class TestSampleBasedDecomposition:
+    """Test sample_based_decomposition."""
+
+    @given(signal=random_positive_signal(domain=AxisDomain.POSITION))
+    def test_reconstructs_the_signal(self, signal: AlgebraicSignal):
+        """Test that the signal is alpha times the squared amplitudes of the state."""
+        alpha, state = sample_based_decomposition(signal)
+        assert state.is_valid()
+        np.testing.assert_allclose(alpha * np.abs(state.data) ** 2, signal.data)
+
+    def test_non_positive_signals(self):
+        """Test that non-positive signals have a negative alpha."""
+        alpha, state = sample_based_decomposition(Signal(AXIS, [-1.0, -3.0, 0.0, -4.0]))
+        assert alpha == -8.0
+        np.testing.assert_allclose(np.abs(state.data) ** 2, [1 / 8, 3 / 8, 0, 4 / 8])
+
+    def test_accepts_real_complex_data(self):
+        """Test that complex data with vanishing imaginary parts is accepted."""
+        alpha, _ = sample_based_decomposition(Signal(AXIS, np.ones(4, dtype=complex)))
+        assert alpha == 4.0
+
+    @pytest.mark.parametrize(
+        ("data", "match"),
+        [
+            ([1.0, -1.0, 1.0, 1.0], "same sign"),
+            ([0.0, 0.0, 0.0, 0.0], "vanish"),
+            ([1j, 1.0, 1.0, 1.0], "real"),
+        ],
+    )
+    def test_invalid_signals(self, data, match: str):
+        """Test that mixed signs, vanishing and complex signals are rejected."""
+        with pytest.raises(ValueError, match=match):
+            sample_based_decomposition(Signal(AXIS, data))
+
+    def test_axes_must_have_qubit_sizes(self):
+        """Test that the axis must have 2**n samples."""
+        signal = Signal(PositionAxis(3, 1.0, IndexOrdering.FFT), np.ones(3))
+        with pytest.raises(ValueError, match="2\\*\\*n"):
+            sample_based_decomposition(signal)
+
+
+class TestSliceAlphaToDeltasEvenly:
+    """Test slice_alpha_to_deltas_evenly."""
+
+    @given(
+        alpha=st.floats(min_value=-10, max_value=10),
+        max_delta=st.floats(min_value=0.01, max_value=1),
+    )
+    def test_slices(self, alpha: float, max_delta: float):
+        """Test that the fewest equal deltas of bounded magnitude sum up to alpha."""
+        deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
+
+        assert np.isclose(np.sum(deltas), alpha)
+        assert np.all(np.abs(deltas) <= max_delta * (1 + 1e-12))
+        assert len(deltas) == int(np.ceil(abs(alpha) / max_delta))
+        assert np.all(deltas == deltas[0]) if len(deltas) else alpha == 0
+
+    def test_invalid_max_delta(self):
+        """Test that max_delta must be positive."""
+        with pytest.raises(ValueError, match="positive"):
+            slice_alpha_to_deltas_evenly(1.0, 0.0)
+
+
+class TestPartialPhaseCircuit:
+    """Test partial_phase_circuit."""
+
+    @pytest.mark.parametrize("num_qubits", [1, 2, 3])
+    def test_phase_where_the_registers_agree(self, num_qubits: int):
+        """Test that |j>|l> gets the phase e^(i delta) exactly if j == l."""
+        delta = 0.37
+        dimension = 2**num_qubits
+        psi_index = np.arange(dimension**2) % dimension
+        phi_index = np.arange(dimension**2) // dimension
+
+        assert_equal_operators(
+            partial_phase_circuit(delta, num_qubits),
+            np.diag(np.exp(1j * delta * (psi_index == phi_index))),
+        )
 
 
 class TestGenericIterativeSampleBasedPhasePropagator:
     """Test the GenericIterativeSampleBasedPhasePropagator."""
 
-    @given(
-        states=state_pairs_with_equal_qubits(),
-        deltas=st.lists(
-            st.floats(min_value=0.0, max_value=0.1), min_size=1, max_size=4
-        ),
-    )
-    def test_essentials(
-        self, states: tuple[Statevector, Statevector], deltas: list[float]
-    ):
-        """Test the essentials of the GenericIterativeSampleBasedPhasePropagator."""
-        psi, phi = states
-        preparable_state = BigUnitaryPreparableStatevector.from_statevector(phi)
-        assert psi.num_qubits == phi.num_qubits == preparable_state.num_qubits
-        n = preparable_state.num_qubits
-
+    @given(states=state_pairs_with_equal_qubits(), deltas=deltas_lists)
+    def test_essentials(self, states: tuple[Statevector, Statevector], deltas):
+        """Test the registers and the number of cycles."""
+        _, phi = states
         propagator = GenericIterativeSampleBasedPhasePropagator.from_state(
-            preparable_state, deltas
+            PreparableState(phi, method=SynthesisMethod.DENSE), deltas
         )
-        assert propagator.num_qubits == 2 * n
+        assert propagator.num_qubits == 2 * phi.num_qubits  # type: ignore[operator]
+        assert propagator.num_clbits == phi.num_qubits
+        assert propagator.num_of_cycles == len(deltas)
 
     @settings(max_examples=10, deadline=None)
-    @given(
-        states=state_pairs_with_equal_qubits(),
-        deltas=st.lists(
-            st.floats(min_value=0.0, max_value=0.1), min_size=1, max_size=4
-        ),
-    )
-    def test_correct_phase_application(
-        self, states: tuple[Statevector, Statevector], deltas: list[float]
-    ):
-        """Test that the GenericIterativeSampleBasedPhasePropagator applies the correct phase."""
+    @given(states=state_pairs_with_equal_qubits(), deltas=deltas_lists)
+    def test_applies_the_cycles(self, states: tuple[Statevector, Statevector], deltas):
+        """Test that each successful cycle applies its exact map to psi."""
         psi, phi = states
-        preparable_state = BigUnitaryPreparableStatevector.from_statevector(phi)
-        assert psi.num_qubits == phi.num_qubits == preparable_state.num_qubits
-        n = preparable_state.num_qubits
-
         propagator = GenericIterativeSampleBasedPhasePropagator.from_state(
-            preparable_state, deltas
+            PreparableState(phi, method=SynthesisMethod.DENSE), deltas
         )
 
-        psi_reg = QuantumRegister(n, name=r"\psi")
-        phi_reg = QuantumRegister(n, name=r"\phi")
-        success_flag = ClassicalRegister(n, name="success_flag")
-
-        circuit = QuantumCircuit(psi_reg, phi_reg, success_flag)
-        circuit.initialize(psi.data.tolist(), psi_reg)
-        circuit.compose(propagator, circuit.qubits, circuit.clbits, inplace=True)
-        circuit.save_statevector()  # type: ignore
-
-        simulator = generate_aer_simulator()
-        transpiled = transpile(circuit)
-        job = simulator.run(transpiled, shots=1)
-        result = job.result()
-        counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
-        output_state_full = result.get_statevector(circuit)
-
-        # Check that all measured qubits are 0
-        assert counts[0] == 1
-
-        # Check the output state
-        traced = partial_trace(
-            output_state_full,
-            np.arange(
-                preparable_state.num_qubits, 2 * preparable_state.num_qubits
-            ).tolist(),
-        )
-        output_state = traced.to_statevector()
-        alpha = np.sum(deltas)
-        expected_output = np.exp(1j * alpha * np.abs(phi.data) ** 2) * psi.data
-        assert np.isclose(
-            state_fidelity(output_state.data.tolist(), expected_output), 1.0
-        )
+        succeeded, output = run_propagator(propagator, psi)
+        assume(succeeded)
+        assert_equal_states(output, exact_cycles(psi.data, phi.data, deltas))
 
 
 class TestGenericIterativeSampleBasedPhasePropagatorWithConstantDelta:
@@ -111,57 +151,27 @@ class TestGenericIterativeSampleBasedPhasePropagatorWithConstantDelta:
         delta=st.floats(min_value=0.0, max_value=0.1),
         number_of_cycles=st.integers(min_value=1, max_value=10),
     )
-    def test_correct_phase_application(
+    def test_applies_the_cycles(
         self,
         states: tuple[Statevector, Statevector],
         delta: float,
         number_of_cycles: int,
     ):
-        """Test that the GenericIterativeSampleBasedPhasePropagatorWithConstantDelta applies the correct phase."""
+        """Test that the loop applies the exact map of each cycle."""
         psi, phi = states
-        preparable_state = BigUnitaryPreparableStatevector.from_statevector(phi)
-        assert psi.num_qubits == phi.num_qubits == preparable_state.num_qubits
-        n = preparable_state.num_qubits
-
         propagator = (
             GenericIterativeSampleBasedPhasePropagatorWithConstantDelta.from_state(
-                preparable_state, delta, number_of_cycles
+                PreparableState(phi, method=SynthesisMethod.DENSE),
+                delta,
+                number_of_cycles,
             )
         )
+        assert propagator.num_of_cycles == number_of_cycles
 
-        psi_reg = QuantumRegister(n, name=r"\psi")
-        phi_reg = QuantumRegister(n, name=r"\phi")
-        success_flag = ClassicalRegister(n, name="success_flag")
-
-        circuit = QuantumCircuit(psi_reg, phi_reg, success_flag)
-        circuit.initialize(psi.data.tolist(), psi_reg)
-        circuit.compose(propagator, circuit.qubits, circuit.clbits, inplace=True)
-        circuit.save_statevector()  # type: ignore
-
-        simulator = generate_aer_simulator()
-        transpiled = transpile(circuit)
-        job = simulator.run(transpiled, shots=1)
-        result = job.result()
-        counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
-        output_state_full = result.get_statevector(circuit)
-
-        # Check that all measured qubits are 0
-        assert counts[0] == 1
-
-        # Check the output state
-        traced = partial_trace(
-            output_state_full,
-            np.arange(
-                preparable_state.num_qubits, 2 * preparable_state.num_qubits
-            ).tolist(),
-        )
-        output_state = traced.to_statevector()
-        alpha = delta * number_of_cycles
-        expected_output = np.exp(1j * alpha * np.abs(phi.data) ** 2) * psi.data
-
-        assert (
-            state_fidelity(output_state, Statevector(expected_output))
-            >= 1.0 - FIDELITY_TOLERANCE
+        succeeded, output = run_propagator(propagator, psi)
+        assume(succeeded)
+        assert_equal_states(
+            output, exact_cycles(psi.data, phi.data, np.full(number_of_cycles, delta))
         )
 
 
@@ -170,82 +180,51 @@ class TestQuadraticSignalSampleBasedPhasePropagator:
 
     @settings(max_examples=10, deadline=None)
     @given(
-        signal=random_positive_signal(axis_type=AxisType.POSITION, max_qubits=3),
+        signal=random_positive_signal(domain=AxisDomain.POSITION, max_qubits=3),
         max_delta=st.floats(min_value=0.01, max_value=0.1),
     )
-    def test_essentials(self, signal: GenericQuantumSignal, max_delta: float):
-        """Test the essentials of the QuadraticSignalSampleBasedPhasePropagator."""
+    def test_essentials(self, signal: AlgebraicSignal, max_delta: float):
+        """Test the registers and the number of cycles."""
+        propagator = QuadraticSignalSampleBasedPhasePropagator(signal, max_delta)
+        alpha, _ = sample_based_decomposition(signal)
 
-        sample_based_signal = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
-            signal
+        assert propagator.num_qubits == 2 * signal.axis.size.bit_length() - 2
+        assert propagator.num_of_cycles == len(
+            slice_alpha_to_deltas_evenly(alpha, max_delta)
         )
-
-        propagator = QuadraticSignalSampleBasedPhasePropagator(
-            signal=sample_based_signal,
-            max_delta=max_delta,
-        )
-        n = signal.num_qubits
-        assert propagator.num_qubits == 2 * n
-        assert propagator.num_clbits == n
 
     @settings(max_examples=10, deadline=None)
     @given(
         signal=random_positive_signal(
-            axis_type=AxisType.POSITION, max_qubits=3, forced_sum_value=0.1
+            domain=AxisDomain.POSITION, max_qubits=3, forced_sum_value=0.1
         ),
         max_delta=st.floats(min_value=0.01, max_value=0.05),
+        method=st.sampled_from([SynthesisMethod.DENSE, SynthesisMethod.DECOMPOSED]),
     )
-    def test_correct_phase_application(
-        self, signal: GenericQuantumSignal, max_delta: float
+    def test_applies_the_signal(
+        self, signal: AlgebraicSignal, max_delta: float, method: SynthesisMethod
     ):
-        """Test that the QuadraticSignalSampleBasedPhasePropagator applies the correct phase."""
-
-        sample_based_signal = ArbitrarySignalForSampleBasedProtocol.from_generic_signal(
-            signal
-        )
-
+        """Test that the propagator applies e^(i f) up to the slicing error."""
         propagator = QuadraticSignalSampleBasedPhasePropagator(
-            signal=sample_based_signal,
-            max_delta=max_delta,
+            signal, max_delta, method
         )
+        psi = Statevector.from_label("+" * (propagator.num_qubits // 2))
 
-        psi_reg = QuantumRegister(signal.num_qubits, name=r"\psi")
-        phi_reg = QuantumRegister(signal.num_qubits, name=r"\phi")
-        success_flag = ClassicalRegister(signal.num_qubits, name="success_flag")
-        circuit = QuantumCircuit(psi_reg, phi_reg, success_flag)
+        succeeded, output = run_propagator(propagator, psi)
+        assume(succeeded)
 
-        psi = Statevector.from_label("+" * signal.num_qubits)
-
-        circuit.initialize(psi.data.tolist(), psi_reg)
-        circuit.compose(propagator, circuit.qubits, circuit.clbits, inplace=True)
-        circuit.save_statevector()  # type: ignore
-
-        simulator = generate_aer_simulator()
-        print("good until here")
-        transpiled = transpile(circuit)
-        print("and it also transpiled")
-        job = simulator.run(transpiled, shots=1)
-        result = job.result()
-        counts: dict[int, int] = result.get_counts(circuit).int_outcomes()
-        output_state_full = result.get_statevector(circuit)
-
-        # Check that all measured qubits are 0
-        assert counts[0] == 1
-
-        # Check the output state
-        traced = partial_trace(
-            output_state_full,
-            np.arange(signal.num_qubits, 2 * signal.num_qubits).tolist(),
-        )
-        output_state = traced.to_statevector()
-
-        # expected_output = (
-        #     np.exp(1j * alpha * np.abs(sample_based_signal.statevector.data) ** 2)
-        #     * psi.data
-        # )
-        expected_output = np.exp(1.0j * signal.data) * psi.data
-
+        alpha, state = sample_based_decomposition(signal)
+        deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
+        assert_equal_states(output, exact_cycles(psi.data, state.data, deltas))
         assert (
-            state_fidelity(output_state, Statevector(expected_output))
-            >= 1.0 - FIDELITY_TOLERANCE
+            state_fidelity(
+                Statevector(output), Statevector(np.exp(1j * signal.data) * psi.data)
+            )
+            >= 1 - FIDELITY_TOLERANCE
         )
+
+    def test_accepts_sampled_signals(self):
+        """Test that sampled signals are accepted as well as algebraic ones."""
+        signal = Signal(AXIS, [0.1, 0.2, 0.3, 0.4])
+        propagator = QuadraticSignalSampleBasedPhasePropagator(signal, max_delta=0.1)
+        assert propagator.num_of_cycles == 10

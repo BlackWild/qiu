@@ -1,275 +1,106 @@
-"""Module for sample-based phase propagators."""
+"""Statevector simulation of the sample-based phase propagation, post-selected on success.
+
+Instead of measuring the `phi` register, each cycle keeps the part of the state in
+which it is `|0...0>`, i.e. the successful outcome, and renormalizes it. See
+`sample_based` for the protocol.
+"""
 
 import numpy as np
 import numpy.typing as npt
-from qiskit.circuit import QuantumCircuit, QuantumRegister
-from qiskit.quantum_info import Operator, Statevector, partial_trace
-from qiskit_encore.initializer import kernel_based_initializer_operator
-from qiskit_encore.preparable_statevector import (
-    KernelBasedPreparableStatevector,
-    PreparableStatevector,
+from python_signals.algebraic_signal import SampledSignal
+from qiskit.quantum_info import Statevector
+from qiskit_encore.preparable_state import PreparableState
+from qiskit_encore.synthesis_method import SynthesisMethod
+
+from qiskit_phase_propagator.sample_based import (
+    partial_phase_circuit,
+    sample_based_decomposition,
+    slice_alpha_to_deltas_evenly,
 )
-from qiskit_signals.sample_based_signal import ArbitrarySignalForSampleBasedProtocol
 
 
-class PhaseProtocolUnitCycleWithoutMeasurement(QuantumCircuit):
-    def __init__(
-        self,
-        delta: float,
-        U_phi: QuantumCircuit,
-        U_phi_dagger: QuantumCircuit,
-    ):
-        n = U_phi.num_qubits
+def phase_propagation_cycle(
+    psi: Statevector, delta: float, phi: PreparableState
+) -> tuple[Statevector, float]:
+    """Simulate one cycle of the protocol, post-selected on its success.
 
-        psi_reg = QuantumRegister(n, name=r"\psi")
-        phi_reg = QuantumRegister(n, name=r"\phi")
+    Args:
+        psi: The state of the `psi` register.
+        delta: The phase of the cycle.
+        phi: The preparable state `|phi>`.
 
-        super().__init__(psi_reg, phi_reg, name="Phase propagator unit")
+    Returns:
+        The normalized state of the `psi` register after a successful cycle, and the
+        probability of success.
+    """
+    num_qubits = phi.num_qubits
+    phi_qubits = list(range(num_qubits, 2 * num_qubits))
 
-        # Step 1: initializing the |phi> register
-        self.compose(U_phi, phi_reg, inplace=True)
+    # the phi register holds the more significant qubits, prepared in |0...0>
+    state = Statevector.from_label("0" * num_qubits).tensor(psi)
+    state = state.evolve(phi.circuit, phi_qubits)
+    state = state.evolve(partial_phase_circuit(delta, num_qubits))
+    state = state.evolve(phi.inverse_circuit, phi_qubits)
 
-        # Step 2: the partial phase operator
-        # Flag qubit computation
-        for i in range(psi_reg.size):
-            self.cx(
-                phi_reg[psi_reg.size - 1 - i],
-                psi_reg[psi_reg.size - 1 - i],
-                ctrl_state=0,
-            )
-
-        # The application of the phase
-        self.mcp(delta, psi_reg[0:-1], psi_reg[-1])
-
-        # "Un-computing" the flag qubits
-        for i in range(psi_reg.size):
-            self.cx(phi_reg[i], psi_reg[i], ctrl_state=0)
-
-        # Step 3: partial measurement of the secondary register
-        self.compose(U_phi_dagger, phi_reg, inplace=True)
-
-
-class PhaseProtocolUnitCycleWithoutMeasurementAndStatePrep(QuantumCircuit):
-    def __init__(
-        self,
-        delta: float,
-        n: int,
-    ):
-        psi_reg = QuantumRegister(n, name=r"\psi")
-        phi_reg = QuantumRegister(n, name=r"\phi")
-
-        super().__init__(psi_reg, phi_reg, name="Phase propagator unit")
-
-        # Step 2: the partial phase operator
-        # Flag qubit computation
-        for i in range(psi_reg.size):
-            self.cx(
-                phi_reg[psi_reg.size - 1 - i],
-                psi_reg[psi_reg.size - 1 - i],
-                ctrl_state=0,
-            )
-
-        # The application of the phase
-        self.mcp(delta, psi_reg[0:-1], psi_reg[-1])
-
-        # "Un-computing" the flag qubits
-        for i in range(psi_reg.size):
-            self.cx(phi_reg[i], psi_reg[i], ctrl_state=0)
-
-
-# TODO: maybe it is more performant if I just cut out the 0 projected part instead of using partial trace and stuff!
-def phase_propagate_one_cycle(
-    psi_in: Statevector,
-    delta: float,
-    phi: PreparableStatevector,
-) -> Statevector:
-    n = phi.num_qubits
-
-    # Prepare the input state |0...0> ⊗ |psi>
-    ZERO_STATE = Statevector.from_label("0" * n)
-    # input_state = psi_in.tensor(ZERO_STATE)
-    input_state = ZERO_STATE.tensor(psi_in)
-
-    # TODO: for each phi, this circuit is the same, so you have to cache it before the loop, probably you should actually just convert it to an operator if .evolve() is not caching it and doing the conversion every time
-
-    # TODO: I checked and it seems it does not cache actually and converts it to Operator every time, so you should do it manually outside the loop
-
-    # Create the circuit for one cycle of the phase propagation protocol
-    circuit = PhaseProtocolUnitCycleWithoutMeasurement(
-        delta=delta,
-        U_phi=phi.initializer_circuit,
-        U_phi_dagger=phi.de_initializer_circuit,
-    )
-
-    print("There!")
-
-    # Evolve the input state through the circuit
-    psi_out_pre_projection = input_state.evolve(circuit)
-
-    # TODO: just directly extract the relevant part of the statevector instead of doing all this projection and tracing out
-
-    # Post-select on the |0...0> outcome of the phi register measurement
-    zero_state_projector = ZERO_STATE.to_operator()
-
-    psi_out_post_projection = psi_out_pre_projection.evolve(
-        zero_state_projector, np.arange(n, 2 * n).tolist()
-    )
-
-    # renormalize
-    normalized_psi_out_post_projection = Statevector(
-        psi_out_post_projection.data / np.linalg.norm(psi_out_post_projection.data)
-    )
-
-    # obtain the reduced state by tracing out the phi register
-    trace_out_rho = partial_trace(
-        normalized_psi_out_post_projection, np.arange(n, 2 * n).tolist()
-    )  # REMARK: I do not really kno why (0, n) and not (n, 2 * n)
-    reduced_state = trace_out_rho.to_statevector()
-
-    return reduced_state
+    # the amplitudes with the phi register in |0...0> come first
+    success = state.data[: 2**num_qubits]
+    probability = float(np.vdot(success, success).real)
+    return Statevector(success / np.sqrt(probability)), probability
 
 
 def phase_propagate_state(
-    psi_in: Statevector,
-    deltas: npt.NDArray | list[float],
-    phi: PreparableStatevector,
+    psi_in: Statevector, deltas: npt.NDArray | list[float], phi: PreparableState
 ) -> Statevector:
-    psi_current = psi_in.copy()
-    print(f"number of cycles: {len(deltas)}")
+    """Simulate one successful cycle per delta.
+
+    Args:
+        psi_in: The initial state of the `psi` register.
+        deltas: The phase of each cycle.
+        phi: The preparable state `|phi>`.
+
+    Returns:
+        The state of the `psi` register after all cycles.
+    """
+    psi = psi_in
     for delta in deltas:
-        psi_current = phase_propagate_one_cycle(psi_current, delta, phi)
-    return psi_current
+        psi, _ = phase_propagation_cycle(psi, delta, phi)
+    return psi
 
 
 def phase_propagate_state_with_constant_delta(
-    psi_in: Statevector,
-    delta: float,
-    num_cycles: int,
-    phi: PreparableStatevector,
+    psi_in: Statevector, delta: float, num_cycles: int, phi: PreparableState
 ) -> Statevector:
-    # TODO: make work and clean up prints
+    """Simulate `num_cycles` successful cycles with the same delta.
 
-    n = phi.num_qubits
+    Args:
+        psi_in: The initial state of the `psi` register.
+        delta: The phase of each cycle.
+        num_cycles: The number of cycles.
+        phi: The preparable state `|phi>`.
 
-    # initializer = phi.initializer_circuit
-    initializer = kernel_based_initializer_operator(phi)
-    print("There -2!")
-    de_initializer = Operator(initializer.data.conj().T)
-    print("There -1!")
-
-    circuit = PhaseProtocolUnitCycleWithoutMeasurementAndStatePrep(
-        delta=delta,
-        n=n,
-    )
-
-    print("There 2!")
-    # operator = Operator(circuit)
-
-    print("There 3!")
-
-    # Prepare the input state |0...0> ⊗ |psi>
-    ZERO_STATE = Statevector.from_label("0" * n)
-
-    output_state = psi_in.copy()
-
-    for _ in range(num_cycles):
-        # input_state = psi_in.tensor(ZERO_STATE)
-        input_state = ZERO_STATE.tensor(psi_in)
-        print("11")
-
-        # applying phi initializer
-        psi_before_phase_unit = input_state.evolve(
-            initializer, np.arange(n, 2 * n).tolist()
-        )
-
-        print("12")
-
-        # Evolve the input state through the circuit
-        psi_after_phase_unit = psi_before_phase_unit.evolve(circuit)
-
-        print("13")
-
-        # applying phi de-initializer
-        psi_out_pre_projection = psi_after_phase_unit.evolve(
-            de_initializer, np.arange(n, 2 * n).tolist()
-        )
-
-        print("14")
-
-        # TODO: just directly extract the relevant part of the statevector instead of doing all this projection and tracing out
-
-        # Post-select on the |0...0> outcome of the phi register measurement
-        zero_state_projector = ZERO_STATE.to_operator()
-
-        print("15")
-
-        psi_out_post_projection = psi_out_pre_projection.evolve(
-            zero_state_projector, np.arange(n, 2 * n).tolist()
-        )
-
-        print("16")
-
-        # renormalize
-        normalized_psi_out_post_projection = Statevector(
-            psi_out_post_projection.data / np.linalg.norm(psi_out_post_projection.data)
-        )
-
-        print("17")
-
-        # obtain the reduced state by tracing out the phi register
-        trace_out_rho = partial_trace(
-            normalized_psi_out_post_projection, np.arange(n, 2 * n).tolist()
-        )  # REMARK: I do not really kno why (0, n) and not (n, 2 * n)
-
-        print("18")
-
-        output_state = trace_out_rho.to_statevector()
-
-        print("19")
-
-    return output_state
+    Returns:
+        The state of the `psi` register after all cycles.
+    """
+    return phase_propagate_state(psi_in, np.full(num_cycles, delta), phi)
 
 
 def phase_propagate_state_with_arbitrary_signal(
     psi_in: Statevector,
-    signal: ArbitrarySignalForSampleBasedProtocol,
+    signal: SampledSignal,
     max_delta: float,
+    method: SynthesisMethod = SynthesisMethod.GATE,
 ) -> Statevector:
-    alpha, state = signal.alpha, signal.statevector
-    deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
-
-    preparable_state = KernelBasedPreparableStatevector.from_statevector(state)
-
-    print("Here!")
-
-    # psi_out = phase_propagate_state(psi_in, deltas, preparable_state)
-
-    psi_out = phase_propagate_state_with_constant_delta(
-        psi_in, deltas[0], len(deltas), preparable_state
-    )
-
-    return psi_out
-
-
-def slice_alpha_to_deltas_evenly(alpha: float, max_delta: float) -> npt.NDArray:
-    """Slices the alpha value into a list of deltas, each with a maximum value of max_delta.
+    """Simulate the application of `e^(i f(x))` for a signal `f` of one sign.
 
     Args:
-        alpha (float): The total alpha value to be sliced.
-        max_delta (float): The maximum value for each delta slice.
+        psi_in: The initial state of the `psi` register.
+        signal: The real signal `f` of one sign, on an axis of `2**n` samples.
+        max_delta: The maximum phase per cycle.
+        method: How the preparation of `|phi>` is represented in the circuits.
 
     Returns:
-        npt.NDArray: An array of delta values that sum up to alpha.
+        The state of the `psi` register after all cycles.
     """
-
-    # assure delta is positive
-    if max_delta <= 0:
-        raise ValueError("The max_delta must be positive.")
-
-    max_delta *= np.sign(alpha)
-
-    number_of_deltas = int(np.ceil(np.abs(alpha / max_delta)))
-    delta = alpha / number_of_deltas
-    deltas = delta * np.ones(number_of_deltas)
-
-    return deltas
+    alpha, state = sample_based_decomposition(signal)
+    deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
+    return phase_propagate_state(psi_in, deltas, PreparableState(state, method))

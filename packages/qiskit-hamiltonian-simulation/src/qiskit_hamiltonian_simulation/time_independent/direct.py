@@ -1,89 +1,77 @@
-"""Module implementing time-independent evolution under several polynomial Hamiltonians using direct phase application."""
+"""Time evolution under quadratic phases, applied directly by phase circuits."""
 
+from python_signals.algebraic_signal import QuadraticSignal
 from qiskit.circuit import QuantumCircuit, QuantumRegister
-from qiskit_encore.qft import generate_big_matrix_qft_circuit
-from qiskit_phase_propagator.direct import Order2DirectPhase
-from qiskit_signals.quantum_signal import QuadraticQuantumSignal
-
-# TODO: move these classes to qiskit-phase-propagator, only keep things related to actual terms in the Hamiltonian here; like potential and kinetic energy terms
+from qiskit_encore.synthesis_method import SynthesisMethod
+from qiskit_hamiltonian_simulation.time_independent.fourier import (
+    require_momentum_domain_axis,
+    require_position_domain_axis,
+    to_momentum_basis,
+    to_position_basis,
+)
+from qiskit_phase_propagator.direct import polynomial_phase_circuit
+from qiskit_phase_propagator.qubit_encoding import num_qubits_of
 
 
 class PositionDomainEvolutionQuadratic(QuantumCircuit):
-    """A quantum circuit evolving a state under a quadratic phase profile.
+    """The unitary `e^(i f(x))` for a quadratic signal `f` on a position axis.
 
-    This circuit implements the unitary operation exp(-i * alpha * X^2) where X is the
-    position operator.
-
-    Attributes:
-        QuadraticQuantumSignal (QuadraticQuantumSignal): The quadratic quantum signal representing the phase profile.
+    The basis state `|k>` is multiplied by `e^(i f(x_k))`, e.g. for the potential
+    `V` over the time `t`, `f = -t V / hbar`.
     """
 
-    quadratic_signal: QuadraticQuantumSignal
+    quadratic_signal: QuadraticSignal
+    """The quadratic signal `f`."""
 
-    def __init__(
-        self,
-        quadratic_signal: QuadraticQuantumSignal,
-    ) -> None:
-        """Initializes the PositionDomainEvolution with the given parameters."""
-        if quadratic_signal.axis.is_fourier_domain_axis:
-            raise ValueError(
-                "The axis of the quadratic signal must be a position domain axis."
-            )
+    def __init__(self, quadratic_signal: QuadraticSignal) -> None:
+        """Initialize the evolution.
 
+        Args:
+            quadratic_signal: The quadratic signal on a position axis of `2**n`
+                samples.
+        """
+        require_position_domain_axis(quadratic_signal.axis)
         self.quadratic_signal = quadratic_signal
 
-        n = quadratic_signal.axis.num_qubits
-
-        psi_reg = QuantumRegister(n, name=r"\psi")
+        psi_reg = QuantumRegister(num_qubits_of(quadratic_signal.axis), name=r"\psi")
         super().__init__(psi_reg, name="Position Domain Evolution")
-
-        propagator = Order2DirectPhase(
-            coef=quadratic_signal.effective_alpha,
-            num_qubits=n,
-            encoding=quadratic_signal.encoding,
-        )
-
-        self.compose(propagator, psi_reg, inplace=True)
+        self.compose(polynomial_phase_circuit(quadratic_signal), psi_reg, inplace=True)
 
 
 class MomentumDomainEvolutionQuadratic(QuantumCircuit):
-    """A quantum circuit evolving a state under a quadratic phase profile in momentum space.
+    """The unitary `e^(i f(p))` for a quadratic signal `f` on a momentum axis.
 
-    This circuit implements the unitary operation exp(-i * alpha * P^2) where P is the
-    momentum operator.
-
-    Attributes:
-        QuadraticQuantumSignal (QuadraticQuantumSignal): The quadratic quantum signal representing the phase profile.
+    The state is transformed to the momentum basis, see `fourier`, multiplied by
+    `e^(i f(p_k))` and transformed back, e.g. for the kinetic energy `T` over the
+    time `t`, `f = -t T / hbar`.
     """
 
-    quadratic_signal: QuadraticQuantumSignal
+    quadratic_signal: QuadraticSignal
+    """The quadratic signal `f`."""
 
     def __init__(
         self,
-        quadratic_signal: QuadraticQuantumSignal,
+        quadratic_signal: QuadraticSignal,
+        fourier_method: SynthesisMethod = SynthesisMethod.GATE,
     ) -> None:
-        """Initializes the MomentumDomainEvolution with the given parameters."""
-        if not quadratic_signal.axis.is_fourier_domain_axis:
-            raise ValueError(
-                "The axis of the quadratic signal must be a Fourier domain axis."
-            )
+        """Initialize the evolution.
 
+        Args:
+            quadratic_signal: The quadratic signal on a Fourier domain axis of
+                `2**n` samples in the `FFT` ordering.
+            fourier_method: How the Fourier transforms are represented.
+        """
+        require_momentum_domain_axis(quadratic_signal.axis)
         self.quadratic_signal = quadratic_signal
 
-        n = quadratic_signal.axis.num_qubits
-
-        psi_reg = QuantumRegister(n, name=r"\psi")
+        num_qubits = num_qubits_of(quadratic_signal.axis)
+        psi_reg = QuantumRegister(num_qubits, name=r"\psi")
         super().__init__(psi_reg, name="Momentum Domain Evolution")
 
-        propagator = Order2DirectPhase(
-            coef=quadratic_signal.effective_alpha,
-            num_qubits=n,
-            encoding=quadratic_signal.encoding,
+        self.compose(
+            to_momentum_basis(num_qubits, fourier_method), psi_reg, inplace=True
         )
-
-        qft = generate_big_matrix_qft_circuit(n)
-        iqft = generate_big_matrix_qft_circuit(n, inverse=True)
-
-        self.compose(qft, psi_reg, inplace=True)
-        self.compose(propagator, psi_reg, inplace=True)
-        self.compose(iqft, psi_reg, inplace=True)
+        self.compose(polynomial_phase_circuit(quadratic_signal), psi_reg, inplace=True)
+        self.compose(
+            to_position_basis(num_qubits, fourier_method), psi_reg, inplace=True
+        )
