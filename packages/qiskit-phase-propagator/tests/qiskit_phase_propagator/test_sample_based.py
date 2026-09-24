@@ -4,6 +4,8 @@ import numpy as np
 import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+from python_pytest_helper.assertions import RTOL, assert_close
+from python_pytest_helper.hypothesis_strategies import positive_polynomial_signals
 from python_signals.algebraic_signal import AlgebraicSignal
 from python_signals.integer_axis import IndexOrdering
 from python_signals.physical_axis import AxisDomain, PositionAxis
@@ -25,7 +27,7 @@ from qiskit_pytest_helper.assertions import (
 )
 from qiskit_pytest_helper.constants import FIDELITY_TOLERANCE
 from qiskit_pytest_helper.hypothesis_strategies import (
-    random_positive_signal,
+    qubit_axes,
     state_pairs_with_equal_qubits,
 )
 from qiskit_pytest_helper.propagation import exact_cycles, run_propagator
@@ -37,18 +39,18 @@ deltas_lists = st.lists(st.floats(min_value=0.0, max_value=0.1), min_size=1, max
 class TestSampleBasedDecomposition:
     """Test sample_based_decomposition."""
 
-    @given(signal=random_positive_signal(domain=AxisDomain.POSITION))
+    @given(signal=positive_polynomial_signals(qubit_axes(AxisDomain.POSITION)))
     def test_reconstructs_the_signal(self, signal: AlgebraicSignal):
         """Test that the signal is alpha times the squared amplitudes of the state."""
         alpha, state = sample_based_decomposition(signal)
         assert state.is_valid()
-        np.testing.assert_allclose(alpha * np.abs(state.data) ** 2, signal.data)
+        assert_close(alpha * np.abs(state.data) ** 2, signal.data)
 
     def test_non_positive_signals(self):
         """Test that non-positive signals have a negative alpha."""
         alpha, state = sample_based_decomposition(Signal(AXIS, [-1.0, -3.0, 0.0, -4.0]))
         assert alpha == -8.0
-        np.testing.assert_allclose(np.abs(state.data) ** 2, [1 / 8, 3 / 8, 0, 4 / 8])
+        assert_close(np.abs(state.data) ** 2, [1 / 8, 3 / 8, 0, 4 / 8])
 
     def test_accepts_real_complex_data(self):
         """Test that complex data with vanishing imaginary parts is accepted."""
@@ -86,8 +88,8 @@ class TestSliceAlphaToDeltasEvenly:
         """Test that the fewest equal deltas of bounded magnitude sum up to alpha."""
         deltas = slice_alpha_to_deltas_evenly(alpha, max_delta)
 
-        assert np.isclose(np.sum(deltas), alpha)
-        assert np.all(np.abs(deltas) <= max_delta * (1 + 1e-12))
+        assert_close(np.sum(deltas), alpha)
+        assert np.all(np.abs(deltas) <= max_delta * (1 + RTOL))
         assert len(deltas) == int(np.ceil(abs(alpha) / max_delta))
         assert np.all(deltas == deltas[0]) if len(deltas) else alpha == 0
 
@@ -180,7 +182,9 @@ class TestQuadraticSignalSampleBasedPhasePropagator:
 
     @settings(max_examples=10, deadline=None)
     @given(
-        signal=random_positive_signal(domain=AxisDomain.POSITION, max_qubits=3),
+        signal=positive_polynomial_signals(
+            qubit_axes(AxisDomain.POSITION, max_qubits=3)
+        ),
         max_delta=st.floats(min_value=0.01, max_value=0.1),
     )
     def test_essentials(self, signal: AlgebraicSignal, max_delta: float):
@@ -195,8 +199,8 @@ class TestQuadraticSignalSampleBasedPhasePropagator:
 
     @settings(max_examples=10, deadline=None)
     @given(
-        signal=random_positive_signal(
-            domain=AxisDomain.POSITION, max_qubits=3, forced_sum_value=0.1
+        signal=positive_polynomial_signals(
+            qubit_axes(AxisDomain.POSITION, max_qubits=3), total=0.1
         ),
         max_delta=st.floats(min_value=0.01, max_value=0.05),
         method=st.sampled_from([SynthesisMethod.DENSE, SynthesisMethod.DECOMPOSED]),

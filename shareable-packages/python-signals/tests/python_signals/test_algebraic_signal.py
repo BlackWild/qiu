@@ -7,6 +7,8 @@ import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+from python_pytest_helper.assertions import assert_close
+from python_pytest_helper.hypothesis_strategies import position_axes, reals
 from python_signals.algebraic_signal import (
     AlgebraicSignal,
     PolynomialSignal,
@@ -23,24 +25,7 @@ def sympy():
     return pytest.importorskip("sympy")
 
 
-@st.composite
-def position_axes(draw) -> PositionAxis:
-    """A strategy for generating position axes."""
-    return PositionAxis(
-        size=draw(st.integers(min_value=1, max_value=64)),
-        delta_x=draw(st.floats(min_value=1e-3, max_value=10.0)),
-        ordering=draw(st.sampled_from(list(IndexOrdering))),
-    )
-
-
-alphas = st.floats(min_value=-10.0, max_value=10.0)
-
-UNDERFLOW_ATOL = float(np.finfo(np.float64).tiny)
-"""The smallest normal float, below which floats lose their relative precision.
-
-Monomials of tiny coefficients underflow to subnormal values, which only agree
-absolutely at this scale.
-"""
+alphas = reals(10.0)
 powers = st.integers(min_value=0, max_value=4)
 
 
@@ -92,7 +77,7 @@ class TestAlgebraicSignalFromFunction:
         axis = PositionAxis(8, 0.5, IndexOrdering.FFT)
         signal = AlgebraicSignal(axis, lambda x: np.exp(1j * x))
         assert np.iscomplexobj(signal.data)
-        np.testing.assert_allclose(np.abs(signal.data), 1.0)
+        assert_close(np.abs(signal.data), 1.0)
 
     @given(axis=position_axes())
     def test_to_signal(self, axis: PhysicalAxis):
@@ -103,7 +88,7 @@ class TestAlgebraicSignalFromFunction:
         assert type(signal) is Signal
         assert signal.axis is axis
         np.testing.assert_array_equal(signal.data, algebraic.data)
-        assert np.isclose(np.linalg.norm(signal.normalized_data), 1.0)
+        assert_close(np.linalg.norm(signal.normalized_data), 1.0)
 
 
 class TestAlgebraicSignalFromSympy:
@@ -118,7 +103,7 @@ class TestAlgebraicSignalFromSympy:
         )
 
         assert signal.symbol == x
-        np.testing.assert_allclose(
+        assert_close(
             signal.data, alpha * np.exp(-(axis.values**2)) + np.cos(axis.values)
         )
 
@@ -138,7 +123,7 @@ class TestAlgebraicSignalFromSympy:
         """Test that the expression can be given as a string."""
         axis = PositionAxis(6, 0.5, IndexOrdering.CENTERED)
         signal = AlgebraicSignal.from_sympy(axis, "2*t**3")
-        np.testing.assert_allclose(signal.data, 2 * axis.values**3)
+        assert_close(signal.data, 2 * axis.values**3)
         assert signal.symbol == sympy.Symbol("t")
 
     def test_explicit_symbol(self, sympy):
@@ -146,7 +131,7 @@ class TestAlgebraicSignalFromSympy:
         x, alpha = sympy.symbols("x alpha")
         axis = PositionAxis(4, 1.0, IndexOrdering.NATURAL)
         signal = AlgebraicSignal.from_sympy(axis, (alpha * x**2).subs(alpha, 3), x)
-        np.testing.assert_allclose(signal.data, 3 * axis.values**2)
+        assert_close(signal.data, 3 * axis.values**2)
 
     def test_constant_expression(self, sympy):
         """Test that constant expressions give one value per sample."""
@@ -159,7 +144,7 @@ class TestAlgebraicSignalFromSympy:
         x = sympy.Symbol("x")
         axis = PositionAxis(8, 0.25, IndexOrdering.FFT)
         signal = AlgebraicSignal.from_sympy(axis, sympy.exp(sympy.I * x))
-        np.testing.assert_allclose(signal.data, np.exp(1j * axis.values))
+        assert_close(signal.data, np.exp(1j * axis.values))
 
     @pytest.mark.parametrize("expression", ["x > 1", "Eq(x, 1)"])
     def test_non_algebraic_expression(self, sympy, expression: str):
@@ -215,16 +200,15 @@ class TestPolynomialSignal:
         assert signal.axis is axis
         assert signal.alpha == alpha
         assert signal.power == power
-        np.testing.assert_allclose(signal.data, alpha * axis.values**power)
+        assert_close(signal.data, alpha * axis.values**power)
 
     @given(axis=position_axes(), alpha=alphas, power=powers)
     def test_effective_alpha(self, axis: PhysicalAxis, alpha: float, power: int):
         """Test that the signal is effective_alpha times the powers of the indices."""
         signal = PolynomialSignal(axis, alpha, power)
-        np.testing.assert_allclose(
+        assert_close(
             signal.data,
             signal.effective_alpha * axis.index.astype(float) ** power,
-            atol=UNDERFLOW_ATOL,
         )
 
     @given(axis=position_axes(), alpha=alphas, power=powers)
@@ -232,10 +216,9 @@ class TestPolynomialSignal:
         """Test that the monomial matches its symbolic counterpart."""
         x = sympy.Symbol("x")
         symbolic = AlgebraicSignal.from_sympy(axis, alpha * x**power, x)
-        np.testing.assert_allclose(
+        assert_close(
             PolynomialSignal(axis, alpha, power).data,
             symbolic.data,
-            atol=UNDERFLOW_ATOL,
         )
 
 
@@ -250,4 +233,4 @@ class TestQuadraticSignal:
         assert isinstance(signal, PolynomialSignal)
         assert signal.power == 2
         assert signal.alpha == alpha
-        np.testing.assert_allclose(signal.data, PolynomialSignal(axis, alpha, 2).data)
+        assert_close(signal.data, PolynomialSignal(axis, alpha, 2).data)

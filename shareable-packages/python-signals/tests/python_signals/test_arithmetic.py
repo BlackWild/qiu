@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+from python_pytest_helper.assertions import assert_close
 from python_signals.algebraic_signal import (
     AlgebraicSignal,
     PolynomialSignal,
@@ -74,7 +75,7 @@ class TestSignalArithmetic:
         ]:
             assert type(result) is Signal
             assert result.axis is AXIS
-            np.testing.assert_allclose(result.data, expected)
+            assert_close(result.data, expected)
 
     @given(op=operators)
     def test_with_signals(self, op):
@@ -84,7 +85,7 @@ class TestSignalArithmetic:
 
         result = op(signal, other)
         assert type(result) is Signal
-        np.testing.assert_allclose(result.data, op(signal.data, other.data))
+        assert_close(result.data, op(signal.data, other.data))
 
     def test_negation(self):
         """Test the unary operators."""
@@ -95,7 +96,7 @@ class TestSignalArithmetic:
     def test_complex_values(self):
         """Test that complex signals and scalars are supported."""
         signal = Signal(AXIS, np.exp(1j * AXIS.values))
-        np.testing.assert_allclose((1j * signal).data, 1j * signal.data)
+        assert_close((1j * signal).data, 1j * signal.data)
 
     def test_axes_must_be_equal(self):
         """Test that signals on different axes cannot be combined."""
@@ -131,7 +132,7 @@ class TestAlgebraicSignalArithmetic:
             (op(scalar, signal), op(scalar, positive(AXIS.values))),
         ]:
             assert type(result) is AlgebraicSignal
-            np.testing.assert_allclose(result.data, expected)
+            assert_close(result.data, expected)
 
     @given(op=operators)
     def test_with_algebraic_signals(self, op):
@@ -141,14 +142,12 @@ class TestAlgebraicSignalArithmetic:
         )
 
         assert type(result) is AlgebraicSignal
-        np.testing.assert_allclose(
+        assert_close(
             result.data, op(positive(AXIS.values), other_positive(AXIS.values))
         )
         # the result is still algebraic, i.e. evaluable off the axis
         values = np.linspace(-1, 1, 5)
-        np.testing.assert_allclose(
-            result(values), op(positive(values), other_positive(values))
-        )
+        assert_close(result(values), op(positive(values), other_positive(values)))
 
     @given(op=operators)
     def test_with_sampled_signals(self, op):
@@ -161,7 +160,7 @@ class TestAlgebraicSignalArithmetic:
             (op(sampled, algebraic), op(sampled.data, algebraic.data)),
         ]:
             assert type(result) is Signal
-            np.testing.assert_allclose(result.data, expected)
+            assert_close(result.data, expected)
 
     def test_constant_operands(self):
         """Test that constant functions broadcast in combinations."""
@@ -173,7 +172,7 @@ class TestAlgebraicSignalArithmetic:
     def test_negation(self):
         """Test the unary operators."""
         signal = AlgebraicSignal(AXIS, positive)
-        np.testing.assert_allclose((-signal).data, -positive(AXIS.values))
+        assert_close((-signal).data, -positive(AXIS.values))
         assert +signal is signal
 
     def test_axes_must_be_equal(self):
@@ -207,7 +206,7 @@ class TestAlgebraicSignalArithmetic:
         x = sympy.Symbol("x")
         result = AlgebraicSignal.from_sympy(AXIS, x**2) + AlgebraicSignal(AXIS, np.cos)
         assert result.expression is None
-        np.testing.assert_allclose(result.data, AXIS.values**2 + np.cos(AXIS.values))
+        assert_close(result.data, AXIS.values**2 + np.cos(AXIS.values))
 
 
 class TestPolynomialSignalArithmetic:
@@ -226,8 +225,8 @@ class TestPolynomialSignalArithmetic:
         ]:
             assert type(result) is PolynomialSignal
             assert result.power == 3
-            assert np.isclose(result.alpha, alpha)
-            np.testing.assert_allclose(result.data, alpha * AXIS.values**3)
+            assert_close(result.alpha, alpha)
+            assert_close(result.data, alpha * AXIS.values**3)
 
     def test_quadratic_signals_stay_quadratic(self):
         """Test that scaled quadratic signals keep their class and effective alpha."""
@@ -235,7 +234,7 @@ class TestPolynomialSignalArithmetic:
         scaled = -2 * signal
 
         assert type(scaled) is QuadraticSignal
-        assert np.isclose(scaled.effective_alpha, -2 * signal.effective_alpha)
+        assert_close(scaled.effective_alpha, -2 * signal.effective_alpha)
 
     def test_other_operations_are_algebraic(self):
         """Test that other operations give general algebraic signals."""
@@ -243,4 +242,4 @@ class TestPolynomialSignalArithmetic:
 
         for result in [signal + 1, 1 / (signal + 1), signal * signal]:
             assert type(result) is AlgebraicSignal
-        np.testing.assert_allclose((signal + 1).data, 0.3 * AXIS.values**2 + 1)
+        assert_close((signal + 1).data, 0.3 * AXIS.values**2 + 1)

@@ -4,10 +4,15 @@ import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+from python_pytest_helper.assertions import assert_close
+from python_pytest_helper.hypothesis_strategies import (
+    axis_sizes,
+    index_orderings,
+)
 from python_signals.integer_axis import IndexOrdering, IntegerAxis
 
-sizes = st.integers(min_value=1, max_value=64)
-orderings = st.sampled_from(list(IndexOrdering))
+sizes = axis_sizes()
+orderings = index_orderings
 
 
 class TestIndexOrdering:

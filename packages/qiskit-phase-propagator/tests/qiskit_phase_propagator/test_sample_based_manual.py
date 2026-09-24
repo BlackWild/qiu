@@ -3,6 +3,8 @@
 import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from python_pytest_helper.assertions import assert_close
+from python_pytest_helper.hypothesis_strategies import positive_polynomial_signals
 from python_signals.algebraic_signal import AlgebraicSignal
 from python_signals.physical_axis import AxisDomain
 from qiskit.quantum_info import Statevector
@@ -21,7 +23,7 @@ from qiskit_phase_propagator.sample_based_manual import (
 )
 from qiskit_pytest_helper.assertions import assert_equal_states
 from qiskit_pytest_helper.hypothesis_strategies import (
-    random_positive_signal,
+    qubit_axes,
     state_pairs_with_equal_qubits,
 )
 from qiskit_pytest_helper.propagation import exact_cycles, run_propagator
@@ -47,7 +49,7 @@ class TestPhasePropagationCycle:
 
         unnormalized = psi.data * (1 + (np.exp(1j * delta) - 1) * np.abs(phi.data) ** 2)
         assert_equal_states(output, unnormalized / np.linalg.norm(unnormalized))
-        assert np.isclose(probability, np.linalg.norm(unnormalized) ** 2)
+        assert_close(probability, np.linalg.norm(unnormalized) ** 2)
 
 
 class TestPhasePropagateState:
@@ -77,8 +79,8 @@ class TestPhasePropagateState:
 
     @settings(max_examples=10, deadline=None)
     @given(
-        signal=random_positive_signal(
-            domain=AxisDomain.POSITION, max_qubits=3, forced_sum_value=0.1
+        signal=positive_polynomial_signals(
+            qubit_axes(AxisDomain.POSITION, max_qubits=3), total=0.1
         ),
         max_delta=st.floats(min_value=0.01, max_value=0.05),
     )

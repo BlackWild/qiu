@@ -1,17 +1,23 @@
-"""Strategies for generating quantum states."""
+"""Hypothesis strategies for quantum states and for axes representable by qubits.
+
+The strategies of numbers, axes and signals themselves are the ones of
+`python_pytest_helper.hypothesis_strategies`, e.g. signals on qubit axes are
+`positive_polynomial_signals(qubit_axes(AxisDomain.POSITION))`.
+"""
 
 import hypothesis.strategies as st
 import numpy as np
 import numpy.typing as npt
 from hypothesis.extra.numpy import arrays
-from python_signals.algebraic_signal import AlgebraicSignal, PolynomialSignal
-from python_signals.integer_axis import IndexOrdering
-from python_signals.physical_axis import (
-    AxisDomain,
-    MomentumAxis,
-    PhysicalAxis,
-    PositionAxis,
+from python_pytest_helper.assertions import is_close
+from python_pytest_helper.hypothesis_strategies import (
+    axis_spacings,
+    index_orderings,
+    physical_axes,
+    power_of_two_sizes,
 )
+from python_signals.integer_axis import IndexOrdering
+from python_signals.physical_axis import AxisDomain, PhysicalAxis
 from qiskit.quantum_info import Statevector
 
 from qiskit_pytest_helper.constants import (
@@ -94,7 +100,7 @@ def non_normalized_quantum_state_array(
             allow_infinity=False,
         )
     )
-    if np.isclose(np.abs(scale), 1.0):
+    if is_close(np.abs(scale), 1.0):
         scale += 5  # ensure it's not normalized
 
     scaled_state = scale * state
@@ -151,120 +157,32 @@ def state_pairs_with_equal_qubits(
     return Statevector(state1), Statevector(state2)
 
 
-@st.composite
-def position_axis(
-    draw,
-    min_qubits=MIN_QUBITS,
-    max_qubits=MAX_QUBITS,
-    forced_ordering: IndexOrdering | None = None,
-) -> PositionAxis:
-    """A strategy for position axes of `2**n` samples, representable by `n` qubits."""
-    num_qubits = draw(st.integers(min_qubits, max_qubits))
-    delta_x = draw(st.floats(min_value=MIN_MAGNITUDE, max_value=1))
-    ordering = forced_ordering or draw(st.sampled_from(list(IndexOrdering)))
-
-    return PositionAxis(size=2**num_qubits, delta_x=delta_x, ordering=ordering)
+moderate_alphas = st.floats(min_value=MIN_MAGNITUDE, max_value=MAX_MAGNITUDE)
+"""A strategy for coefficients of monomial signals keeping their phases moderate."""
 
 
-@st.composite
-def momentum_axis(
-    draw,
-    min_qubits=MIN_QUBITS,
-    max_qubits=MAX_QUBITS,
-    forced_ordering: IndexOrdering | None = None,
-) -> MomentumAxis:
-    """A strategy for momentum axes of `2**n` samples, conjugate to a position axis.
+def qubit_sizes(
+    min_qubits: int = MIN_QUBITS, max_qubits: int = MAX_QUBITS
+) -> st.SearchStrategy[int]:
+    """A strategy for the numbers of samples `2**n` representable by `n` qubits."""
+    return power_of_two_sizes(min_exponent=min_qubits, max_exponent=max_qubits)
 
-    The momenta are in natural units, `hbar = 1`.
+
+def qubit_axes(
+    domain: AxisDomain = AxisDomain.POSITION,
+    min_qubits: int = MIN_QUBITS,
+    max_qubits: int = MAX_QUBITS,
+    orderings: st.SearchStrategy[IndexOrdering] = index_orderings,
+) -> st.SearchStrategy[PhysicalAxis]:
+    """A strategy for axes of `2**n` samples, representable by `n` qubits.
+
+    Fourier axes are conjugate to a position axis, momenta with `hbar = 1`, see
+    `python_pytest_helper.hypothesis_strategies.physical_axes`. The position spacings
+    are at most 1, keeping the phases of polynomial signals moderate.
     """
-    x_axis = draw(
-        position_axis(
-            min_qubits=min_qubits,
-            max_qubits=max_qubits,
-            forced_ordering=forced_ordering,
-        )
+    return physical_axes(
+        domain,
+        sizes=qubit_sizes(min_qubits, max_qubits),
+        spacings=axis_spacings(min_value=MIN_MAGNITUDE, max_value=1.0),
+        orderings=orderings,
     )
-    return MomentumAxis.from_position_axis(x_axis, hbar=1.0, keep_ordering=True)
-
-
-@st.composite
-def qubit_axis(
-    draw,
-    domain: AxisDomain,
-    min_qubits=MIN_QUBITS,
-    max_qubits=MAX_QUBITS,
-    forced_ordering: IndexOrdering | None = None,
-) -> PhysicalAxis:
-    """A strategy for position or momentum axes of `2**n` samples."""
-    strategy = position_axis if domain == AxisDomain.POSITION else momentum_axis
-    return draw(
-        strategy(
-            min_qubits=min_qubits,
-            max_qubits=max_qubits,
-            forced_ordering=forced_ordering,
-        )
-    )
-
-
-@st.composite
-def random_positive_signal(
-    draw,
-    domain: AxisDomain,
-    min_qubits=MIN_QUBITS,
-    max_qubits=MAX_QUBITS,
-    min_magnitude=MIN_MAGNITUDE,
-    max_magnitude=MAX_MAGNITUDE,
-    forced_sum_value: float = 1.0,
-    forced_ordering: IndexOrdering | None = None,
-) -> AlgebraicSignal:
-    """A strategy for positive polynomial signals of degree up to 5.
-
-    The signals are scaled such that their samples sum up to `forced_sum_value`.
-    """
-    axis = draw(
-        qubit_axis(
-            domain=domain,
-            min_qubits=min_qubits,
-            max_qubits=max_qubits,
-            forced_ordering=forced_ordering,
-        )
-    )
-
-    degree = draw(st.integers(min_value=1, max_value=5))
-    coefficients = draw(
-        arrays(
-            dtype=np.float64,
-            shape=degree + 1,
-            elements=st.floats(min_value=min_magnitude, max_value=max_magnitude),
-        )
-    )
-
-    def polynomial(x: npt.NDArray) -> npt.NDArray:
-        return np.abs(sum(c * x**i for i, c in enumerate(coefficients)))
-
-    scale = forced_sum_value / np.sum(polynomial(axis.values))
-    return AlgebraicSignal(axis, lambda x: scale * polynomial(x))
-
-
-@st.composite
-def random_polynomial_signal(
-    draw,
-    degree: int,
-    domain: AxisDomain,
-    min_qubits=MIN_QUBITS,
-    max_qubits=MAX_QUBITS,
-    min_magnitude=MIN_MAGNITUDE,
-    max_magnitude=MAX_MAGNITUDE,
-    forced_ordering: IndexOrdering | None = None,
-) -> PolynomialSignal:
-    """A strategy for monomial signals `alpha * x**degree`."""
-    axis = draw(
-        qubit_axis(
-            domain=domain,
-            min_qubits=min_qubits,
-            max_qubits=max_qubits,
-            forced_ordering=forced_ordering,
-        )
-    )
-    alpha = draw(st.floats(min_value=min_magnitude, max_value=max_magnitude))
-    return PolynomialSignal(axis=axis, alpha=alpha, power=degree)

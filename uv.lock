@@ -9,6 +9,7 @@ resolution-markers = [
 [manifest]
 members = [
     "python-encore",
+    "python-pytest-helper",
     "python-signals",
     "qiskit-aer-encore",
     "qiskit-encore",
@@ -28,6 +29,7 @@ dev = [
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest-cov", specifier = ">=7.0.0" },
     { name = "pytest-xdist", extras = ["psutil"], specifier = ">=3.8.0" },
+    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
     { name = "qiskit", extras = ["visualization"], specifier = ">=2.2.1" },
     { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
     { name = "ruff", specifier = ">=0.14.0" },
@@ -1172,6 +1174,23 @@ version = "0.1.0"
 source = { editable = "shareable-packages/python-encore" }
 
 [[package]]
+name = "python-pytest-helper"
+version = "0.1.0"
+source = { editable = "dev-packages/python-pytest-helper" }
+dependencies = [
+    { name = "hypothesis" },
+    { name = "numpy" },
+    { name = "python-signals" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "hypothesis", specifier = ">=6.140.3" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "python-signals", editable = "shareable-packages/python-signals" },
+]
+
+[[package]]
 name = "python-signals"
 version = "0.1.0"
 source = { editable = "shareable-packages/python-signals" }
@@ -1467,6 +1486,7 @@ source = { editable = "dev-packages/qiskit-pytest-helper" }
 dependencies = [
     { name = "hypothesis" },
     { name = "numpy" },
+    { name = "python-pytest-helper" },
     { name = "python-signals" },
     { name = "qiskit" },
     { name = "qiskit-aer-encore" },
@@ -1476,6 +1496,7 @@ dependencies = [
 requires-dist = [
     { name = "hypothesis", specifier = ">=6.140.3" },
     { name = "numpy", specifier = ">=2.2.6" },
+    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
     { name = "python-signals", editable = "shareable-packages/python-signals" },
     { name = "qiskit", specifier = ">=2.2.1" },
     { name = "qiskit-aer-encore", editable = "packages/qiskit-aer-encore" },

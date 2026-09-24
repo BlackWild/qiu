@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+from python_pytest_helper.hypothesis_strategies import positive_polynomial_signals
 from python_signals.algebraic_signal import AlgebraicSignal
 from python_signals.integer_axis import IndexOrdering
 from python_signals.physical_axis import AxisDomain, MomentumAxis, PositionAxis
@@ -23,7 +24,7 @@ from qiskit_pytest_helper.constants import (
     MAX_NUM_OF_CYCLES,
     REDUCED_FIDELITY_TOLERANCE,
 )
-from qiskit_pytest_helper.hypothesis_strategies import random_positive_signal
+from qiskit_pytest_helper.hypothesis_strategies import qubit_axes
 from qiskit_pytest_helper.propagation import exact_cycles, run_propagator
 
 HBAR = 1.0
@@ -52,7 +53,7 @@ class TestPotentialEvolutionSampleBased:
 
     @settings(max_examples=50, deadline=None)
     @given(
-        V=random_positive_signal(domain=AxisDomain.POSITION),
+        V=positive_polynomial_signals(qubit_axes(AxisDomain.POSITION)),
         t=times,
         max_delta=max_deltas,
     )
@@ -65,7 +66,7 @@ class TestPotentialEvolutionSampleBased:
 
     @settings(max_examples=10, deadline=None)
     @given(
-        V=random_positive_signal(domain=AxisDomain.POSITION),
+        V=positive_polynomial_signals(qubit_axes(AxisDomain.POSITION)),
         t=times,
         max_delta=max_deltas,
     )
@@ -112,8 +113,8 @@ class TestKineticEvolutionSampleBased:
 
     @settings(max_examples=50, deadline=None)
     @given(
-        T=random_positive_signal(
-            domain=AxisDomain.MOMENTUM, forced_ordering=IndexOrdering.FFT
+        T=positive_polynomial_signals(
+            qubit_axes(AxisDomain.MOMENTUM, orderings=st.just(IndexOrdering.FFT))
         ),
         t=times,
         max_delta=max_deltas,
@@ -127,8 +128,8 @@ class TestKineticEvolutionSampleBased:
 
     @settings(max_examples=10, deadline=None)
     @given(
-        T=random_positive_signal(
-            domain=AxisDomain.MOMENTUM, forced_ordering=IndexOrdering.FFT
+        T=positive_polynomial_signals(
+            qubit_axes(AxisDomain.MOMENTUM, orderings=st.just(IndexOrdering.FFT))
         ),
         t=times,
         max_delta=max_deltas,

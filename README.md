@@ -11,7 +11,8 @@ The repository is structured as follows:
   - `python-signals`: A package for uniformly sampled axes and signals on them, for classical and quantum numerics alike.
 
 - `dev-packages/`: Contains packages which are not meant to be published for others but just to be used inside this monorepo for development purposes.
-  - `qiskit-pytest-helper`: A package that implements custom strategies for `hypothesis` and typed circuit helpers to be used in the unit tests of the other packages.
+  - `python-pytest-helper`: The floating-point comparisons and the `hypothesis` strategies of numbers, axes and signals shared by the unit tests, depending only on `python-signals`.
+  - `qiskit-pytest-helper`: The quantum counterparts on top of it: strategies of quantum states and qubit axes, assertions with Qiskit's equality, and typed circuit helpers.
 
 - `packages/`: Contains reusable libraries and tools for quantum computing.
   - `qiskit-encore`: Circuit building blocks on top of Qiskit (robust state preparation, QFT, uniformly controlled rotations), each available as a dense unitary, a Qiskit gate or a decomposed circuit.

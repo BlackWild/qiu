@@ -3,6 +3,8 @@
 import numpy as np
 import pytest
 from hypothesis import given
+from hypothesis import strategies as st
+from python_pytest_helper.hypothesis_strategies import monomial_signals
 from python_signals.algebraic_signal import QuadraticSignal
 from python_signals.integer_axis import IndexOrdering
 from python_signals.physical_axis import AxisDomain, MomentumAxis, PositionAxis
@@ -13,7 +15,10 @@ from qiskit_hamiltonian_simulation.time_independent.direct import (
     PositionDomainEvolutionQuadratic,
 )
 from qiskit_pytest_helper.assertions import assert_equal_states
-from qiskit_pytest_helper.hypothesis_strategies import random_polynomial_signal
+from qiskit_pytest_helper.hypothesis_strategies import (
+    moderate_alphas,
+    qubit_axes,
+)
 
 
 def random_state(dimension: int) -> np.ndarray:
@@ -31,7 +36,11 @@ def quadratic(signal) -> QuadraticSignal:
 class TestPositionDomainEvolutionQuadratic:
     """Unit tests for the PositionDomainEvolutionQuadratic circuit."""
 
-    @given(signal=random_polynomial_signal(degree=2, domain=AxisDomain.POSITION))
+    @given(
+        signal=monomial_signals(
+            qubit_axes(AxisDomain.POSITION), alphas=moderate_alphas, powers=st.just(2)
+        )
+    )
     def test_applies_the_phase(self, signal):
         """Test that the position amplitudes are multiplied by e^(i f(x))."""
         signal = quadratic(signal)
@@ -51,8 +60,10 @@ class TestMomentumDomainEvolutionQuadratic:
     """Unit tests for the MomentumDomainEvolutionQuadratic circuit."""
 
     @given(
-        signal=random_polynomial_signal(
-            degree=2, domain=AxisDomain.MOMENTUM, forced_ordering=IndexOrdering.FFT
+        signal=monomial_signals(
+            qubit_axes(AxisDomain.MOMENTUM, orderings=st.just(IndexOrdering.FFT)),
+            alphas=moderate_alphas,
+            powers=st.just(2),
         )
     )
     def test_applies_the_phase_in_momentum_space(self, signal):

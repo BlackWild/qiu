@@ -4,6 +4,13 @@ import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+from python_pytest_helper.assertions import assert_close
+from python_pytest_helper.hypothesis_strategies import (
+    axis_domains,
+    axis_sizes,
+    axis_spacings,
+    index_orderings,
+)
 from python_signals.integer_axis import IndexOrdering, IntegerAxis
 from python_signals.physical_axis import (
     AngularWavenumberAxis,
@@ -15,10 +22,10 @@ from python_signals.physical_axis import (
     reciprocal_period,
 )
 
-sizes = st.integers(min_value=1, max_value=64)
-periods = st.floats(min_value=1e-3, max_value=10.0)
-orderings = st.sampled_from(list(IndexOrdering))
-domains = st.sampled_from(list(AxisDomain))
+sizes = axis_sizes()
+periods = axis_spacings()
+orderings = index_orderings
+domains = axis_domains
 
 
 class TestAxisDomain:
@@ -104,15 +111,15 @@ class TestReciprocalPeriod:
     def test_formulas(self, size: int, delta_x: float, hbar: float):
         """Test the periods of the conjugate domains."""
         window = size * delta_x
-        assert np.isclose(
+        assert_close(
             reciprocal_period(size, delta_x, AxisDomain.MOMENTUM, hbar=hbar),
             2 * np.pi * hbar / window,
         )
-        assert np.isclose(
+        assert_close(
             reciprocal_period(size, delta_x, AxisDomain.ANGULAR_WAVENUMBER),
             2 * np.pi / window,
         )
-        assert np.isclose(
+        assert_close(
             reciprocal_period(size, delta_x, AxisDomain.SPATIAL_FREQUENCY),
             1 / window,
         )
@@ -199,7 +206,7 @@ class TestFourierConjugateAxes:
 
         assert f_axis.domain is AxisDomain.SPATIAL_FREQUENCY
         assert f_axis.ordering is IndexOrdering.FFT
-        np.testing.assert_allclose(f_axis.values, np.fft.fftfreq(size, d=delta_x))
+        assert_close(f_axis.values, np.fft.fftfreq(size, d=delta_x))
 
     @given(size=sizes, delta_x=periods, hbar=periods)
     def test_momentum_and_angular_wavenumber(
@@ -213,15 +220,15 @@ class TestFourierConjugateAxes:
 
         assert k_axis.domain is AxisDomain.ANGULAR_WAVENUMBER
         assert p_axis.domain is AxisDomain.MOMENTUM
-        np.testing.assert_allclose(k_axis.values, 2 * np.pi * f)
-        np.testing.assert_allclose(p_axis.values, hbar * k_axis.values)
+        assert_close(k_axis.values, 2 * np.pi * f)
+        assert_close(p_axis.values, hbar * k_axis.values)
 
     @given(size=sizes, delta_x=periods)
     def test_uncertainty_relation_of_the_grids(self, size: int, delta_x: float):
         """Test that the grid spacings satisfy delta_x * delta_k * N = 2 pi."""
         x_axis = PositionAxis(size, delta_x, IndexOrdering.NATURAL)
         k_axis = AngularWavenumberAxis.from_position_axis(x_axis)
-        assert np.isclose(delta_x * k_axis.period * size, 2 * np.pi)
+        assert_close(delta_x * k_axis.period * size, 2 * np.pi)
 
     @given(size=sizes, delta_x=periods, ordering=orderings, hbar=periods)
     def test_keep_ordering(

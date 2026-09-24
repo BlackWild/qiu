@@ -64,10 +64,15 @@ class Signal(ArithmeticOperators):
 
         An all-zero signal is returned unchanged.
         """
-        norm = np.linalg.norm(self.data)
-        if norm == 0:
+        largest = np.max(np.abs(self.data))
+        if largest == 0:
             return self.data
-        return self.data / norm
+        # scale the magnitudes to the order of 1 first, so that the squares summed up
+        # by the norm neither underflow for tiny values nor overflow for huge ones;
+        # by a power of 2, which is exact, unlike dividing by a subnormal number
+        _, exponent = np.frexp(largest)
+        scaled = _times_power_of_two(self.data, -int(exponent))
+        return scaled / np.linalg.norm(scaled)
 
     def _binary(self, other: Any, op: BinaryOperator, reflected: bool) -> Any:
         """Combine elementwise with a scalar or a signal on an equal axis."""
@@ -82,3 +87,10 @@ class Signal(ArithmeticOperators):
         if reflected:
             return Signal(self.axis, op(other_data, self.data))
         return Signal(self.axis, op(self.data, other_data))
+
+
+def _times_power_of_two(values: npt.NDArray[np.number], exponent: int) -> npt.NDArray:
+    """Return the values times `2**exponent`, exactly, for real and complex values."""
+    if np.iscomplexobj(values):
+        return np.ldexp(values.real, exponent) + 1j * np.ldexp(values.imag, exponent)
+    return np.ldexp(values, exponent)

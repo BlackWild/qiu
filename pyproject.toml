@@ -5,6 +5,7 @@ qiskit-aer-encore = { workspace = true }
 qiskit-phase-propagator = { workspace = true }
 qiskit-hamiltonian-simulation = { workspace = true }
 qiskit-pytest-helper = { workspace = true }
+python-pytest-helper = { workspace = true }
 python-encore = { workspace = true }
 python-signals = { workspace = true }
 
@@ -23,6 +24,7 @@ dev = [
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
     "pytest-xdist[psutil]>=3.8.0",
+    "python-pytest-helper",
     "qiskit-pytest-helper",
     "qiskit[visualization]>=2.2.1",
     "ruff>=0.14.0",
@@ -31,6 +33,10 @@ dev = [
     # "qiskit-aer[gpu]>=0.17.2",
     "tqdm>=4.67.1",
 ]
+
+[tool.pytest.ini_options]
+# test modules of different packages share basenames, e.g. test_assertions.py
+addopts = ["--import-mode=importlib"]
 
 [tool.coverage.run]
 omit = [

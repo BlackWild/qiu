@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+from python_pytest_helper.hypothesis_strategies import monomial_signals
 from python_signals.algebraic_signal import PolynomialSignal
 from python_signals.integer_axis import IndexOrdering, IntegerAxis
 from python_signals.physical_axis import AxisDomain, PositionAxis
@@ -13,7 +14,10 @@ from qiskit_phase_propagator.direct import (
     polynomial_phase_circuit,
 )
 from qiskit_pytest_helper.assertions import assert_equal_operators
-from qiskit_pytest_helper.hypothesis_strategies import random_polynomial_signal
+from qiskit_pytest_helper.hypothesis_strategies import (
+    moderate_alphas,
+    qubit_axes,
+)
 
 orderings = st.sampled_from(list(IndexOrdering))
 coefs = st.floats(min_value=-1.0, max_value=1.0)
@@ -57,10 +61,10 @@ class TestPolynomialPhaseCircuit:
     """Test polynomial_phase_circuit."""
 
     @given(
-        signal=st.integers(min_value=1, max_value=3).flatmap(
-            lambda degree: random_polynomial_signal(
-                degree=degree, domain=AxisDomain.POSITION
-            )
+        signal=monomial_signals(
+            qubit_axes(AxisDomain.POSITION),
+            alphas=moderate_alphas,
+            powers=st.integers(min_value=1, max_value=3),
         )
     )
     def test_applies_the_signal(self, signal: PolynomialSignal):
