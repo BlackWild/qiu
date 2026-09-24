@@ -1,36 +1,37 @@
 """Better Enum for python."""
 
 from enum import Enum
+from typing import Any
 
 
 class ExtendedEnum(Enum):
-    """Extended Enum class with additional utility methods."""
+    """Enum whose members also compare equal to their raw values.
+
+    A member equals another member of the same enum by identity, a member of any
+    other Enum with the same value, and its raw value itself, e.g.
+    `Color.RED == "red"`. Members hash like their values, so the hashing is
+    consistent with this equality and members can be used in sets, as dict keys
+    and with `functools.cache`.
+    """
 
     @classmethod
-    def list(cls):
-        """Returns a list of the enum values."""
-        return list(map(lambda c: c.value, cls))
+    def list(cls) -> list[Any]:
+        """Return the raw values of the members, in definition order."""
+        return [member.value for member in cls]
 
-    # GPT-generated
-    def __eq__(self, other):
-        """Allow comparisons against enum members, other Enums, raw values, or names."""
-        # same enum class -> default Enum equality
+    def __eq__(self, other: object) -> bool:
+        """Compare against members of any Enum by value, or against raw values."""
         if isinstance(other, self.__class__):
-            return super().__eq__(other)
-
-        # other is some Enum (different class) -> compare underlying values
+            return self is other
         if isinstance(other, Enum):
             return self.value == other.value
 
-        # compare directly to raw value (int, str, ...)
         try:
-            if self.value == other:
-                return True
+            return bool(self.value == other)
         except Exception:
-            pass
+            # e.g. arrays, whose comparison has no single truth value
+            return NotImplemented
 
-        # allow comparing to the name string
-        # if isinstance(other, str) and self.name == other:
-        #     return True
-
-        return NotImplemented
+    def __hash__(self) -> int:
+        """Hash like the raw value, consistently with the equality."""
+        return hash(self.value)

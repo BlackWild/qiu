@@ -1,7 +1,7 @@
 [project]
 name = "python-encore"
 version = "0.1.0"
-description = "Add your description here"
+description = "Small enhancements of the Python standard library."
 readme = "README.md"
 authors = [
     { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
