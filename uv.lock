@@ -11,14 +11,13 @@ members = [
     "python-encore",
     "python-pytest-helper",
     "python-signals",
+    "python-wave-optics",
     "qiskit-aer-encore",
     "qiskit-encore",
     "qiskit-hamiltonian-simulation",
     "qiskit-phase-propagator",
     "qiskit-pytest-helper",
-    "qiskit-signals",
     "wave-optics-propagation",
-    "wave-optics-propagation-enhanced",
     "wave-optics-propagation-qutip",
 ]
 
@@ -1213,6 +1212,23 @@ requires-dist = [
 provides-extras = ["sympy"]
 
 [[package]]
+name = "python-wave-optics"
+version = "0.1.0"
+source = { editable = "shareable-packages/python-wave-optics" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "python-signals" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "matplotlib", specifier = ">=3.10.0" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "python-signals", editable = "shareable-packages/python-signals" },
+]
+
+[[package]]
 name = "pytz"
 version = "2025.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1500,25 +1516,6 @@ requires-dist = [
     { name = "python-signals", editable = "shareable-packages/python-signals" },
     { name = "qiskit", specifier = ">=2.2.1" },
     { name = "qiskit-aer-encore", editable = "packages/qiskit-aer-encore" },
-]
-
-[[package]]
-name = "qiskit-signals"
-version = "0.1.0"
-source = { editable = "packages/qiskit-signals" }
-dependencies = [
-    { name = "python-encore" },
-    { name = "python-signals" },
-    { name = "qiskit" },
-    { name = "qiskit-encore" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "python-encore", editable = "shareable-packages/python-encore" },
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
-    { name = "qiskit", specifier = ">=2.2.1" },
-    { name = "qiskit-encore", editable = "packages/qiskit-encore" },
 ]
 
 [[package]]
@@ -1837,28 +1834,57 @@ wheels = [
 name = "wave-optics-propagation"
 version = "0.1.0"
 source = { editable = "apps/wave_optics_propagation" }
-
-[[package]]
-name = "wave-optics-propagation-enhanced"
-version = "0.1.0"
-source = { editable = "apps/wave_optics_propagation_enhanced" }
 dependencies = [
-    { name = "qutip" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "python-signals" },
+    { name = "python-wave-optics" },
+    { name = "qiskit" },
+    { name = "qiskit-encore" },
+    { name = "qiskit-hamiltonian-simulation" },
+    { name = "qiskit-phase-propagator" },
+    { name = "scipy" },
+    { name = "tqdm" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "qutip", specifier = ">=5.2.2" }]
+requires-dist = [
+    { name = "matplotlib", specifier = ">=3.10.0" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "pandas", specifier = ">=2.2.0" },
+    { name = "python-signals", editable = "shareable-packages/python-signals" },
+    { name = "python-wave-optics", editable = "shareable-packages/python-wave-optics" },
+    { name = "qiskit", specifier = ">=2.2.1" },
+    { name = "qiskit-encore", editable = "packages/qiskit-encore" },
+    { name = "qiskit-hamiltonian-simulation", editable = "packages/qiskit-hamiltonian-simulation" },
+    { name = "qiskit-phase-propagator", editable = "packages/qiskit-phase-propagator" },
+    { name = "scipy", specifier = ">=1.15.0" },
+    { name = "tqdm", specifier = ">=4.67.1" },
+]
 
 [[package]]
 name = "wave-optics-propagation-qutip"
 version = "0.1.0"
 source = { editable = "apps/wave_optics_propagation_qutip" }
 dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "python-signals" },
+    { name = "python-wave-optics" },
     { name = "qutip" },
+    { name = "tqdm" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "qutip", specifier = ">=5.2.2" }]
+requires-dist = [
+    { name = "matplotlib", specifier = ">=3.10.0" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "python-signals", editable = "shareable-packages/python-signals" },
+    { name = "python-wave-optics", editable = "shareable-packages/python-wave-optics" },
+    { name = "qutip", specifier = ">=5.2.2" },
+    { name = "tqdm", specifier = ">=4.67.1" },
+]
 
 [[package]]
 name = "wcwidth"

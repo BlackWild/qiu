@@ -1,7 +1,7 @@
 [project]
-name = "wave-optics-propagation-qutip"
+name = "python-wave-optics"
 version = "0.1.0"
-description = "Lens experiments of paraxial wave optics simulated with QuTiP."
+description = "Paraxial wave optics of Gaussian beams through sliced lenses: optical elements, experiment parameters, simulation loop, classical references and storage."
 readme = "README.md"
 authors = [
     { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
@@ -11,9 +11,6 @@ dependencies = [
     "matplotlib>=3.10.0",
     "numpy>=2.2.6",
     "python-signals",
-    "python-wave-optics",
-    "qutip>=5.2.2",
-    "tqdm>=4.67.1",
 ]
 
 [build-system]
@@ -22,4 +19,3 @@ build-backend = "uv_build"
 
 [tool.uv.sources]
 python-signals = { workspace = true }
-python-wave-optics = { workspace = true }

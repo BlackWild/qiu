@@ -1,6 +1,5 @@
 [tool.uv.sources]
 qiskit-encore = { workspace = true }
-qiskit-signals = { workspace = true }
 qiskit-aer-encore = { workspace = true }
 qiskit-phase-propagator = { workspace = true }
 qiskit-hamiltonian-simulation = { workspace = true }
@@ -8,6 +7,7 @@ qiskit-pytest-helper = { workspace = true }
 python-pytest-helper = { workspace = true }
 python-encore = { workspace = true }
 python-signals = { workspace = true }
+python-wave-optics = { workspace = true }
 
 [tool.uv.workspace]
 members = [
@@ -28,9 +28,6 @@ dev = [
     "qiskit-pytest-helper",
     "qiskit[visualization]>=2.2.1",
     "ruff>=0.14.0",
-    # "qiskit-aer-gpu-cu11>=0.17.2",
-    # "qiskit-aer-gpu>=0.17.0",
-    # "qiskit-aer[gpu]>=0.17.2",
     "tqdm>=4.67.1",
 ]
 

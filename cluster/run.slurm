@@ -27,9 +27,10 @@ source .venv/bin/activate
 # 3. (Optional) Ensure packages are installed within local .venv
 #    uv respects the active venv, so this installs locally
 # ──────────────────────────────────────────────────────────────
-uv sync
+uv sync --all-packages
 
 # ──────────────────────────────────────────────────────────────
 # 4. Run your Python script inside the venv using uv
 # ──────────────────────────────────────────────────────────────
-uv run python apps/wave_optics_propagation_enhanced/src/wave_optics_propagation_enhanced/simulation.py --max-delta=0.01 --reverse-order --fresnel-approximation
+#    The run is stored in apps/wave_optics_propagation/.result/<uuid>
+uv run python apps/wave_optics_propagation/scripts/simulate.py --max-delta=0.01 --reverse-order --fresnel-approximation

@@ -5,6 +5,7 @@ import pytest
 from python_pytest_helper.assertions import (
     RTOL,
     assert_close,
+    assert_close_in_norm,
     is_close,
     underflow_atol,
 )
@@ -51,6 +52,30 @@ class TestAssertClose:
     def test_exact_types(self):
         """Test that integers are compared as floats."""
         assert_close(np.arange(3), [0.0, 1.0, 2.0])
+
+
+class TestAssertCloseInNorm:
+    """Test assert_close_in_norm."""
+
+    def test_entries_near_zero(self):
+        """Test that tiny entries only need to agree at the scale of the norm."""
+        assert_close_in_norm([1.0, 1e-30], [1.0, 1e-20])
+        with pytest.raises(AssertionError):
+            assert_close([1.0, 1e-30], [1.0, 1e-20])
+
+    def test_rejects_larger_errors(self):
+        """Test that errors beyond the relative tolerance of the norm fail."""
+        with pytest.raises(AssertionError, match="in norm"):
+            assert_close_in_norm([1.0, 10 * RTOL], [1.0, 0.0])
+
+    def test_shapes(self):
+        """Test that the vectors must have the same shape."""
+        with pytest.raises(AssertionError, match="shapes"):
+            assert_close_in_norm([1.0, 0.0], [1.0])
+
+    def test_zero_vectors(self):
+        """Test that zero vectors agree."""
+        assert_close_in_norm([0.0, 0.0], [0.0, 0.0])
 
 
 class TestUnderflowAtol:

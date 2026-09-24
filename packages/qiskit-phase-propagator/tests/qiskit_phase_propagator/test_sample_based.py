@@ -18,6 +18,7 @@ from qiskit_phase_propagator.sample_based import (
     GenericIterativeSampleBasedPhasePropagatorWithConstantDelta,
     QuadraticSignalSampleBasedPhasePropagator,
     partial_phase_circuit,
+    partial_phase_diagonal,
     sample_based_decomposition,
     slice_alpha_to_deltas_evenly,
 )
@@ -113,6 +114,14 @@ class TestPartialPhaseCircuit:
         assert_equal_operators(
             partial_phase_circuit(delta, num_qubits),
             np.diag(np.exp(1j * delta * (psi_index == phi_index))),
+        )
+
+    @pytest.mark.parametrize("num_qubits", [1, 2, 3])
+    def test_diagonal(self, num_qubits: int):
+        """Test that partial_phase_diagonal is the diagonal of the circuit."""
+        assert_equal_operators(
+            partial_phase_circuit(0.37, num_qubits),
+            np.diag(partial_phase_diagonal(0.37, num_qubits)),
         )
 
 

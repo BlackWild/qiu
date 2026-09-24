@@ -13,7 +13,7 @@ from qiskit_encore.preparable_state import PreparableState
 from qiskit_encore.synthesis_method import SynthesisMethod
 
 from qiskit_phase_propagator.sample_based import (
-    partial_phase_circuit,
+    partial_phase_diagonal,
     sample_based_decomposition,
     slice_alpha_to_deltas_evenly,
 )
@@ -39,7 +39,9 @@ def phase_propagation_cycle(
     # the phi register holds the more significant qubits, prepared in |0...0>
     state = Statevector.from_label("0" * num_qubits).tensor(psi)
     state = state.evolve(phi.circuit, phi_qubits)
-    state = state.evolve(partial_phase_circuit(delta, num_qubits))
+    # the partial phase circuit is diagonal, see partial_phase_diagonal; applying its
+    # diagonal directly avoids simulating its multi-controlled phase gate by gates
+    state = Statevector(state.data * partial_phase_diagonal(delta, num_qubits))
     state = state.evolve(phi.inverse_circuit, phi_qubits)
 
     # the amplitudes with the phi register in |0...0> come first

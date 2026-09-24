@@ -15,6 +15,10 @@ Rounding errors are relative to the magnitude of the computation, so quantities 
 are ideally 0, e.g. the imaginary part of a real projection, cannot be compared with
 0; compare the whole quantity instead, e.g. the projection with its magnitude.
 
+Vectors computed as a whole, e.g. by FFTs or unitary evolutions, have rounding errors
+relative to their norm rather than to each entry, so entries near 0 lose their relative
+precision; `assert_close_in_norm` compares such vectors in norm instead.
+
 Quantum states and operators are compared with Qiskit's equality instead, see
 `qiskit_pytest_helper.assertions`.
 """
@@ -73,6 +77,28 @@ def is_close(
             rtol=RTOL,
             atol=underflow_atol(_comparison_dtype(actual, expected), scale),
         )
+    )
+
+
+def assert_close_in_norm(actual: npt.ArrayLike, expected: npt.ArrayLike) -> None:
+    """Assert that two vectors agree up to rounding relative to their norm.
+
+    That is `||actual - expected|| <= RTOL ||expected||`, in the Euclidean norm.
+
+    Args:
+        actual: The computed vector.
+        expected: The expected vector, of the same shape.
+    """
+    actual_array, expected_array = np.asarray(actual), np.asarray(expected)
+    assert actual_array.shape == expected_array.shape, (
+        f"The shapes differ: {actual_array.shape} and {expected_array.shape}."
+    )
+    error = float(np.linalg.norm(actual_array - expected_array))
+    norm = float(np.linalg.norm(expected_array))
+    assert error <= RTOL * norm + underflow_atol(
+        _comparison_dtype(actual_array, expected_array)
+    ), (
+        f"The vectors differ by {error} in norm, relative {error / norm if norm else error}."
     )
 
 

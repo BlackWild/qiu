@@ -68,6 +68,24 @@ def slice_alpha_to_deltas_evenly(alpha: float, max_delta: float) -> npt.NDArray:
     return np.full(number_of_deltas, alpha / number_of_deltas)
 
 
+def partial_phase_diagonal(delta: float, num_qubits: int) -> npt.NDArray[np.complex128]:
+    """Return the diagonal of the unitary of `partial_phase_circuit`.
+
+    The entry of `|j>|l>`, at index `l * 2**n + j`, is `e^(i delta [j == l])`.
+
+    Args:
+        delta: The phase.
+        num_qubits: The number of qubits `n` of each register.
+
+    Returns:
+        The `4**n` diagonal entries.
+    """
+    dimension = 2**num_qubits
+    diagonal = np.ones(dimension**2, dtype=np.complex128)
+    diagonal[:: dimension + 1] = np.exp(1j * delta)
+    return diagonal
+
+
 def partial_phase_circuit(delta: float, num_qubits: int) -> QuantumCircuit:
     """Return the phase `e^(i delta)` on the basis states where both registers agree.
 

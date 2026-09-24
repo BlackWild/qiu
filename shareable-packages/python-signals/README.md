@@ -2,7 +2,7 @@
 
 Uniformly sampled axes and signals on them, for any kind of numerical application, classical or quantum. Only depends on NumPy.
 
-`qiskit-signals` builds on this package to represent signals encoded in the computational basis states of qubit registers.
+The quantum packages of this monorepo, e.g. `qiskit-phase-propagator`, encode these signals in the basis states of qubit registers, and `python-wave-optics` builds its optical elements on them.
 
 ## Concepts
 

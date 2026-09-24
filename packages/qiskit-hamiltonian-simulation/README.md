@@ -56,6 +56,10 @@ expected = np.fft.ifft(
 assert np.allclose(out.data, expected)
 ```
 
+## Examples
+
+- `examples/free_space_double_slit.py`: The paraxial diffraction of a double slit over 1 km, with the direct propagator on 10 qubits, checked against NumPy's FFT.
+
 ## Tests
 
 From the repository root:

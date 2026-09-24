@@ -28,7 +28,7 @@ Circuits applying the phase `e^(i f(x))` of a signal `f` to the basis states of 
 
 The `method` defaults to `GATE`, a Qiskit `StatePreparation` synthesized when transpiling. Qiskit's synthesis is unreliable for the nearly uniform `|phi>` of smooth signals (qiskit 2.2): transpiling can fail in its two-qubit decomposition, and it can prepare wrong states (see `qiskit-encore`). Pass `DECOMPOSED` for the Möttönen synthesis of `qiskit-encore`, or `DENSE` for exact results on few qubits.
 
-`sample_based_manual` simulates the same protocol on statevectors, post-selected on success, e.g. `phase_propagate_state_with_arbitrary_signal(psi, signal, max_delta)`; `phase_propagation_cycle` also returns the success probability of a cycle.
+`sample_based_manual` simulates the same protocol on statevectors, post-selected on success, applying the partial phase as its diagonal (`partial_phase_diagonal`), which is much faster than simulating its multi-controlled phase gate, e.g. `phase_propagate_state_with_arbitrary_signal(psi, signal, max_delta)`; `phase_propagation_cycle` also returns the success probability of a cycle.
 
 ## Usage
 
