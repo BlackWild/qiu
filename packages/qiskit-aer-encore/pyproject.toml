@@ -1,16 +1,20 @@
 [project]
 name = "qiskit-aer-encore"
 version = "0.1.0"
-description = "Add your description here"
+description = "Aer simulators configured for the available hardware."
 readme = "README.md"
 authors = [
     { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
 ]
 requires-python = ">=3.11"
 dependencies = [
+    "python-encore",
     "qiskit-aer>=0.17.2",
 ]
 
 [build-system]
 requires = ["uv_build>=0.8.18,<0.9.0"]
 build-backend = "uv_build"
+
+[tool.uv.sources]
+python-encore = { workspace = true }

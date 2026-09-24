@@ -1,44 +1,63 @@
-"""Module for Qiskit simulators."""
+"""Aer simulators configured for the available hardware."""
 
+from functools import cache
+from typing import Any
+
+from python_encore.enum import ExtendedEnum
 from qiskit_aer import AerError, AerSimulator
 
+GPU_OPTIONS: dict[str, Any] = {
+    # accelerate with Nvidia's cuStateVec library
+    "cuStateVec_enable": True,
+    # distribute the simulation over all available GPU and CPU nodes
+    "blocking_enable": True,
+    # distribute the shots over the available GPUs
+    "batched_shots_gpu": True,
+}
+"""The default options of simulators on GPUs, overridable per simulator."""
 
-def generate_aer_simulator(
-    force_gpu: bool = False, force_cpu: bool = False
+
+class AerDevice(ExtendedEnum):
+    """The devices an Aer simulator can run on.
+
+    - `AUTO`: a GPU if one is available, and the CPU otherwise.
+    - `CPU`: the CPU, which is always available.
+    - `GPU`: a GPU, raising an error if none is available.
+    """
+
+    AUTO = "auto"
+    CPU = "cpu"
+    GPU = "gpu"
+
+
+@cache
+def available_aer_devices() -> tuple[str, ...]:
+    """Return the devices Aer can simulate on, e.g. `("CPU", "GPU")`.
+
+    The devices are detected once and cached.
+    """
+    return tuple(AerSimulator().available_devices() or ())
+
+
+def aer_simulator(
+    device: AerDevice | str = AerDevice.AUTO, **options: Any
 ) -> AerSimulator:
-    """A function to prepare the Aer simulator with desired configuration. GPU accelerated in case available.
+    """Return an Aer simulator on the requested device.
 
     Args:
-        force_gpu (bool): If True, enforces GPU usage which means it will throw an error if no GPU is available. Default is False.
+        device: The device to simulate on, see `AerDevice`.
+        **options: Options of the `AerSimulator`, e.g. `method="statevector"`. On
+            GPUs, they override the defaults of `GPU_OPTIONS`.
 
     Returns:
-        AerSimulator: The prepared Aer simulator.
+        The configured simulator.
     """
-    available_devices: tuple[str] = AerSimulator().available_devices()  # type: ignore[]
+    device = AerDevice(device)
+    gpu_available = "GPU" in available_aer_devices()
 
-    # if specifically asked for CPU, use CPU (note that cpu is always available)
-    if force_cpu:
-        simulator = AerSimulator(
-            device="CPU",
-        )
-    # if not, use GPU if available
-    elif "GPU" in available_devices:
-        simulator = AerSimulator(
-            device="GPU",
-            # enable accelerating using Nvidia's cuStateVec library
-            cuStateVec_enable=True,
-            # maximize the use of all available GPU and CPU nodes
-            blocking_enable=True,
-            # distribute shots to different available GPUs
-            batched_shots_gpu=True,
-        )
-    # if gpu not available but was asked for, raise error
-    elif force_gpu:
-        raise AerError("Asked for GPU-accelerated simulation but no GPU was available.")
-    # otherwise, fallback to the default CPU choice
-    else:
-        simulator = AerSimulator(
-            device="CPU",
-        )
+    if device == AerDevice.GPU and not gpu_available:
+        raise AerError("A GPU simulator was requested, but no GPU is available.")
 
-    return simulator
+    if device == AerDevice.GPU or (device == AerDevice.AUTO and gpu_available):
+        return AerSimulator(device="GPU", **{**GPU_OPTIONS, **options})
+    return AerSimulator(device="CPU", **options)
