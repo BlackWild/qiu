@@ -209,6 +209,13 @@ def _constant_function(value: Any) -> SignalFunctionType:
     return lambda x: value
 
 
+SampledSignal = Signal | AlgebraicSignal
+"""A signal with sampled values on its axis, given directly or by an expression.
+
+Both kinds provide the `axis` and the sampled values `data`.
+"""
+
+
 class PolynomialSignal(AlgebraicSignal):
     """A monomial signal of the form f(x) = alpha * x^power."""
 

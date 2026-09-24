@@ -42,6 +42,7 @@ A signal lives on a `PhysicalAxis`, and comes in two forms:
   - `AlgebraicSignal.from_sympy(axis, expression, symbol=None)` creates it from a SymPy expression (or a string SymPy parses), keeping the symbolic `expression` and its `symbol` for inspection. It needs the optional `sympy` extra, `python-signals[sympy]`.
   - `PolynomialSignal(axis, alpha, power)` is the algebraic signal `alpha * x**power`. Its `effective_alpha` is the coefficient in terms of the integer indices, so that `data == effective_alpha * axis.index**power`.
   - `QuadraticSignal(axis, alpha)` is the polynomial signal of power 2, also called an intensity signal.
+- `algebraic_signal.SampledSignal` is the type `Signal | AlgebraicSignal`, for code that only needs the `axis` and the sampled values `data` of either kind.
 
 The `SignalFunctionType` aliases for the functions of algebraic signals live in `algebraic_signal` as well.
 
