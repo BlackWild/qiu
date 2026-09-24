@@ -18,10 +18,17 @@ from qiskit_encore.state_preparation import (
     validated_statevector,
 )
 from qiskit_encore.synthesis_method import SynthesisMethod
-from qiskit_pytest_helper.circuits import gate_counts, unitary_matrix
+from qiskit_pytest_helper.assertions import (
+    assert_equal_operators,
+    assert_equal_states,
+    assert_unitary,
+)
+from qiskit_pytest_helper.circuits import (
+    gate_counts,
+    transpile_exactly,
+    unitary_matrix,
+)
 from qiskit_pytest_helper.hypothesis_strategies import valid_qiskit_statevector
-
-ATOL = 1e-10
 
 # A state found by hypothesis, whose preparation by Qiskit's `StatePreparation`
 # (qiskit 2.2 to 2.5) has fidelity 0: its isometry synthesis fails when two
@@ -67,9 +74,9 @@ states = st.one_of(
 exact_methods = st.sampled_from([SynthesisMethod.DECOMPOSED, SynthesisMethod.DENSE])
 
 
-def zero_state(num_qubits: int) -> npt.NDArray[np.complex128]:
-    """The amplitudes of the all-zero state."""
-    return np.eye(2**num_qubits)[0]
+def zero_state(num_qubits: int) -> Statevector:
+    """The all-zero state."""
+    return Statevector.from_int(0, 2**num_qubits)
 
 
 class TestExactPreparation:
@@ -79,15 +86,14 @@ class TestExactPreparation:
     def test_prepares_the_state(self, state, method: SynthesisMethod):
         """Test that the circuit prepares the state exactly, global phase included."""
         circuit = state_preparation_circuit(state, method=method)
-        np.testing.assert_allclose(Statevector(circuit).data, state, atol=ATOL)
+        assert_equal_states(circuit, state)
 
     @given(state=states, method=exact_methods)
     def test_inverse_unprepares_the_state(self, state, method: SynthesisMethod):
         """Test that the inverse circuit maps the state to the all-zero state."""
         circuit = state_preparation_circuit(state, method=method, inverse=True)
-        num_qubits = circuit.num_qubits
-        np.testing.assert_allclose(
-            Statevector(state).evolve(circuit).data, zero_state(num_qubits), atol=ATOL
+        assert_equal_states(
+            Statevector(state).evolve(circuit), zero_state(circuit.num_qubits)
         )
 
     @pytest.mark.parametrize(
@@ -96,9 +102,7 @@ class TestExactPreparation:
     def test_state_qiskit_fails_on(self, method: SynthesisMethod):
         """Test the regression state on which Qiskit's synthesis fails."""
         circuit = state_preparation_circuit(QISKIT_FAILING_STATE, method=method)
-        np.testing.assert_allclose(
-            Statevector(circuit).data, QISKIT_FAILING_STATE, atol=ATOL
-        )
+        assert_equal_states(circuit, QISKIT_FAILING_STATE)
 
 
 class TestDecomposed:
@@ -133,8 +137,8 @@ class TestDecomposed:
         circuit = state_preparation_circuit(state, method=SynthesisMethod.DECOMPOSED)
         circuit.save_statevector()  # type: ignore[attr-defined]
         simulator = aer_simulator(device="cpu", method="statevector")
-        result = simulator.run(transpile(circuit, simulator)).result()
-        np.testing.assert_allclose(result.get_statevector().data, state, atol=1e-7)
+        result = simulator.run(transpile_exactly(circuit, simulator)).result()
+        assert_equal_states(result.get_statevector(), state)
 
 
 class TestDense:
@@ -144,10 +148,8 @@ class TestDense:
     def test_unitary(self, state):
         """Test that the matrix is unitary with the state as its first column."""
         unitary = unitary_matrix(state_preparation_unitary(state))
-        np.testing.assert_allclose(
-            unitary.conj().T @ unitary, np.eye(state.size), atol=ATOL
-        )
-        np.testing.assert_allclose(unitary[:, 0], state, atol=ATOL)
+        assert_unitary(unitary)
+        assert_equal_states(unitary[:, 0], state)
 
     def test_single_unitary_gate(self):
         """Test that the circuit is a single unitary gate."""
@@ -170,10 +172,9 @@ class TestGate:
             state, method=SynthesisMethod.GATE, inverse=inverse
         )
         if inverse:
-            actual, expected = Statevector(state).evolve(circuit).data, zero_state(3)
+            assert_equal_states(Statevector(state).evolve(circuit), zero_state(3))
         else:
-            actual, expected = Statevector(circuit).data, state
-        np.testing.assert_allclose(actual, expected, atol=ATOL)
+            assert_equal_states(circuit, state)
 
     def test_is_the_default_method(self):
         """Test that the gate method is the default."""
@@ -198,9 +199,7 @@ class TestGate:
         circuit = state_preparation_circuit(
             QISKIT_FAILING_STATE, method=SynthesisMethod.GATE
         )
-        np.testing.assert_allclose(
-            Statevector(circuit).data, QISKIT_FAILING_STATE, atol=ATOL
-        )
+        assert_equal_states(circuit, QISKIT_FAILING_STATE)
 
 
 class TestValidation:

@@ -11,7 +11,12 @@ from qiskit.circuit.library import QFTGate
 from qiskit.quantum_info import Operator, Statevector
 from qiskit_encore.qft import qft_circuit, qft_matrix
 from qiskit_encore.synthesis_method import SynthesisMethod
-from qiskit_pytest_helper.circuits import gate_counts, unitary_matrix
+from qiskit_pytest_helper.assertions import (
+    assert_equal_operators,
+    assert_equal_states,
+    assert_unitary,
+)
+from qiskit_pytest_helper.circuits import gate_counts
 from qiskit_pytest_helper.hypothesis_strategies import valid_qiskit_statevector
 
 
@@ -34,15 +39,12 @@ class TestQFTMatrix:
     @num_qubits
     def test_unitary(self, n: int):
         """Test that the matrix is unitary."""
-        matrix = qft_matrix(n)
-        np.testing.assert_allclose(matrix.conj().T @ matrix, np.eye(2**n), atol=1e-12)
+        assert_unitary(qft_matrix(n))
 
     @num_qubits
     def test_is_qiskits_qft(self, n: int):
         """Test that the matrix is the one of Qiskit's QFTGate."""
-        np.testing.assert_allclose(
-            qft_matrix(n), unitary_matrix(Operator(QFTGate(n))), atol=1e-12
-        )
+        assert_equal_operators(qft_matrix(n), QFTGate(n))
 
 
 class TestQFTCircuit:
@@ -52,12 +54,11 @@ class TestQFTCircuit:
     @num_qubits
     def test_implements_the_qft(self, method: SynthesisMethod, n: int):
         """Test that every method implements the QFT and its inverse."""
-        expected = qft_matrix(n)
-        forward = unitary_matrix(qft_circuit(n, method=method))
-        backward = unitary_matrix(qft_circuit(n, inverse=True, method=method))
-
-        np.testing.assert_allclose(forward, expected, atol=1e-10)
-        np.testing.assert_allclose(backward, expected.conj().T, atol=1e-10)
+        expected = Operator(qft_matrix(n))
+        assert_equal_operators(qft_circuit(n, method=method), expected)
+        assert_equal_operators(
+            qft_circuit(n, inverse=True, method=method), expected.adjoint()
+        )
 
     @given(
         statevector=valid_qiskit_statevector(), method=st.sampled_from(SynthesisMethod)
@@ -69,15 +70,13 @@ class TestQFTCircuit:
         assert statevector.num_qubits is not None
         n, data = statevector.num_qubits, statevector.data
 
-        np.testing.assert_allclose(
-            statevector.evolve(qft_circuit(n, method=method)).data,
+        assert_equal_states(
+            statevector.evolve(qft_circuit(n, method=method)),
             np.fft.ifft(data, norm="ortho"),
-            atol=1e-10,
         )
-        np.testing.assert_allclose(
-            statevector.evolve(qft_circuit(n, inverse=True, method=method)).data,
+        assert_equal_states(
+            statevector.evolve(qft_circuit(n, inverse=True, method=method)),
             np.fft.fft(data, norm="ortho"),
-            atol=1e-10,
         )
 
     def test_decomposed_gates(self):

@@ -11,7 +11,8 @@ from qiskit_encore.uniformly_controlled_rotation import (
     RotationAxis,
     uniformly_controlled_rotation,
 )
-from qiskit_pytest_helper.circuits import gate_counts, unitary_matrix
+from qiskit_pytest_helper.assertions import assert_equal_operators
+from qiskit_pytest_helper.circuits import gate_counts
 
 axes = st.sampled_from(["y", "z"])
 
@@ -49,9 +50,7 @@ class TestUniformlyControlledRotation:
         circuit = uniformly_controlled_rotation(axis, angles)
 
         assert circuit.num_qubits == int(np.log2(angles.size)) + 1
-        np.testing.assert_allclose(
-            unitary_matrix(circuit), multiplexer(axis, angles), atol=1e-12
-        )
+        assert_equal_operators(circuit, multiplexer(axis, angles))
 
     @given(axis=axes, angles=angle_arrays())
     def test_elementary_gates(self, axis: RotationAxis, angles):

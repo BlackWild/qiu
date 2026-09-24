@@ -10,6 +10,10 @@ from qiskit.quantum_info import Operator, Statevector
 from qiskit_encore.preparable_state import PreparableState
 from qiskit_encore.state_preparation import state_preparation_circuit
 from qiskit_encore.synthesis_method import SynthesisMethod
+from qiskit_pytest_helper.assertions import (
+    assert_equal_operators,
+    assert_equal_states,
+)
 from qiskit_pytest_helper.hypothesis_strategies import valid_qiskit_statevector
 
 methods = st.sampled_from([SynthesisMethod.DECOMPOSED, SynthesisMethod.DENSE])
@@ -32,10 +36,10 @@ class TestPreparableState:
         """Test that the circuits are the state preparation circuits of the method."""
         state = PreparableState(statevector, method)
 
-        assert Operator(state.circuit) == Operator(
-            state_preparation_circuit(statevector, method=method)
+        assert_equal_operators(
+            state.circuit, state_preparation_circuit(statevector, method=method)
         )
-        assert Operator(state.inverse_circuit) == Operator(state.circuit).adjoint()
+        assert_equal_operators(state.inverse_circuit, Operator(state.circuit).adjoint())
 
     def test_default_method(self):
         """Test that the gate method is the default."""
@@ -66,7 +70,7 @@ class TestPreparableState:
         amplitudes = np.array([0.6, 0.8])
         state = PreparableState(amplitudes)
         amplitudes[:] = [0.8, 0.6]
-        np.testing.assert_allclose(Statevector(state.circuit).data, [0.6, 0.8])
+        assert_equal_states(state.circuit, [0.6, 0.8])
 
     def test_rejects_invalid_states(self):
         """Test that unnormalized states are rejected."""
