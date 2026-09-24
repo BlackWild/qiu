@@ -12,6 +12,11 @@ dependencies = [
     "python-encore",
 ]
 
+[project.optional-dependencies]
+sympy = [
+    "sympy>=1.14.0",
+]
+
 [build-system]
 requires = ["uv_build>=0.8.22,<0.9.0"]
 build-backend = "uv_build"

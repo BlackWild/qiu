@@ -35,26 +35,38 @@ The `domain` (`physical_axis.AxisDomain`) of a physical axis is `POSITION`, or o
 
 ### Signals
 
-The signals live in `signal`, together with the `SignalFunctionType` aliases for the functions they sample.
+A signal lives on a `PhysicalAxis`, and comes in two forms:
 
-- `Signal(axis, signal_function)` is a function sampled on the values of a `PhysicalAxis`. `data` holds the sampled values, and `normalized_data` the values scaled to unit Euclidean norm.
-- `PolynomialSignal(axis, alpha, power)` is the monomial `alpha * x**power`. Its `effective_alpha` is the coefficient in terms of the integer indices, so that `data == effective_alpha * axis.index**power`.
-- `QuadraticSignal(axis, alpha)` is the monomial of power 2, also called an intensity signal.
+- `signal.Signal(axis, data)` is given by its sampled values: `data[k]` is the value at `axis.values[k]`, real or complex. `normalized_data` holds the values scaled to unit Euclidean norm.
+- `algebraic_signal.AlgebraicSignal(axis, function)` is given by an algebraic expression of the axis values, held as a vectorized function such as a lambda or a NumPy function. `data` evaluates it on the axis values, calling the signal evaluates it at arbitrary values, and `to_signal()` returns the sampled `Signal`.
+  - `AlgebraicSignal.from_sympy(axis, expression, symbol=None)` creates it from a SymPy expression (or a string SymPy parses), keeping the symbolic `expression` and its `symbol` for inspection. It needs the optional `sympy` extra, `python-signals[sympy]`.
+  - `PolynomialSignal(axis, alpha, power)` is the algebraic signal `alpha * x**power`. Its `effective_alpha` is the coefficient in terms of the integer indices, so that `data == effective_alpha * axis.index**power`.
+  - `QuadraticSignal(axis, alpha)` is the polynomial signal of power 2, also called an intensity signal.
+
+The `SignalFunctionType` aliases for the functions of algebraic signals live in `algebraic_signal` as well.
 
 ## Usage
 
 ```python
 import numpy as np
+import sympy
+from python_signals.algebraic_signal import AlgebraicSignal, QuadraticSignal
 from python_signals.integer_axis import IndexOrdering
 from python_signals.physical_axis import PositionAxis, SpatialFrequencyAxis
-from python_signals.signal import QuadraticSignal, Signal
+from python_signals.signal import Signal
 
 x_axis = PositionAxis(size=256, delta_x=0.1, ordering=IndexOrdering.FFT)
-gaussian = Signal(x_axis, lambda x: np.exp(-(x**2)))
 
-# the spectrum of the signal lives on the conjugate axis, in the same ordering
+# an algebraic signal, from a lambda or from a symbolic expression
+gaussian = AlgebraicSignal(x_axis, lambda x: np.exp(-(x**2)))
+x = sympy.Symbol("x")
+symbolic = AlgebraicSignal.from_sympy(x_axis, sympy.exp(-(x**2)))
+assert np.allclose(gaussian.data, symbolic.data)
+assert sympy.diff(symbolic.expression, x) == -2 * x * sympy.exp(-(x**2))
+
+# the spectrum is a sampled signal on the conjugate axis, in the same ordering
 f_axis = SpatialFrequencyAxis.from_position_axis(x_axis)
-spectrum = np.fft.fft(gaussian.data)
+spectrum = Signal(f_axis, np.fft.fft(gaussian.data))
 assert np.allclose(f_axis.values, np.fft.fftfreq(256, d=0.1))
 
 # a quadratic phase profile, and its coefficient in terms of the integer indices
