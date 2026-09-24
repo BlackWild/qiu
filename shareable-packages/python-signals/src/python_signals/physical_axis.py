@@ -114,9 +114,9 @@ class PhysicalAxis(IntegerAxis):
         )
 
     @property
-    def values(self) -> npt.NDArray[np.float64]:
+    def values(self) -> npt.NDArray[np.number]:
         """Return the physical values of the samples."""
-        return np.asarray(self.index * self.period, dtype=np.float64)
+        return self.index * self.period
 
     @property
     def sampling_window_length(self) -> float:
