@@ -4,10 +4,15 @@ import hypothesis.strategies as st
 import numpy as np
 import numpy.typing as npt
 from hypothesis.extra.numpy import arrays
+from python_signals.algebraic_signal import AlgebraicSignal, PolynomialSignal
+from python_signals.integer_axis import IndexOrdering
+from python_signals.physical_axis import (
+    AxisDomain,
+    MomentumAxis,
+    PhysicalAxis,
+    PositionAxis,
+)
 from qiskit.quantum_info import Statevector
-from qiskit_signals.helper_types import AxisType, EncodingType
-from qiskit_signals.quantum_axis import MomentumAxis, PositionAxis
-from qiskit_signals.quantum_signal import GenericQuantumSignal, PolynomialQuantumSignal
 
 from qiskit_pytest_helper.constants import (
     MAX_MAGNITUDE,
@@ -151,22 +156,14 @@ def position_axis(
     draw,
     min_qubits=MIN_QUBITS,
     max_qubits=MAX_QUBITS,
-    forced_encoding: EncodingType | None = None,
+    forced_ordering: IndexOrdering | None = None,
 ) -> PositionAxis:
-    """A strategy for generating PositionAxis objects."""
+    """A strategy for position axes of `2**n` samples, representable by `n` qubits."""
     num_qubits = draw(st.integers(min_qubits, max_qubits))
-    delta_x = draw(
-        st.floats(
-            min_value=MIN_MAGNITUDE,
-            max_value=1,
-            allow_nan=False,
-            allow_infinity=False,
-        )
-    )
+    delta_x = draw(st.floats(min_value=MIN_MAGNITUDE, max_value=1))
+    ordering = forced_ordering or draw(st.sampled_from(list(IndexOrdering)))
 
-    encoding = forced_encoding or draw(st.sampled_from(EncodingType.list()))
-
-    return PositionAxis(num_qubits=num_qubits, delta_x=delta_x, encoding=encoding)
+    return PositionAxis(size=2**num_qubits, delta_x=delta_x, ordering=ordering)
 
 
 @st.composite
@@ -174,50 +171,37 @@ def momentum_axis(
     draw,
     min_qubits=MIN_QUBITS,
     max_qubits=MAX_QUBITS,
-    forced_encoding: EncodingType | None = None,
+    forced_ordering: IndexOrdering | None = None,
 ) -> MomentumAxis:
-    """A strategy for generating MomentumAxis objects."""
-    num_qubits = draw(st.integers(min_qubits, max_qubits))
-    delta_x = draw(
-        st.floats(
-            min_value=MIN_MAGNITUDE,
-            max_value=1,
-            allow_nan=False,
-            allow_infinity=False,
+    """A strategy for momentum axes of `2**n` samples, conjugate to a position axis.
+
+    The momenta are in natural units, `hbar = 1`.
+    """
+    x_axis = draw(
+        position_axis(
+            min_qubits=min_qubits,
+            max_qubits=max_qubits,
+            forced_ordering=forced_ordering,
         )
     )
-
-    encoding = forced_encoding or draw(st.sampled_from(EncodingType.list()))
-
-    return MomentumAxis(
-        num_qubits=num_qubits, delta_x=delta_x, encoding=encoding, hbar=1.0
-    )
+    return MomentumAxis.from_position_axis(x_axis, hbar=1.0, keep_ordering=True)
 
 
 @st.composite
-def quantum_axis(
+def qubit_axis(
     draw,
-    axis_type: AxisType,
+    domain: AxisDomain,
     min_qubits=MIN_QUBITS,
     max_qubits=MAX_QUBITS,
-    forced_encoding: EncodingType | None = None,
-):
-    """A strategy for generating QuantumAxis objects."""
-    return (
-        draw(
-            position_axis(
-                min_qubits=min_qubits,
-                max_qubits=max_qubits,
-                forced_encoding=forced_encoding,
-            )
-        )
-        if axis_type == AxisType.POSITION
-        else draw(
-            momentum_axis(
-                min_qubits=min_qubits,
-                max_qubits=max_qubits,
-                forced_encoding=forced_encoding,
-            )
+    forced_ordering: IndexOrdering | None = None,
+) -> PhysicalAxis:
+    """A strategy for position or momentum axes of `2**n` samples."""
+    strategy = position_axis if domain == AxisDomain.POSITION else momentum_axis
+    return draw(
+        strategy(
+            min_qubits=min_qubits,
+            max_qubits=max_qubits,
+            forced_ordering=forced_ordering,
         )
     )
 
@@ -225,87 +209,62 @@ def quantum_axis(
 @st.composite
 def random_positive_signal(
     draw,
-    axis_type: AxisType,
+    domain: AxisDomain,
     min_qubits=MIN_QUBITS,
     max_qubits=MAX_QUBITS,
     min_magnitude=MIN_MAGNITUDE,
     max_magnitude=MAX_MAGNITUDE,
     forced_sum_value: float = 1.0,
-    forced_encoding: EncodingType | None = None,
-) -> GenericQuantumSignal:
-    """A strategy for generating random signals."""
+    forced_ordering: IndexOrdering | None = None,
+) -> AlgebraicSignal:
+    """A strategy for positive polynomial signals of degree up to 5.
 
+    The signals are scaled such that their samples sum up to `forced_sum_value`.
+    """
     axis = draw(
-        quantum_axis(
-            axis_type=axis_type,
+        qubit_axis(
+            domain=domain,
             min_qubits=min_qubits,
             max_qubits=max_qubits,
-            forced_encoding=forced_encoding,
+            forced_ordering=forced_ordering,
         )
     )
 
-    # Generate random coefficients for a polynomial signal
     degree = draw(st.integers(min_value=1, max_value=5))
     coefficients = draw(
         arrays(
             dtype=np.float64,
             shape=degree + 1,
-            elements=st.floats(
-                min_value=min_magnitude,
-                max_value=max_magnitude,
-                allow_nan=False,
-                allow_infinity=False,
-            ),
+            elements=st.floats(min_value=min_magnitude, max_value=max_magnitude),
         )
     )
 
-    def signal_function(x: npt.NDArray) -> npt.NDArray:
-        """A polynomial signal function."""
-        return np.abs(sum([c * x**i for i, c in enumerate(coefficients)]))
+    def polynomial(x: npt.NDArray) -> npt.NDArray:
+        return np.abs(sum(c * x**i for i, c in enumerate(coefficients)))
 
-    signal_sum = np.sum(np.abs(signal_function(axis.axis_values)))
-
-    # Scale the function to have the desired sum value
-    def normalized_signal_function(x):
-        return (forced_sum_value / signal_sum) * signal_function(x)
-
-    signal = GenericQuantumSignal(axis=axis, signal_function=normalized_signal_function)
-
-    return signal
+    scale = forced_sum_value / np.sum(polynomial(axis.values))
+    return AlgebraicSignal(axis, lambda x: scale * polynomial(x))
 
 
 @st.composite
 def random_polynomial_signal(
     draw,
     degree: int,
-    axis_type: AxisType,
+    domain: AxisDomain,
     min_qubits=MIN_QUBITS,
     max_qubits=MAX_QUBITS,
     min_magnitude=MIN_MAGNITUDE,
     max_magnitude=MAX_MAGNITUDE,
-    forced_encoding: EncodingType | None = None,
-) -> PolynomialQuantumSignal:
-    """A strategy for generating random polynomial signals."""
-
+    forced_ordering: IndexOrdering | None = None,
+) -> PolynomialSignal:
+    """A strategy for monomial signals `alpha * x**degree`."""
     axis = draw(
-        quantum_axis(
-            axis_type=axis_type,
+        qubit_axis(
+            domain=domain,
             min_qubits=min_qubits,
             max_qubits=max_qubits,
-            forced_encoding=forced_encoding,
+            forced_ordering=forced_ordering,
         )
     )
-
-    # Generate random coefficient for the polynomial signal
-    coefficient = draw(
-        st.floats(
-            min_value=min_magnitude,
-            max_value=max_magnitude,
-            allow_nan=False,
-            allow_infinity=False,
-        )
-    )
-
-    signal = PolynomialQuantumSignal(axis=axis, alpha=coefficient, power=degree)
-
-    return signal
+    alpha = draw(st.floats(min_value=min_magnitude, max_value=max_magnitude))
+    return PolynomialSignal(axis=axis, alpha=alpha, power=degree)
