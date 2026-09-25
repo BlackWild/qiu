@@ -1,8 +1,8 @@
 # qiu-signals
 
-`qiu-signals` provides uniformly sampled axes and signals on them, for any kind of numerical application, classical or quantum. An axis fixes the samples: their number, their spacing, the physical domain they live in (position or one of its Fourier conjugates) and the ordering of their integer indices. A signal is a function on such an axis, given either by its sampled values or by an algebraic expression, and supports elementwise arithmetic. It depends on NumPy and [qiu-python-encore](../qiu-python-encore/), and optionally on SymPy for symbolic expressions.
+`qiu-signals` provides uniformly sampled axes and signals on them, for any kind of numerical application, classical or quantum. An axis fixes the samples: their number, their spacing, the physical domain they live in (position or one of its Fourier conjugates) and the ordering of their integer indices. A signal is a function on such an axis, given either by its sampled values or by an algebraic expression, and supports elementwise arithmetic. It depends on NumPy and [qiu-python-encore](../qiu-python-encore/index.md), and optionally on SymPy for symbolic expressions.
 
-In this monorepo, the signals are the common language of the classical and the quantum numerics: the quantum packages, e.g. [qiu-quantum-computing](../qiu-quantum-computing/) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/), encode them in qubit registers, the `2**n` samples of an axis being the basis states of `n` qubits whose bits encode the integer indices, and [qiu-classical-simulation](../qiu-classical-simulation/) builds its optical elements on them.
+In this monorepo, the signals are the common language of the classical and the quantum numerics: the quantum packages, e.g. [qiu-quantum-computing](../qiu-quantum-computing/index.md) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/index.md), encode them in qubit registers, the `2**n` samples of an axis being the basis states of `n` qubits whose bits encode the integer indices, and [qiu-classical-simulation](../qiu-classical-simulation/index.md) builds its optical elements on them.
 
 ## Installation
 

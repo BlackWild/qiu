@@ -42,7 +42,7 @@ for size in [4, 5]:
     assert np.array_equal(IntegerAxis(size, "natural").index, np.arange(size))
 ```
 
-The ordering, like every enum argument of the package, may be given as its raw value, e.g. `"fft"`, since the enums of the package are `ExtendedEnum`s of [qiu-python-encore](../../qiu-python-encore/); it is normalized to the member. `index` is computed on every access, as a new array.
+The ordering, like every enum argument of the package, may be given as its raw value, e.g. `"fft"`, since the enums of the package are `ExtendedEnum`s of [qiu-python-encore](../qiu-python-encore/index.md); it is normalized to the member. `index` is computed on every access, as a new array.
 
 Two integer axes are equal if they have the same `size` and `ordering`, and they hash accordingly, so axes can be used as dict keys or cache keys.
 
@@ -190,7 +190,7 @@ assert np.allclose(from_string.data, 2 * axis.values**3)
 
 ## Polynomial and quadratic signals
 
-A [`PolynomialSignal`][qiu_signals.algebraic_signal.PolynomialSignal]`(axis, alpha, power)` is the algebraic signal `alpha * x**power` of a single monomial, and a [`QuadraticSignal`][qiu_signals.algebraic_signal.QuadraticSignal]`(axis, alpha)` the one of power 2, also called an intensity signal. They keep `alpha` and `power`, so that code can recognize them and treat them specially, e.g. [qiu-quantum-computing](../../qiu-quantum-computing/) applies the phase of a monomial of power up to 3 exactly with controlled phase gates.
+A [`PolynomialSignal`][qiu_signals.algebraic_signal.PolynomialSignal]`(axis, alpha, power)` is the algebraic signal `alpha * x**power` of a single monomial, and a [`QuadraticSignal`][qiu_signals.algebraic_signal.QuadraticSignal]`(axis, alpha)` the one of power 2, also called an intensity signal. They keep `alpha` and `power`, so that code can recognize them and treat them specially, e.g. [qiu-quantum-computing](../qiu-quantum-computing/index.md) applies the phase of a monomial of power up to 3 exactly with controlled phase gates.
 
 [`effective_alpha`][qiu_signals.algebraic_signal.PolynomialSignal.effective_alpha] is the coefficient in terms of the integer indices rather than the values: since `values = index * period`,
 

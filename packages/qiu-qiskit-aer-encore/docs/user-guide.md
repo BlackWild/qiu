@@ -12,7 +12,7 @@ An [`AerDevice`][qiu_qiskit_aer_encore.simulator.AerDevice] selects where a simu
 | `CPU`            | `"cpu"`   | the CPU, which is always available                  |
 | `GPU`            | `"gpu"`   | a GPU, raising an `AerError` if none is available   |
 
-`AerDevice` is an `ExtendedEnum` of [qiu-python-encore](../../qiu-python-encore/): its members compare equal to their raw values, and [`aer_simulator`][qiu_qiskit_aer_encore.simulator.aer_simulator] accepts either. The raw values are lowercase; other strings, including Aer's own uppercase device names such as `"CPU"`, raise a `ValueError`.
+`AerDevice` is an `ExtendedEnum` of [qiu-python-encore](../qiu-python-encore/index.md): its members compare equal to their raw values, and [`aer_simulator`][qiu_qiskit_aer_encore.simulator.aer_simulator] accepts either. The raw values are lowercase; other strings, including Aer's own uppercase device names such as `"CPU"`, raise a `ValueError`.
 
 ```python
 from qiu_qiskit_aer_encore.simulator import AerDevice, aer_simulator
@@ -82,7 +82,7 @@ CPU simulators do not use `GPU_OPTIONS` at all: they get exactly the given optio
 
 ## Running circuits
 
-The simulators run circuits of the instructions Aer supports, so transpile circuits for the simulator before running them, especially circuits with high-level gates, such as the `StatePreparation` and `QFTGate` of the `GATE` method of [qiu-quantum-computing](../../qiu-quantum-computing/):
+The simulators run circuits of the instructions Aer supports, so transpile circuits for the simulator before running them, especially circuits with high-level gates, such as the `StatePreparation` and `QFTGate` of the `GATE` method of [qiu-quantum-computing](../qiu-quantum-computing/index.md):
 
 ```python
 import numpy as np
@@ -107,7 +107,7 @@ From optimization level 2, the default of `transpile`, the transpiler may change
 - it elides swap gates, e.g. the final swaps of a QFT, into a relabeling of the qubits, the `final_layout` of the transpiled circuit, and `save_statevector` then saves the state with its qubits permuted;
 - it removes gates it deems equivalent to the identity, e.g. rotations by angles of `1e-7`, which changes the amplitudes by as much.
 
-Transpile with `optimization_level=1` where the statevector must be exact, as the tests of the monorepo do with `transpile_exactly` of [qiskit-pytest-helper](../../qiskit-pytest-helper/):
+Transpile with `optimization_level=1` where the statevector must be exact, as the tests of the monorepo do with `transpile_exactly` of [qiskit-pytest-helper](../qiskit-pytest-helper/index.md):
 
 ```python
 import numpy as np

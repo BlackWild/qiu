@@ -1,10 +1,10 @@
 # User Guide
 
-The app consists of the QuTiP backend, [`QutipBackend`][wave_optics_propagation_qutip.backend.QutipBackend], and the scripts in `scripts/`. Everything else, i.e. the parameters of an experiment, the simulation loop, the storage of runs, the classical references and the analysis quantities, is imported from [qiu-classical-simulation](../../qiu-classical-simulation/), whose modules are referred to below as `qiu_classical_simulation.wave_optics.<module>`.
+The app consists of the QuTiP backend, [`QutipBackend`][wave_optics_propagation_qutip.backend.QutipBackend], and the scripts in `scripts/`. Everything else, i.e. the parameters of an experiment, the simulation loop, the storage of runs, the classical references and the analysis quantities, is imported from [qiu-classical-simulation](../qiu-classical-simulation/index.md), whose modules are referred to below as `qiu_classical_simulation.wave_optics.<module>`.
 
 ## The experiment
 
-The experiment is the one of the Qiskit app, [wave_optics_propagation](../../wave_optics_propagation/), whose [User Guide](../../wave_optics_propagation/user-guide/) describes it in depth. In short:
+The experiment is the one of the Qiskit app, [wave_optics_propagation](../wave_optics_propagation/index.md), whose [User Guide](../wave_optics_propagation/user-guide.md) describes it in depth. In short:
 
 - A Gaussian beam, given by the FWHM of its intensity and centered in a transverse window of `transverse_length`, is sampled on `2**num_qubits` points and enters a plano-convex lens that fills the window, of radius of curvature `R = focal_length (refractive_index - 1)`.
 - The lens is sliced along the optical axis into `lens_slices` transparent plates, whose transverse radii follow the spherical surface or, with `fresnel_approximation`, a paraboloid. Each slice delays the field within its radius by the phase `(n - 1) k0 t / N` of the lens thickness `t`, the `N` slices and `k0 = 2 pi / vacuum_wavelength`, reduced modulo `2 pi` with `scale_down_phases`.

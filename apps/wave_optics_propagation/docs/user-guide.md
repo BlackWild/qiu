@@ -1,6 +1,6 @@
 # User Guide
 
-The app consists of the Qiskit backend, [`QiskitBackend`][wave_optics_propagation.backend.QiskitBackend], and the scripts in `scripts/`. Everything else, i.e. the parameters of an experiment, the simulation loop, the storage of runs, the classical references and the analysis quantities, is imported from [qiu-classical-simulation](../../qiu-classical-simulation/), whose modules are referred to below as `qiu_classical_simulation.wave_optics.<module>`.
+The app consists of the Qiskit backend, [`QiskitBackend`][wave_optics_propagation.backend.QiskitBackend], and the scripts in `scripts/`. Everything else, i.e. the parameters of an experiment, the simulation loop, the storage of runs, the classical references and the analysis quantities, is imported from [qiu-classical-simulation](../qiu-classical-simulation/index.md), whose modules are referred to below as `qiu_classical_simulation.wave_optics.<module>`.
 
 ## The experiment
 
@@ -25,7 +25,7 @@ Free propagation over a distance `dz` multiplies the angular spectrum of the fie
 
 ### The sample-based phase protocol
 
-The protocol applies `e^(i f)` for a real signal `f` of one sign. The signal is decomposed as `f = alpha |phi|**2`, with the sum `alpha` of its samples and the normalized state `phi = sqrt(f / alpha)`, and `alpha` is sliced into the fewest equal phases `delta` of magnitude at most `max_delta`. Each cycle of a phase `delta`, post-selected on its success, maps the amplitudes `psi_j` to `psi_j (1 + (e^(i delta) - 1) |phi_j|**2)`, renormalized, which is `e^(i delta |phi_j|**2) psi_j` up to `O(delta**2)`. See `qiu_classical_simulation.wave_optics.phase_protocol` for its arithmetic and [qiu-quantum-computing](../../qiu-quantum-computing/) for its circuits.
+The protocol applies `e^(i f)` for a real signal `f` of one sign. The signal is decomposed as `f = alpha |phi|**2`, with the sum `alpha` of its samples and the normalized state `phi = sqrt(f / alpha)`, and `alpha` is sliced into the fewest equal phases `delta` of magnitude at most `max_delta`. Each cycle of a phase `delta`, post-selected on its success, maps the amplitudes `psi_j` to `psi_j (1 + (e^(i delta) - 1) |phi_j|**2)`, renormalized, which is `e^(i delta |phi_j|**2) psi_j` up to `O(delta**2)`. See `qiu_classical_simulation.wave_optics.phase_protocol` for its arithmetic and [qiu-quantum-computing](../qiu-quantum-computing/index.md) for its circuits.
 
 Smaller `max_delta` thus approximates the phases better, with more cycles, and each cycle succeeds with a probability closer to 1. The simulations keep only the successful outcomes and multiply up the probabilities of success; the probability that all cycles of an experiment succeed drops with `max_delta` roughly exponentially, as `exp(a max_delta)` with `a < 0`, and the fidelity to the exact field roughly as `1 + a max_delta**2`, the models the batch analysis fits.
 
@@ -73,7 +73,7 @@ With the default 7 qubits, `delta_x` is about 0.78 um; with fewer qubits, it exc
 [`QiskitBackend`][wave_optics_propagation.backend.QiskitBackend] implements them with Qiskit:
 
 - [`sample_based_phase`][wave_optics_propagation.backend.QiskitBackend.sample_based_phase] decomposes the signal with `qiu_quantum_computing.phase_propagator.sample_based.sample_based_decomposition`, slices `alpha` evenly and prepares `|phi>` as a `qiu_quantum_computing.preparable_state.PreparableState`. Each cycle, `qiu_quantum_computing.phase_propagator.sample_based_manual.phase_propagation_cycle`, is a statevector simulation of the circuit of the protocol on `2n` qubits: it prepares `|phi>` in a second register, applies the partial phase `e^(i delta)` where both registers agree (by its diagonal), un-prepares `|phi>`, and keeps the renormalized part in which the second register is `|0...0>`, i.e. the successful outcome, together with its probability.
-- [`direct_momentum_phase`][wave_optics_propagation.backend.QiskitBackend.direct_momentum_phase] evolves the state with the circuit `MomentumDomainEvolutionQuadratic` of [qiu-hamiltonian-simulation](../../qiu-hamiltonian-simulation/): a change to the momentum basis, Qiskit's inverse QFT, the quadratic phase, and the QFT back.
+- [`direct_momentum_phase`][wave_optics_propagation.backend.QiskitBackend.direct_momentum_phase] evolves the state with the circuit `MomentumDomainEvolutionQuadratic` of [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/index.md): a change to the momentum basis, Qiskit's inverse QFT, the quadratic phase, and the QFT back.
 
 Its two options set how these circuits are represented, as a `qiu_qiskit_encore.synthesis_method.SynthesisMethod`:
 
@@ -112,7 +112,7 @@ assert loops == ["Lens slices", "Free space steps"]
 assert len(result.snapshots) == 4 + 3 + 3  # with step_0, after_lens and final
 ```
 
-`qiu_classical_simulation.wave_optics.simulation.ExactBackend` applies the same phases exactly and is the reference of the backend; the QuTiP backend of [wave_optics_propagation_qutip](../../wave_optics_propagation_qutip/) applies them as operators on kets, with the same results up to rounding.
+`qiu_classical_simulation.wave_optics.simulation.ExactBackend` applies the same phases exactly and is the reference of the backend; the QuTiP backend of [wave_optics_propagation_qutip](../wave_optics_propagation_qutip/index.md) applies them as operators on kets, with the same results up to rounding.
 
 ## The scripts
 
@@ -203,7 +203,7 @@ The local runs of December 2025 and January 2026 read without defaults. The runs
 
 ## Changes to the former analyses
 
-The simulation and the analyses were reworked into the shared [qiu-classical-simulation](../../qiu-classical-simulation/), with these differences to the former code:
+The simulation and the analyses were reworked into the shared [qiu-classical-simulation](../qiu-classical-simulation/index.md), with these differences to the former code:
 
 - The reverse order passes the slices from the plane side, `N-1, ..., 0`; the former code passed them as `0, N-1, ..., 1`. The difference in the final field of the experiment of the paper is an infidelity of about `2e-6`.
 - The batch analysis reads the success probability at the analyzed snapshot; the former one read it one free space step earlier.

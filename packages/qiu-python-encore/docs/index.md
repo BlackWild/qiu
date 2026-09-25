@@ -2,7 +2,7 @@
 
 `qiu-python-encore` holds small enhancements of the Python standard library that the other packages of this monorepo share. It has no dependencies.
 
-Currently it provides [`ExtendedEnum`][qiu_python_encore.enum.ExtendedEnum], an `Enum` whose members also compare equal to, and hash like, their raw values. Code can then accept either a member or its value, e.g. a string read from a configuration file, a command line or a `hypothesis` strategy, without converting it first. The enums of [qiu-signals](../qiu-signals/), e.g. its index orderings and axis domains, are built on it.
+Currently it provides [`ExtendedEnum`][qiu_python_encore.enum.ExtendedEnum], an `Enum` whose members also compare equal to, and hash like, their raw values. Code can then accept either a member or its value, e.g. a string read from a configuration file, a command line or a `hypothesis` strategy, without converting it first. The enums of [qiu-signals](../qiu-signals/index.md), e.g. its index orderings and axis domains, are built on it.
 
 ## Installation
 

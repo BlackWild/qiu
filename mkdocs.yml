@@ -1,13 +1,27 @@
-# The landing page of the documentation, linking to the documentation of each package
-# (see docs/mkdocs.base.yml); docs/build_all.py builds them all into one site.
+# The documentation site of the monorepo: the landing page, and the documentation of
+# every package in a section of its own, with the API reference generated from its
+# docstrings. docs/gen_pages.py collects the pages of the packages and writes the
+# navigation; docs/build_all.py builds the site strictly and checks its links.
+INHERIT: docs/mkdocs.base.yml
 site_name: Qiu
+site_description: Tools for quantum computing and quantum simulation
 site_url: https://blackwild.github.io/qiu/
-repo_url: https://github.com/BlackWild/qiu
 docs_dir: docs/landing
 
-theme:
-  name: material
+plugins:
+  gen-files:
+    scripts:
+      - docs/gen_pages.py
 
-markdown_extensions:
-  - toc:
-      permalink: true
+# links and anchors between the pages, also between packages, are checked
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+watch:
+  - packages
+  - packages-dev
+  - apps
+  - docs

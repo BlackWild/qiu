@@ -1,3 +1,19 @@
+# The documentation of python-pytest-helper alone, to preview it with
+#   uv run mkdocs serve -f packages-dev/python-pytest-helper/mkdocs.yml
+# The site of the monorepo, with all packages, is built from the root mkdocs.yml (see
+# docs/gen_pages.py).
 INHERIT: ../../docs/mkdocs.base.yml
 site_name: python-pytest-helper
-site_url: https://blackwild.github.io/qiu/python-pytest-helper/
+
+plugins:
+  gen-files:
+    scripts:
+      - ../../docs/gen_pages.py
+
+# the other packages are not part of the preview, so links to them are not found
+validation:
+  links:
+    not_found: info
+
+watch:
+  - src

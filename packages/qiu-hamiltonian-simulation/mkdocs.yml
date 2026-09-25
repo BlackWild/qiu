@@ -1,3 +1,19 @@
+# The documentation of qiu-hamiltonian-simulation alone, to preview it with
+#   uv run mkdocs serve -f packages/qiu-hamiltonian-simulation/mkdocs.yml
+# The site of the monorepo, with all packages, is built from the root mkdocs.yml (see
+# docs/gen_pages.py).
 INHERIT: ../../docs/mkdocs.base.yml
 site_name: qiu-hamiltonian-simulation
-site_url: https://blackwild.github.io/qiu/qiu-hamiltonian-simulation/
+
+plugins:
+  gen-files:
+    scripts:
+      - ../../docs/gen_pages.py
+
+# the other packages are not part of the preview, so links to them are not found
+validation:
+  links:
+    not_found: info
+
+watch:
+  - src

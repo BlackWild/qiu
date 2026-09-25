@@ -1,10 +1,10 @@
 # python-pytest-helper
 
-Shared helpers for the unit tests of this monorepo that need no quantum computing: the floating-point comparisons of numbers and arrays, and the [Hypothesis](https://hypothesis.readthedocs.io/) strategies of numbers, axes and signals. It only depends on NumPy, Hypothesis and [`qiu-signals`](../qiu-signals/).
+Shared helpers for the unit tests of this monorepo that need no quantum computing: the floating-point comparisons of numbers and arrays, and the [Hypothesis](https://hypothesis.readthedocs.io/) strategies of numbers, axes and signals. It only depends on NumPy, Hypothesis and [`qiu-signals`](../qiu-signals/index.md).
 
 The comparisons replace tolerances chosen per test by one rule: values agree relative to their magnitude, down to the smallest normal float, below which they only agree absolutely. The strategies generate finite, bounded values that include zero and subnormal numbers, and compose: axis strategies take strategies of their sizes, spacings and orderings, and signal strategies take a strategy of their axes.
 
-The package is used by the tests of `qiu-signals`, `qiu-classical-simulation` and the quantum packages, and [`qiskit-pytest-helper`](../qiskit-pytest-helper/) builds its quantum strategies and assertions on it. It is a development package of the workspace, not meant to be published.
+The package is used by the tests of `qiu-signals`, `qiu-classical-simulation` and the quantum packages, and [`qiskit-pytest-helper`](../qiskit-pytest-helper/index.md) builds its quantum strategies and assertions on it. It is a development package of the workspace, not meant to be published.
 
 ## Installation
 

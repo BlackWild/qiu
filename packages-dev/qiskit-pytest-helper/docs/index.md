@@ -2,7 +2,7 @@
 
 Shared quantum helpers for the unit tests of this monorepo, not meant to be published. It provides Hypothesis strategies of quantum states and of axes representable by qubits, assertions comparing states and operators with Qiskit's equality, typed circuit helpers, and the Aer simulation of sample-based phase propagators.
 
-It builds on [python-pytest-helper](../python-pytest-helper/), which holds the floating-point comparisons and the strategies of numbers, axes and signals; this package only adds what involves qubits or Qiskit. The tests of the quantum packages, e.g. [qiu-quantum-computing](../qiu-quantum-computing/), [qiu-mps-initializer](../qiu-mps-initializer/) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/), use it, so that they share the same strategies, bounds and tolerances.
+It builds on [python-pytest-helper](../python-pytest-helper/index.md), which holds the floating-point comparisons and the strategies of numbers, axes and signals; this package only adds what involves qubits or Qiskit. The tests of the quantum packages, e.g. [qiu-quantum-computing](../qiu-quantum-computing/index.md), [qiu-mps-initializer](../qiu-mps-initializer/index.md) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/index.md), use it, so that they share the same strategies, bounds and tolerances.
 
 ## Installation
 

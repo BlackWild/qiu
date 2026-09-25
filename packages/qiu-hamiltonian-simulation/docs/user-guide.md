@@ -8,7 +8,7 @@ The package holds the evolutions under time-independent Hamiltonians in the subp
 | `sample_based` | evolutions under arbitrary potentials and kinetic energies of one sign, with the sample-based phase propagator |
 | `fourier`      | the changes of basis between the position and the momentum domain, and the checks of the axes       |
 
-The signals and axes are those of [`qiu-signals`](../../qiu-signals/), the phase and QFT circuits those of [`qiu-quantum-computing`](../../qiu-quantum-computing/), and the `SynthesisMethod` that of [`qiu-qiskit-encore`](../../qiu-qiskit-encore/).
+The signals and axes are those of [`qiu-signals`](../qiu-signals/index.md), the phase and QFT circuits those of [`qiu-quantum-computing`](../qiu-quantum-computing/index.md), and the `SynthesisMethod` that of [`qiu-qiskit-encore`](../qiu-qiskit-encore/index.md).
 
 ## Sign conventions
 
@@ -84,7 +84,7 @@ A sum of signals, e.g. `V + 1` or a shifted parabola, is no longer a `QuadraticS
 - [`PotentialEvolutionSampleBased(V, t, hbar, max_delta, state_preparation_method)`][qiu_hamiltonian_simulation.time_independent.sample_based.PotentialEvolutionSampleBased] for a potential on a position axis.
 - [`KineticEvolutionSampleBased(T, t, hbar, max_delta, state_preparation_method, fourier_method)`][qiu_hamiltonian_simulation.time_independent.sample_based.KineticEvolutionSampleBased] for a kinetic energy on an `FFT`-ordered Fourier domain axis, between `to_momentum_basis` and `to_position_basis` on the `psi` register.
 
-The phase `-t sum_k V(x_k) / hbar` is sliced into `num_of_cycles = ceil(t |sum_k V(x_k)| / (hbar max_delta))` equal phases of magnitude at most `max_delta`, one cycle each. The circuits have the registers of the propagator: `psi` (qubits `0, ..., n-1`), `phi` (qubits `n, ..., 2n-1`) and the classical `success_flag` of `n` bits, which is 0 if all cycles succeeded. The protocol, its closed-form cycle map, its success probability and how to run it on Aer are explained in the [User Guide of qiu-quantum-computing](../../qiu-quantum-computing/user-guide/).
+The phase `-t sum_k V(x_k) / hbar` is sliced into `num_of_cycles = ceil(t |sum_k V(x_k)| / (hbar max_delta))` equal phases of magnitude at most `max_delta`, one cycle each. The circuits have the registers of the propagator: `psi` (qubits `0, ..., n-1`), `phi` (qubits `n, ..., 2n-1`) and the classical `success_flag` of `n` bits, which is 0 if all cycles succeeded. The protocol, its closed-form cycle map, its success probability and how to run it on Aer are explained in the [User Guide of qiu-quantum-computing](../qiu-quantum-computing/user-guide.md).
 
 The `state_preparation_method` of `|phi>` defaults to `GATE`, Qiskit's `StatePreparation`, which is unreliable for the nearly uniform `|phi>` of smooth signals (qiskit 2.2); pass `SynthesisMethod.DECOMPOSED` for a robust synthesis, or `DENSE` on few qubits.
 

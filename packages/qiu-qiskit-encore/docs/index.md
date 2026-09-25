@@ -2,7 +2,7 @@
 
 `qiu-qiskit-encore` improves native types of Qiskit: [`validated_statevector`][qiu_qiskit_encore.statevector.validated_statevector] returns a Qiskit `Statevector` checked to be a normalized state of qubits, and a [`SynthesisMethod`][qiu_qiskit_encore.synthesis_method.SynthesisMethod] chooses how a circuit building block is represented in a circuit: as a dense unitary, as a high-level Qiskit gate, or as a circuit of elementary gates. The contributors believe that such tools should be part of the standard Qiskit library, or at least can envision them being so.
 
-Within the monorepo, it is the base of the quantum packages: the circuit building blocks of [qiu-quantum-computing](../qiu-quantum-computing/), e.g. its state preparation and QFT, take a `SynthesisMethod`, and they, [qiu-mps-initializer](../qiu-mps-initializer/) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/) validate their states with it. It depends only on Qiskit, NumPy and [qiu-python-encore](../qiu-python-encore/).
+Within the monorepo, it is the base of the quantum packages: the circuit building blocks of [qiu-quantum-computing](../qiu-quantum-computing/index.md), e.g. its state preparation and QFT, take a `SynthesisMethod`, and they, [qiu-mps-initializer](../qiu-mps-initializer/index.md) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/index.md) validate their states with it. It depends only on Qiskit, NumPy and [qiu-python-encore](../qiu-python-encore/index.md).
 
 ## Installation
 

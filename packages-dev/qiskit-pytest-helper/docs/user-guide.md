@@ -10,7 +10,7 @@
 | `propagation` | The Aer simulation of sample-based phase propagators and the closed form they are compared with. |
 | `constants` | The bounds of the strategies and the fidelity tolerances of approximate protocols. |
 
-Everything that needs no qubits, i.e. the comparison of plain numbers and the strategies of numbers, axes and signals, is in [python-pytest-helper](../../python-pytest-helper/).
+Everything that needs no qubits, i.e. the comparison of plain numbers and the strategies of numbers, axes and signals, is in [python-pytest-helper](../python-pytest-helper/index.md).
 
 ## Quantum state strategies
 
@@ -52,7 +52,7 @@ Qiskit's equality compares the data with `numpy.allclose` at the tolerances of t
 
 [`assert_unitary`][qiskit_pytest_helper.assertions.assert_unitary] asserts that an operator, e.g. a matrix, is unitary, with `Operator.is_unitary`.
 
-Plain numbers and arrays that are not states are compared with `python_pytest_helper.assertions.assert_close`, see [python-pytest-helper](../../python-pytest-helper/). The results of approximate protocols, e.g. a phase applied with the sample-based protocol, are not equal to the exact ones; their tests assert a fidelity, `state_fidelity(actual, expected) >= 1 - FIDELITY_TOLERANCE`, see [Constants](#constants).
+Plain numbers and arrays that are not states are compared with `python_pytest_helper.assertions.assert_close`, see [python-pytest-helper](../python-pytest-helper/index.md). The results of approximate protocols, e.g. a phase applied with the sample-based protocol, are not equal to the exact ones; their tests assert a fidelity, `state_fidelity(actual, expected) >= 1 - FIDELITY_TOLERANCE`, see [Constants](#constants).
 
 ## Circuit helpers
 
@@ -65,12 +65,12 @@ Qiskit's annotations of `Operator.data` and `QuantumCircuit.count_ops` are too l
 
 ## Simulating sample-based propagators
 
-The sample-based phase propagators of [qiu-quantum-computing](../../qiu-quantum-computing/) and [qiu-hamiltonian-simulation](../../qiu-hamiltonian-simulation/) act on a register `psi` of `n` qubits, a register `phi` of `n` qubits and `n` classical success flags. Each cycle prepares `|phi>`, applies a partial phase, un-prepares `|phi>` and measures the `phi` register into the flags; the next cycle only runs if the flags are 0.
+The sample-based phase propagators of [qiu-quantum-computing](../qiu-quantum-computing/index.md) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/index.md) act on a register `psi` of `n` qubits, a register `phi` of `n` qubits and `n` classical success flags. Each cycle prepares `|phi>`, applies a partial phase, un-prepares `|phi>` and measures the `phi` register into the flags; the next cycle only runs if the flags are 0.
 
 [`run_propagator(propagator, psi)`][qiskit_pytest_helper.propagation.run_propagator] simulates such a propagator on the initial state `psi`:
 
 1. It initializes the `psi` register to `psi`, composes the propagator and saves the statevector.
-2. It transpiles the circuit exactly for the Aer CPU statevector simulator of [qiu-qiskit-aer-encore](../../qiu-qiskit-aer-encore/), with the seed [`SIMULATOR_SEED`][qiskit_pytest_helper.propagation.SIMULATOR_SEED] (1234) for reproducible measurements, and runs one shot.
+2. It transpiles the circuit exactly for the Aer CPU statevector simulator of [qiu-qiskit-aer-encore](../qiu-qiskit-aer-encore/index.md), with the seed [`SIMULATOR_SEED`][qiskit_pytest_helper.propagation.SIMULATOR_SEED] (1234) for reproducible measurements, and runs one shot.
 3. It returns whether all cycles succeeded, i.e. the flags read 0, and the first `2**n` amplitudes of the final statevector: those of the `psi` register with `phi` in `|0...0>`, exact including their global phase.
 
 Whether the cycles succeed is random, so tests discard failed runs with `hypothesis.assume(succeeded)`. [`exact_cycles(psi, phi, deltas)`][qiskit_pytest_helper.propagation.exact_cycles] is the closed form of successful cycles: each maps the amplitudes `psi_j` to `psi_j (1 + (e^(i delta) - 1) |phi_j|**2)`, renormalized. The output of a successful run is compared with it by `assert_equal_states`, exactly; its distance to `e^(i f) psi` is the error of the protocol, asserted with a fidelity tolerance.
