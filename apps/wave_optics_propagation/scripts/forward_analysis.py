@@ -13,14 +13,14 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
-from python_wave_optics.analysis import (
+from qiu_classical_simulation.wave_optics.analysis import (
     beam_waist,
     lens_surface,
     principal_plane_position,
     propagation_distances,
     thin_lens_reference_states,
 )
-from python_wave_optics.storage import load_experiment
+from qiu_classical_simulation.wave_optics.storage import load_experiment
 
 APP_DIR = Path(__file__).resolve().parents[1]
 RESULTS_DIR = APP_DIR / ".result"

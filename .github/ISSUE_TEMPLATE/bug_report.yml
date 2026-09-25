@@ -6,7 +6,7 @@ body:
     id: package
     attributes:
       label: Package
-      description: The package and its version, e.g. `qiskit-encore 0.1.0`.
+      description: The package and its version, e.g. `qiu-qiskit-encore 0.1.0`.
     validations:
       required: true
   - type: textarea

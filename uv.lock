@@ -8,16 +8,16 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "python-encore",
     "python-pytest-helper",
-    "python-signals",
-    "python-wave-optics",
-    "qiskit-aer-encore",
-    "qiskit-encore",
-    "qiskit-hamiltonian-simulation",
-    "qiskit-mps-initializer",
-    "qiskit-phase-propagator",
     "qiskit-pytest-helper",
+    "qiu-classical-simulation",
+    "qiu-hamiltonian-simulation",
+    "qiu-mps-initializer",
+    "qiu-python-encore",
+    "qiu-qiskit-aer-encore",
+    "qiu-qiskit-encore",
+    "qiu-quantum-computing",
+    "qiu-signals",
     "wave-optics-propagation",
     "wave-optics-propagation-qutip",
 ]
@@ -45,8 +45,8 @@ test = [
     { name = "pytest", specifier = ">=9.0.0" },
     { name = "pytest-cov", specifier = ">=7.0.0" },
     { name = "pytest-xdist", extras = ["psutil"], specifier = ">=3.8.0" },
-    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
-    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
+    { name = "python-pytest-helper", editable = "packages-dev/python-pytest-helper" },
+    { name = "qiskit-pytest-helper", editable = "packages-dev/qiskit-pytest-helper" },
 ]
 
 [[package]]
@@ -1988,104 +1988,20 @@ wheels = [
 ]
 
 [[package]]
-name = "python-encore"
-version = "0.1.0"
-source = { editable = "shareable-packages/python-encore" }
-
-[package.dev-dependencies]
-test = [
-    { name = "pytest" },
-]
-
-[package.metadata]
-
-[package.metadata.requires-dev]
-test = [{ name = "pytest", specifier = ">=9.0.0" }]
-
-[[package]]
 name = "python-pytest-helper"
 version = "0.1.0"
-source = { editable = "dev-packages/python-pytest-helper" }
+source = { editable = "packages-dev/python-pytest-helper" }
 dependencies = [
     { name = "hypothesis" },
     { name = "numpy" },
-    { name = "python-signals" },
+    { name = "qiu-signals" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "hypothesis", specifier = ">=6.140.3" },
     { name = "numpy", specifier = ">=2.2.6" },
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
-]
-
-[[package]]
-name = "python-signals"
-version = "0.1.0"
-source = { editable = "shareable-packages/python-signals" }
-dependencies = [
-    { name = "numpy" },
-    { name = "python-encore" },
-]
-
-[package.optional-dependencies]
-sympy = [
-    { name = "sympy" },
-]
-
-[package.dev-dependencies]
-test = [
-    { name = "hypothesis" },
-    { name = "pytest" },
-    { name = "python-pytest-helper" },
-    { name = "sympy" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "numpy", specifier = ">=2.2.6" },
-    { name = "python-encore", editable = "shareable-packages/python-encore" },
-    { name = "sympy", marker = "extra == 'sympy'", specifier = ">=1.14.0" },
-]
-provides-extras = ["sympy"]
-
-[package.metadata.requires-dev]
-test = [
-    { name = "hypothesis", specifier = ">=6.140.3" },
-    { name = "pytest", specifier = ">=9.0.0" },
-    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
-    { name = "sympy", specifier = ">=1.14.0" },
-]
-
-[[package]]
-name = "python-wave-optics"
-version = "0.1.0"
-source = { editable = "shareable-packages/python-wave-optics" }
-dependencies = [
-    { name = "matplotlib" },
-    { name = "numpy" },
-    { name = "python-signals" },
-]
-
-[package.dev-dependencies]
-test = [
-    { name = "hypothesis" },
-    { name = "pytest" },
-    { name = "python-pytest-helper" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "matplotlib", specifier = ">=3.10.0" },
-    { name = "numpy", specifier = ">=2.2.6" },
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
-]
-
-[package.metadata.requires-dev]
-test = [
-    { name = "hypothesis", specifier = ">=6.140.3" },
-    { name = "pytest", specifier = ">=9.0.0" },
-    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
+    { name = "qiu-signals", editable = "packages/qiu-signals" },
 ]
 
 [[package]]
@@ -2307,70 +2223,36 @@ wheels = [
 ]
 
 [[package]]
-name = "qiskit-aer-encore"
+name = "qiskit-pytest-helper"
 version = "0.1.0"
-source = { editable = "packages/qiskit-aer-encore" }
+source = { editable = "packages-dev/qiskit-pytest-helper" }
 dependencies = [
-    { name = "python-encore" },
-    { name = "qiskit-aer" },
-]
-
-[package.dev-dependencies]
-test = [
-    { name = "pytest" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "python-encore", editable = "shareable-packages/python-encore" },
-    { name = "qiskit-aer", specifier = ">=0.17.2" },
-]
-
-[package.metadata.requires-dev]
-test = [{ name = "pytest", specifier = ">=9.0.0" }]
-
-[[package]]
-name = "qiskit-encore"
-version = "0.1.0"
-source = { editable = "packages/qiskit-encore" }
-dependencies = [
-    { name = "numpy" },
-    { name = "python-encore" },
-    { name = "qiskit" },
-]
-
-[package.dev-dependencies]
-test = [
     { name = "hypothesis" },
-    { name = "pytest" },
-    { name = "qiskit-aer-encore" },
-    { name = "qiskit-pytest-helper" },
+    { name = "numpy" },
+    { name = "python-pytest-helper" },
+    { name = "qiskit" },
+    { name = "qiu-qiskit-aer-encore" },
+    { name = "qiu-signals" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "numpy", specifier = ">=2.2.6" },
-    { name = "python-encore", editable = "shareable-packages/python-encore" },
-    { name = "qiskit", specifier = ">=2.2.1" },
-]
-
-[package.metadata.requires-dev]
-test = [
     { name = "hypothesis", specifier = ">=6.140.3" },
-    { name = "pytest", specifier = ">=9.0.0" },
-    { name = "qiskit-aer-encore", editable = "packages/qiskit-aer-encore" },
-    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "python-pytest-helper", editable = "packages-dev/python-pytest-helper" },
+    { name = "qiskit", specifier = ">=2.2.1" },
+    { name = "qiu-qiskit-aer-encore", editable = "packages/qiu-qiskit-aer-encore" },
+    { name = "qiu-signals", editable = "packages/qiu-signals" },
 ]
 
 [[package]]
-name = "qiskit-hamiltonian-simulation"
+name = "qiu-classical-simulation"
 version = "0.1.0"
-source = { editable = "packages/qiskit-hamiltonian-simulation" }
+source = { editable = "packages/qiu-classical-simulation" }
 dependencies = [
-    { name = "python-signals" },
-    { name = "qiskit" },
-    { name = "qiskit-encore" },
-    { name = "qiskit-phase-propagator" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "qiu-signals" },
 ]
 
 [package.dev-dependencies]
@@ -2378,35 +2260,67 @@ test = [
     { name = "hypothesis" },
     { name = "pytest" },
     { name = "python-pytest-helper" },
-    { name = "qiskit-aer-encore" },
-    { name = "qiskit-pytest-helper" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
-    { name = "qiskit", specifier = ">=2.2.1" },
-    { name = "qiskit-encore", editable = "packages/qiskit-encore" },
-    { name = "qiskit-phase-propagator", editable = "packages/qiskit-phase-propagator" },
+    { name = "matplotlib", specifier = ">=3.10.0" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "qiu-signals", editable = "packages/qiu-signals" },
 ]
 
 [package.metadata.requires-dev]
 test = [
     { name = "hypothesis", specifier = ">=6.140.3" },
     { name = "pytest", specifier = ">=9.0.0" },
-    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
-    { name = "qiskit-aer-encore", editable = "packages/qiskit-aer-encore" },
-    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
+    { name = "python-pytest-helper", editable = "packages-dev/python-pytest-helper" },
 ]
 
 [[package]]
-name = "qiskit-mps-initializer"
+name = "qiu-hamiltonian-simulation"
+version = "0.1.0"
+source = { editable = "packages/qiu-hamiltonian-simulation" }
+dependencies = [
+    { name = "qiskit" },
+    { name = "qiu-qiskit-encore" },
+    { name = "qiu-quantum-computing" },
+    { name = "qiu-signals" },
+]
+
+[package.dev-dependencies]
+test = [
+    { name = "hypothesis" },
+    { name = "pytest" },
+    { name = "python-pytest-helper" },
+    { name = "qiskit-pytest-helper" },
+    { name = "qiu-qiskit-aer-encore" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "qiskit", specifier = ">=2.2.1" },
+    { name = "qiu-qiskit-encore", editable = "packages/qiu-qiskit-encore" },
+    { name = "qiu-quantum-computing", editable = "packages/qiu-quantum-computing" },
+    { name = "qiu-signals", editable = "packages/qiu-signals" },
+]
+
+[package.metadata.requires-dev]
+test = [
+    { name = "hypothesis", specifier = ">=6.140.3" },
+    { name = "pytest", specifier = ">=9.0.0" },
+    { name = "python-pytest-helper", editable = "packages-dev/python-pytest-helper" },
+    { name = "qiskit-pytest-helper", editable = "packages-dev/qiskit-pytest-helper" },
+    { name = "qiu-qiskit-aer-encore", editable = "packages/qiu-qiskit-aer-encore" },
+]
+
+[[package]]
+name = "qiu-mps-initializer"
 version = "0.3.0"
-source = { editable = "packages/qiskit-mps-initializer" }
+source = { editable = "packages/qiu-mps-initializer" }
 dependencies = [
     { name = "numpy" },
     { name = "qiskit" },
-    { name = "qiskit-encore" },
+    { name = "qiu-qiskit-encore" },
     { name = "quimb" },
     { name = "scipy" },
 ]
@@ -2416,16 +2330,16 @@ test = [
     { name = "hypothesis" },
     { name = "pytest" },
     { name = "python-pytest-helper" },
-    { name = "python-signals" },
-    { name = "qiskit-phase-propagator" },
     { name = "qiskit-pytest-helper" },
+    { name = "qiu-quantum-computing" },
+    { name = "qiu-signals" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "qiskit", specifier = ">=2.2.1" },
-    { name = "qiskit-encore", editable = "packages/qiskit-encore" },
+    { name = "qiu-qiskit-encore", editable = "packages/qiu-qiskit-encore" },
     { name = "quimb", specifier = ">=1.11.0" },
     { name = "scipy", specifier = ">=1.15.0" },
 ]
@@ -2434,21 +2348,84 @@ requires-dist = [
 test = [
     { name = "hypothesis", specifier = ">=6.140.3" },
     { name = "pytest", specifier = ">=9.0.0" },
-    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
-    { name = "qiskit-phase-propagator", editable = "packages/qiskit-phase-propagator" },
-    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
+    { name = "python-pytest-helper", editable = "packages-dev/python-pytest-helper" },
+    { name = "qiskit-pytest-helper", editable = "packages-dev/qiskit-pytest-helper" },
+    { name = "qiu-quantum-computing", editable = "packages/qiu-quantum-computing" },
+    { name = "qiu-signals", editable = "packages/qiu-signals" },
 ]
 
 [[package]]
-name = "qiskit-phase-propagator"
+name = "qiu-python-encore"
 version = "0.1.0"
-source = { editable = "packages/qiskit-phase-propagator" }
+source = { editable = "packages/qiu-python-encore" }
+
+[package.dev-dependencies]
+test = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+test = [{ name = "pytest", specifier = ">=9.0.0" }]
+
+[[package]]
+name = "qiu-qiskit-aer-encore"
+version = "0.1.0"
+source = { editable = "packages/qiu-qiskit-aer-encore" }
+dependencies = [
+    { name = "qiskit-aer" },
+    { name = "qiu-python-encore" },
+]
+
+[package.dev-dependencies]
+test = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "qiskit-aer", specifier = ">=0.17.2" },
+    { name = "qiu-python-encore", editable = "packages/qiu-python-encore" },
+]
+
+[package.metadata.requires-dev]
+test = [{ name = "pytest", specifier = ">=9.0.0" }]
+
+[[package]]
+name = "qiu-qiskit-encore"
+version = "0.1.0"
+source = { editable = "packages/qiu-qiskit-encore" }
 dependencies = [
     { name = "numpy" },
-    { name = "python-signals" },
     { name = "qiskit" },
-    { name = "qiskit-encore" },
+    { name = "qiu-python-encore" },
+]
+
+[package.dev-dependencies]
+test = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "qiskit", specifier = ">=2.2.1" },
+    { name = "qiu-python-encore", editable = "packages/qiu-python-encore" },
+]
+
+[package.metadata.requires-dev]
+test = [{ name = "pytest", specifier = ">=9.0.0" }]
+
+[[package]]
+name = "qiu-quantum-computing"
+version = "0.1.0"
+source = { editable = "packages/qiu-quantum-computing" }
+dependencies = [
+    { name = "numpy" },
+    { name = "qiskit" },
+    { name = "qiu-qiskit-encore" },
+    { name = "qiu-signals" },
 ]
 
 [package.dev-dependencies]
@@ -2456,48 +2433,65 @@ test = [
     { name = "hypothesis" },
     { name = "pytest" },
     { name = "python-pytest-helper" },
-    { name = "qiskit-aer-encore" },
     { name = "qiskit-pytest-helper" },
+    { name = "qiu-python-encore" },
+    { name = "qiu-qiskit-aer-encore" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
     { name = "qiskit", specifier = ">=2.2.1" },
-    { name = "qiskit-encore", editable = "packages/qiskit-encore" },
+    { name = "qiu-qiskit-encore", editable = "packages/qiu-qiskit-encore" },
+    { name = "qiu-signals", editable = "packages/qiu-signals" },
 ]
 
 [package.metadata.requires-dev]
 test = [
     { name = "hypothesis", specifier = ">=6.140.3" },
     { name = "pytest", specifier = ">=9.0.0" },
-    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
-    { name = "qiskit-aer-encore", editable = "packages/qiskit-aer-encore" },
-    { name = "qiskit-pytest-helper", editable = "dev-packages/qiskit-pytest-helper" },
+    { name = "python-pytest-helper", editable = "packages-dev/python-pytest-helper" },
+    { name = "qiskit-pytest-helper", editable = "packages-dev/qiskit-pytest-helper" },
+    { name = "qiu-python-encore", editable = "packages/qiu-python-encore" },
+    { name = "qiu-qiskit-aer-encore", editable = "packages/qiu-qiskit-aer-encore" },
 ]
 
 [[package]]
-name = "qiskit-pytest-helper"
+name = "qiu-signals"
 version = "0.1.0"
-source = { editable = "dev-packages/qiskit-pytest-helper" }
+source = { editable = "packages/qiu-signals" }
 dependencies = [
-    { name = "hypothesis" },
     { name = "numpy" },
+    { name = "qiu-python-encore" },
+]
+
+[package.optional-dependencies]
+sympy = [
+    { name = "sympy" },
+]
+
+[package.dev-dependencies]
+test = [
+    { name = "hypothesis" },
+    { name = "pytest" },
     { name = "python-pytest-helper" },
-    { name = "python-signals" },
-    { name = "qiskit" },
-    { name = "qiskit-aer-encore" },
+    { name = "sympy" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "hypothesis", specifier = ">=6.140.3" },
     { name = "numpy", specifier = ">=2.2.6" },
-    { name = "python-pytest-helper", editable = "dev-packages/python-pytest-helper" },
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
-    { name = "qiskit", specifier = ">=2.2.1" },
-    { name = "qiskit-aer-encore", editable = "packages/qiskit-aer-encore" },
+    { name = "qiu-python-encore", editable = "packages/qiu-python-encore" },
+    { name = "sympy", marker = "extra == 'sympy'", specifier = ">=1.14.0" },
+]
+provides-extras = ["sympy"]
+
+[package.metadata.requires-dev]
+test = [
+    { name = "hypothesis", specifier = ">=6.140.3" },
+    { name = "pytest", specifier = ">=9.0.0" },
+    { name = "python-pytest-helper", editable = "packages-dev/python-pytest-helper" },
+    { name = "sympy", specifier = ">=1.14.0" },
 ]
 
 [[package]]
@@ -2884,12 +2878,12 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
-    { name = "python-signals" },
-    { name = "python-wave-optics" },
     { name = "qiskit" },
-    { name = "qiskit-encore" },
-    { name = "qiskit-hamiltonian-simulation" },
-    { name = "qiskit-phase-propagator" },
+    { name = "qiu-classical-simulation" },
+    { name = "qiu-hamiltonian-simulation" },
+    { name = "qiu-qiskit-encore" },
+    { name = "qiu-quantum-computing" },
+    { name = "qiu-signals" },
     { name = "scipy" },
     { name = "tqdm" },
 ]
@@ -2899,12 +2893,12 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.0" },
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "pandas", specifier = ">=2.2.0" },
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
-    { name = "python-wave-optics", editable = "shareable-packages/python-wave-optics" },
     { name = "qiskit", specifier = ">=2.2.1" },
-    { name = "qiskit-encore", editable = "packages/qiskit-encore" },
-    { name = "qiskit-hamiltonian-simulation", editable = "packages/qiskit-hamiltonian-simulation" },
-    { name = "qiskit-phase-propagator", editable = "packages/qiskit-phase-propagator" },
+    { name = "qiu-classical-simulation", editable = "packages/qiu-classical-simulation" },
+    { name = "qiu-hamiltonian-simulation", editable = "packages/qiu-hamiltonian-simulation" },
+    { name = "qiu-qiskit-encore", editable = "packages/qiu-qiskit-encore" },
+    { name = "qiu-quantum-computing", editable = "packages/qiu-quantum-computing" },
+    { name = "qiu-signals", editable = "packages/qiu-signals" },
     { name = "scipy", specifier = ">=1.15.0" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
@@ -2916,8 +2910,8 @@ source = { editable = "apps/wave_optics_propagation_qutip" }
 dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
-    { name = "python-signals" },
-    { name = "python-wave-optics" },
+    { name = "qiu-classical-simulation" },
+    { name = "qiu-signals" },
     { name = "qutip" },
     { name = "tqdm" },
 ]
@@ -2926,8 +2920,8 @@ dependencies = [
 requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.0" },
     { name = "numpy", specifier = ">=2.2.6" },
-    { name = "python-signals", editable = "shareable-packages/python-signals" },
-    { name = "python-wave-optics", editable = "shareable-packages/python-wave-optics" },
+    { name = "qiu-classical-simulation", editable = "packages/qiu-classical-simulation" },
+    { name = "qiu-signals", editable = "packages/qiu-signals" },
     { name = "qutip", specifier = ">=5.2.2" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]

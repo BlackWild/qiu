@@ -10,8 +10,8 @@ The parameters are given directly as an `ExperimentParameters`, those of the pap
 import dataclasses
 
 import numpy as np
-from python_wave_optics.parameters import ExperimentParameters
-from python_wave_optics.simulation import ExactBackend, simulate
+from qiu_classical_simulation.wave_optics.parameters import ExperimentParameters
+from qiu_classical_simulation.wave_optics.simulation import ExactBackend, simulate
 from wave_optics_propagation_qutip.backend import QutipBackend
 
 direct = ExperimentParameters(
@@ -50,15 +50,19 @@ With the direct propagator, only the lens slices are approximated, with an infid
 
 ## A cycle of the protocol by hand
 
-The backend's protocol is built from two operators: the partial phase on the ket `|phi> (x) |psi>` of the ancilla and the field, and the projection of the ancilla onto `<phi|`. One cycle by hand, compared with the closed form of `python_wave_optics.phase_protocol.ideal_cycles`, and all cycles of a signal by the backend, compared with `e^(i f) psi`:
+The backend's protocol is built from two operators: the partial phase on the ket `|phi> (x) |psi>` of the ancilla and the field, and the projection of the ancilla onto `<phi|`. One cycle by hand, compared with the closed form of `qiu_classical_simulation.wave_optics.phase_protocol.ideal_cycles`, and all cycles of a signal by the backend, compared with `e^(i f) psi`:
 
 ```python
 import numpy as np
 import qutip as qt
-from python_signals.algebraic_signal import AlgebraicSignal
-from python_signals.integer_axis import IndexOrdering
-from python_signals.physical_axis import PositionAxis
-from python_wave_optics.phase_protocol import decompose, ideal_cycles, slice_phase
+from qiu_signals.algebraic_signal import AlgebraicSignal
+from qiu_signals.integer_axis import IndexOrdering
+from qiu_signals.physical_axis import PositionAxis
+from qiu_classical_simulation.wave_optics.phase_protocol import (
+    decompose,
+    ideal_cycles,
+    slice_phase,
+)
 from wave_optics_propagation_qutip.backend import (
     QutipBackend,
     dft_operator,
@@ -109,10 +113,15 @@ A single cycle succeeds with a probability of about 0.999 and matches the closed
 from pathlib import Path
 
 import numpy as np
-from python_wave_optics.analysis import beam_waist, thin_lens_reference_states
-from python_wave_optics.classical_numerics import classical_numerics_simulation
-from python_wave_optics.cli import parse_parameters
-from python_wave_optics.simulation import simulate
+from qiu_classical_simulation.wave_optics.analysis import (
+    beam_waist,
+    thin_lens_reference_states,
+)
+from qiu_classical_simulation.wave_optics.classical_numerics import (
+    classical_numerics_simulation,
+)
+from qiu_classical_simulation.wave_optics.cli import parse_parameters
+from qiu_classical_simulation.wave_optics.simulation import simulate
 from wave_optics_propagation_qutip.backend import QutipBackend
 
 params, _ = parse_parameters(
@@ -163,9 +172,12 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-from python_wave_optics.cli import parse_parameters
-from python_wave_optics.simulation import simulate
-from python_wave_optics.storage import load_experiment, save_experiment
+from qiu_classical_simulation.wave_optics.cli import parse_parameters
+from qiu_classical_simulation.wave_optics.simulation import simulate
+from qiu_classical_simulation.wave_optics.storage import (
+    load_experiment,
+    save_experiment,
+)
 from wave_optics_propagation_qutip.backend import QutipBackend
 
 LEGACY_DEFAULTS = {"fresnel_approximation": True, "scale_down_phases": True}

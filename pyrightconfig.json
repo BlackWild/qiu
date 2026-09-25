@@ -1,6 +1,6 @@
 // The type check of CI, `uv run pyright`, and of Pylance in VS Code, which reads this file too.
 {
-  "include": ["shareable-packages", "packages", "dev-packages", "apps", "docs"],
+  "include": ["packages", "packages-dev", "apps", "docs"],
   "exclude": ["**/.*", "**/__pycache__", "site"],
   // the environment of `uv sync --all-packages`
   "venvPath": ".",

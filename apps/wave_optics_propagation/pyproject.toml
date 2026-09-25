@@ -38,12 +38,12 @@ dependencies = [
     "matplotlib>=3.10.0",
     "numpy>=2.2.6",
     "pandas>=2.2.0",
-    "python-signals",
-    "python-wave-optics",
     "qiskit>=2.2.1",
-    "qiskit-encore",
-    "qiskit-hamiltonian-simulation",
-    "qiskit-phase-propagator",
+    "qiu-classical-simulation",
+    "qiu-hamiltonian-simulation",
+    "qiu-qiskit-encore",
+    "qiu-quantum-computing",
+    "qiu-signals",
     "scipy>=1.15.0",
     "tqdm>=4.67.1",
 ]
@@ -59,8 +59,8 @@ requires = ["uv_build>=0.12.18,<0.13"]
 build-backend = "uv_build"
 
 [tool.uv.sources]
-python-signals = { workspace = true }
-python-wave-optics = { workspace = true }
-qiskit-encore = { workspace = true }
-qiskit-hamiltonian-simulation = { workspace = true }
-qiskit-phase-propagator = { workspace = true }
+qiu-classical-simulation = { workspace = true }
+qiu-hamiltonian-simulation = { workspace = true }
+qiu-qiskit-encore = { workspace = true }
+qiu-quantum-computing = { workspace = true }
+qiu-signals = { workspace = true }

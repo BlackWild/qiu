@@ -1,0 +1,71 @@
+[project]
+name = "qiu-hamiltonian-simulation"
+version = "0.1.0"
+description = "Qiskit circuits of the time evolution under potentials and kinetic energies given as sampled signals."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+maintainers = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+keywords = [
+    "hamiltonian simulation",
+    "qiskit",
+    "quantum circuits",
+    "quantum computing",
+    "time evolution",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Quantum Computing",
+]
+dependencies = [
+    "qiskit>=2.2.1",
+    "qiu-qiskit-encore",
+    "qiu-quantum-computing",
+    "qiu-signals",
+]
+
+[project.urls]
+Homepage = "https://github.com/BlackWild/qiu/tree/master/packages/qiu-hamiltonian-simulation"
+Documentation = "https://blackwild.github.io/qiu/qiu-hamiltonian-simulation/"
+Repository = "https://github.com/BlackWild/qiu"
+Issues = "https://github.com/BlackWild/qiu/issues"
+Changelog = "https://github.com/BlackWild/qiu/blob/master/packages/qiu-hamiltonian-simulation/CHANGELOG.md"
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13"]
+build-backend = "uv_build"
+
+[dependency-groups]
+# the tests of the package, run with only its declared dependencies on publishing
+test = [
+    "hypothesis>=6.140.3",
+    "pytest>=9.0.0",
+    "python-pytest-helper",
+    "qiskit-pytest-helper",
+    "qiu-qiskit-aer-encore",
+]
+
+[tool.uv.sources]
+python-pytest-helper = { workspace = true }
+qiskit-pytest-helper = { workspace = true }
+qiu-qiskit-aer-encore = { workspace = true }
+qiu-qiskit-encore = { workspace = true }
+qiu-quantum-computing = { workspace = true }
+qiu-signals = { workspace = true }

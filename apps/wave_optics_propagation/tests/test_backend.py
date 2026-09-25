@@ -11,13 +11,17 @@ from python_pytest_helper.hypothesis_strategies import (
     positive_polynomial_signals,
     power_of_two_sizes,
 )
-from python_signals.algebraic_signal import AlgebraicSignal, PolynomialSignal
-from python_signals.integer_axis import IndexOrdering
-from python_signals.physical_axis import AxisDomain
-from python_wave_optics.parameters import ExperimentParameters
-from python_wave_optics.phase_protocol import decompose, ideal_cycles, slice_phase
-from python_wave_optics.simulation import ExactBackend, simulate
-from qiskit_encore.synthesis_method import SynthesisMethod
+from qiu_classical_simulation.wave_optics.parameters import ExperimentParameters
+from qiu_classical_simulation.wave_optics.phase_protocol import (
+    decompose,
+    ideal_cycles,
+    slice_phase,
+)
+from qiu_classical_simulation.wave_optics.simulation import ExactBackend, simulate
+from qiu_qiskit_encore.synthesis_method import SynthesisMethod
+from qiu_signals.algebraic_signal import AlgebraicSignal, PolynomialSignal
+from qiu_signals.integer_axis import IndexOrdering
+from qiu_signals.physical_axis import AxisDomain
 from wave_optics_propagation.backend import QiskitBackend
 
 qubit_sized_axes = physical_axes(sizes=power_of_two_sizes(1, 4))

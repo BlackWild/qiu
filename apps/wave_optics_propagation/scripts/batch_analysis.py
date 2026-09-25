@@ -1,4 +1,4 @@
-"""The figures of the paper of the batch of runs over max_delta (`cluster/batch-run.slurm`).
+"""The figures of the paper of the batch of runs over max_delta (`scripts/cluster/batch-run.slurm`).
 
 For each run, the field two thirds of the way behind the lens is compared with the
 classical numerics: the fidelity to it, fitted by `1 + a max_delta**2`, and the success
@@ -15,9 +15,15 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from python_wave_optics.classical_numerics import classical_numerics_simulation
-from python_wave_optics.result import free_space_snapshot_name
-from python_wave_optics.storage import load_experiment, load_parameters, run_folders
+from qiu_classical_simulation.wave_optics.classical_numerics import (
+    classical_numerics_simulation,
+)
+from qiu_classical_simulation.wave_optics.result import free_space_snapshot_name
+from qiu_classical_simulation.wave_optics.storage import (
+    load_experiment,
+    load_parameters,
+    run_folders,
+)
 from scipy.optimize import curve_fit
 
 APP_DIR = Path(__file__).resolve().parents[1]

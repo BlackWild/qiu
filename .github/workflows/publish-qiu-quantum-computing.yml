@@ -1,0 +1,30 @@
+# Publishes qiu-quantum-computing to PyPI when it changes on master; see .github/actions/publish-package
+name: Publish qiu-quantum-computing
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "packages/qiu-quantum-computing/**"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: "Test, build and publish qiu-quantum-computing"
+    runs-on: ubuntu-latest
+    environment: pypi
+
+    permissions:
+      contents: read
+      id-token: write # to publish to PyPI as a trusted publisher, without tokens
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Publish
+        uses: ./.github/actions/publish-package
+        with:
+          package: qiu-quantum-computing
+          path: packages/qiu-quantum-computing

@@ -12,9 +12,9 @@ lens and unscaled phases.
 
 # %%
 import numpy as np
-from python_wave_optics.elements import free_space_propagator_phase
-from python_wave_optics.parameters import ExperimentParameters
-from python_wave_optics.visualization import plot_wavefunction
+from qiu_classical_simulation.wave_optics.elements import free_space_propagator_phase
+from qiu_classical_simulation.wave_optics.parameters import ExperimentParameters
+from qiu_classical_simulation.wave_optics.visualization import plot_wavefunction
 
 LENGTH_SCALE = 1.493
 

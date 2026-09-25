@@ -1,6 +1,6 @@
 # User Guide
 
-The app consists of the QuTiP backend, [`QutipBackend`][wave_optics_propagation_qutip.backend.QutipBackend], and the scripts in `scripts/`. Everything else, i.e. the parameters of an experiment, the simulation loop, the storage of runs, the classical references and the analysis quantities, is imported from [python-wave-optics](../../python-wave-optics/), whose modules are referred to below as `python_wave_optics.<module>`.
+The app consists of the QuTiP backend, [`QutipBackend`][wave_optics_propagation_qutip.backend.QutipBackend], and the scripts in `scripts/`. Everything else, i.e. the parameters of an experiment, the simulation loop, the storage of runs, the classical references and the analysis quantities, is imported from [qiu-classical-simulation](../../qiu-classical-simulation/), whose modules are referred to below as `qiu_classical_simulation.wave_optics.<module>`.
 
 ## The experiment
 
@@ -9,18 +9,18 @@ The experiment is the one of the Qiskit app, [wave_optics_propagation](../../wav
 - A Gaussian beam, given by the FWHM of its intensity and centered in a transverse window of `transverse_length`, is sampled on `2**num_qubits` points and enters a plano-convex lens that fills the window, of radius of curvature `R = focal_length (refractive_index - 1)`.
 - The lens is sliced along the optical axis into `lens_slices` transparent plates, whose transverse radii follow the spherical surface or, with `fresnel_approximation`, a paraboloid. Each slice delays the field within its radius by the phase `(n - 1) k0 t / N` of the lens thickness `t`, the `N` slices and `k0 = 2 pi / vacuum_wavelength`, reduced modulo `2 pi` with `scale_down_phases`.
 - In the forward order, the beam enters through the convex surface and passes the slices from the vertex, `0, ..., N-1`; with `lens_reverse_order`, it enters through the plane side and passes them as `N-1, ..., 0`.
-- `python_wave_optics.simulation.simulate` applies the phase of each slice, skipping constant ones, and the free propagation over its thickness, and then propagates freely behind the lens in `num_of_steps_after_lens` equal steps, taking a named snapshot after each slice and step.
+- `qiu_classical_simulation.wave_optics.simulation.simulate` applies the phase of each slice, skipping constant ones, and the free propagation over its thickness, and then propagates freely behind the lens in `num_of_steps_after_lens` equal steps, taking a named snapshot after each slice and step.
 - Free propagation multiplies the angular spectrum, the orthonormal DFT of the field, by the paraxial phase `-k**2 dz / (2 k0)`: directly with `direct_propagator`, and otherwise with the sample-based phase protocol.
 
 The phase protocol applies `e^(i f)` for a real signal `f` of one sign, decomposed as `f = alpha |phi|**2` with the sum `alpha` of its samples and the normalized state `phi = sqrt(f / alpha)`, in cycles of equal phases `delta` of magnitude at most `max_delta`. Each cycle, post-selected on its success, maps the amplitudes `psi_j` to `psi_j (1 + (e^(i delta) - 1) |phi_j|**2)`, renormalized, which is `e^(i delta |phi_j|**2) psi_j` up to `O(delta**2)`. Smaller `max_delta` approximates the phases better and makes the success of all cycles more likely.
 
 ## The QuTiP backend
 
-`simulate(parameters, backend)` delegates the application of each phase to a `python_wave_optics.simulation.PropagationBackend`, which returns operations on states: functions mapping the amplitudes of a state to the new amplitudes and their probability of success. [`QutipBackend`][wave_optics_propagation_qutip.backend.QutipBackend] implements its two methods with QuTiP operators on kets, of the dimension `d = 2**num_qubits` of the field.
+`simulate(parameters, backend)` delegates the application of each phase to a `qiu_classical_simulation.wave_optics.simulation.PropagationBackend`, which returns operations on states: functions mapping the amplitudes of a state to the new amplitudes and their probability of success. [`QutipBackend`][wave_optics_propagation_qutip.backend.QutipBackend] implements its two methods with QuTiP operators on kets, of the dimension `d = 2**num_qubits` of the field.
 
 ### The sample-based phase protocol
 
-[`sample_based_phase(signal, max_delta)`][wave_optics_propagation_qutip.backend.QutipBackend.sample_based_phase] decomposes the signal with `python_wave_optics.phase_protocol.decompose` into `alpha` and the amplitudes of `|phi>`, and slices `alpha` with `slice_phase` into the equal phases `delta`. Each cycle acts on the ket `|phi> (x) |psi>` of an ancilla register, prepared in `|phi>`, and the field `|psi>`:
+[`sample_based_phase(signal, max_delta)`][wave_optics_propagation_qutip.backend.QutipBackend.sample_based_phase] decomposes the signal with `qiu_classical_simulation.wave_optics.phase_protocol.decompose` into `alpha` and the amplitudes of `|phi>`, and slices `alpha` with `slice_phase` into the equal phases `delta`. Each cycle acts on the ket `|phi> (x) |psi>` of an ancilla register, prepared in `|phi>`, and the field `|psi>`:
 
 1. The partial phase, [`partial_phase_operator(delta, d)`][wave_optics_propagation_qutip.backend.partial_phase_operator], multiplies the basis states `|l> (x) |j>` in which both registers agree, `l == j`, by `e^(i delta)`, and leaves all others unchanged. It is the diagonal operator of dimensions `[[d, d], [d, d]]` with `e^(i delta)` at every `(d + 1)`-th entry.
 2. Projecting the ancilla onto `<phi|`, with `tensor(phi.dag(), qeye(d))`, keeps the successful outcome of the cycle: the unnormalized ket of the field.
@@ -34,7 +34,7 @@ As all phases of one signal are equal, one operator, the projection times the pa
 
 ### Compared with the Qiskit backend
 
-Both backends implement the same protocol and the same propagator, and their snapshots and success probabilities agree up to rounding. The QuTiP backend needs no circuits: the ancilla is prepared in `|phi>` directly, each cycle is a single operator applied to a ket of `d**2` entries, and the DFT is a dense matrix. On the few qubits of the transverse field, this is faster than the statevector simulation of the circuits. `python_wave_optics.simulation.ExactBackend` applies the phases exactly and is the reference of both.
+Both backends implement the same protocol and the same propagator, and their snapshots and success probabilities agree up to rounding. The QuTiP backend needs no circuits: the ancilla is prepared in `|phi>` directly, each cycle is a single operator applied to a ket of `d**2` entries, and the DFT is a dense matrix. On the few qubits of the transverse field, this is faster than the statevector simulation of the circuits. `qiu_classical_simulation.wave_optics.simulation.ExactBackend` applies the phases exactly and is the reference of both.
 
 ## The scripts
 
@@ -42,7 +42,7 @@ The scripts in `scripts/` are section-based (`# %%`): they run as a whole, e.g. 
 
 ### `simulate.py`
 
-Simulates one experiment with the QuTiP backend and stores the run, with the same command line as the Qiskit app, `python_wave_optics.cli.parse_parameters`: the experiment of the paper by default, varied by the options
+Simulates one experiment with the QuTiP backend and stores the run, with the same command line as the Qiskit app, `qiu_classical_simulation.wave_optics.cli.parse_parameters`: the experiment of the paper by default, varied by the options
 
 | Option | Default | Sets |
 | --- | --- | --- |
@@ -55,20 +55,20 @@ Simulates one experiment with the QuTiP backend and stores the run, with the sam
 | `--steps-after-lens` | 300 | `num_of_steps_after_lens`. |
 | `--results-dir` | the app's `.result/` | The directory of the run folders. |
 
-It prints the parameters and their validity problems, simulates with a progress bar per loop, stores the run with `save_experiment` in `<results-dir>/<uuid>/`, and prints the folder and the total probability of success. The SLURM jobs in `cluster/` run the Qiskit app; this script runs the same way, with its path in place of the Qiskit app's.
+It prints the parameters and their validity problems, simulates with a progress bar per loop, stores the run with `save_experiment` in `<results-dir>/<uuid>/`, and prints the folder and the total probability of success. The SLURM jobs in `scripts/cluster/` run the Qiskit app; this script runs the same way, with its path in place of the Qiskit app's.
 
 ### `analysis.py`
 
 Analyzes a single run against the thin lens and the classical numerics. `EXPERIMENT_FOLDER` is the run folder, by default one of the runs of December 2025 in `.result/13-lens-simulation-after-classical-numerics/`, and `LEGACY_DEFAULTS` are the parameters those runs did not store, `fresnel_approximation` and `scale_down_phases`, both `True`. The script
 
-- plots the beam waist, twice the standard deviation of the intensity (`python_wave_optics.analysis.beam_waist`), of every lens and free space snapshot against the propagation distance, together with the beam waist behind an ideal thin lens of the same focal length at the principal plane (`thin_lens_reference_states`);
-- plots `STEPS_TO_PLOT` (5) snapshots behind the lens, evenly spaced over the free space steps, with `python_wave_optics.visualization.plot_wavefunction`, their magnitude overlaid with the thin lens profile and with the magnitude of the classical numerics at the same distance behind the lens, `classical_numerics_simulation(params, distance)`: the exact split-step field of the same slicing.
+- plots the beam waist, twice the standard deviation of the intensity (`qiu_classical_simulation.wave_optics.analysis.beam_waist`), of every lens and free space snapshot against the propagation distance, together with the beam waist behind an ideal thin lens of the same focal length at the principal plane (`thin_lens_reference_states`);
+- plots `STEPS_TO_PLOT` (5) snapshots behind the lens, evenly spaced over the free space steps, with `qiu_classical_simulation.wave_optics.visualization.plot_wavefunction`, their magnitude overlaid with the thin lens profile and with the magnitude of the classical numerics at the same distance behind the lens, `classical_numerics_simulation(params, distance)`: the exact split-step field of the same slicing.
 
 The figures are shown, not saved, and need no LaTeX.
 
 ## Results
 
-`.result/` in the app's directory, not committed, holds the runs, one folder per run. The current `simulate.py` stores them as `.result/<uuid>/`, each with `initial_parameters.json`, the parameters with the derived lens geometry and the scalar results, and `results.npz`, the snapshots by name. `python_wave_optics.storage` reads them: `load_experiment(folder)` returns the parameters and the result, and `run_folders(results_dir)` the run folders of a directory, sorted by name. `save_experiment` never overwrites a stored run: it raises a `FileExistsError` for a uuid stored already, e.g. of parameters copied with `dataclasses.replace`, which keeps the uuid; such a copy needs a new one, `replace(parameters, ..., uuid=uuid.uuid4().hex)`.
+`.result/` in the app's directory, not committed, holds the runs, one folder per run. The current `simulate.py` stores them as `.result/<uuid>/`, each with `initial_parameters.json`, the parameters with the derived lens geometry and the scalar results, and `results.npz`, the snapshots by name. `qiu_classical_simulation.wave_optics.storage` reads them: `load_experiment(folder)` returns the parameters and the result, and `run_folders(results_dir)` the run folders of a directory, sorted by name. `save_experiment` never overwrites a stored run: it raises a `FileExistsError` for a uuid stored already, e.g. of parameters copied with `dataclasses.replace`, which keeps the uuid; such a copy needs a new one, `replace(parameters, ..., uuid=uuid.uuid4().hex)`.
 
 ### Runs of December 2025
 

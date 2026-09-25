@@ -1,25 +1,31 @@
 """The Qiskit backend of the lens experiment simulations.
 
 The sample-based phase protocol is simulated on statevectors, post-selected on the
-success of each cycle, with the circuits of `qiskit_phase_propagator`, see
-`qiskit_phase_propagator.sample_based_manual`. The direct propagator is the circuit of
-`qiskit_hamiltonian_simulation`: an inverse QFT, a quadratic phase and a QFT.
+success of each cycle, with the circuits of `qiu_quantum_computing.phase_propagator`, see
+`qiu_quantum_computing.phase_propagator.sample_based_manual`. The direct propagator is the circuit of
+`qiu_hamiltonian_simulation`: an inverse QFT, a quadratic phase and a QFT.
 """
 
 import numpy as np
-from python_signals.algebraic_signal import QuadraticSignal, SampledSignal
-from python_wave_optics.simulation import PhaseOperation, PropagationBackend, State
 from qiskit.quantum_info import Statevector
-from qiskit_encore.preparable_state import PreparableState
-from qiskit_encore.synthesis_method import SynthesisMethod
-from qiskit_hamiltonian_simulation.time_independent.direct import (
+from qiu_classical_simulation.wave_optics.simulation import (
+    PhaseOperation,
+    PropagationBackend,
+    State,
+)
+from qiu_hamiltonian_simulation.time_independent.direct import (
     MomentumDomainEvolutionQuadratic,
 )
-from qiskit_phase_propagator.sample_based import (
+from qiu_qiskit_encore.synthesis_method import SynthesisMethod
+from qiu_quantum_computing.phase_propagator.sample_based import (
     sample_based_decomposition,
     slice_alpha_to_deltas_evenly,
 )
-from qiskit_phase_propagator.sample_based_manual import phase_propagation_cycle
+from qiu_quantum_computing.phase_propagator.sample_based_manual import (
+    phase_propagation_cycle,
+)
+from qiu_quantum_computing.preparable_state import PreparableState
+from qiu_signals.algebraic_signal import QuadraticSignal, SampledSignal
 
 
 class QiskitBackend(PropagationBackend):

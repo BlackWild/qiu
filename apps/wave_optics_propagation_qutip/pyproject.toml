@@ -37,8 +37,8 @@ classifiers = [
 dependencies = [
     "matplotlib>=3.10.0",
     "numpy>=2.2.6",
-    "python-signals",
-    "python-wave-optics",
+    "qiu-classical-simulation",
+    "qiu-signals",
     "qutip>=5.2.2",
     "tqdm>=4.67.1",
 ]
@@ -54,5 +54,5 @@ requires = ["uv_build>=0.12.18,<0.13"]
 build-backend = "uv_build"
 
 [tool.uv.sources]
-python-signals = { workspace = true }
-python-wave-optics = { workspace = true }
+qiu-classical-simulation = { workspace = true }
+qiu-signals = { workspace = true }

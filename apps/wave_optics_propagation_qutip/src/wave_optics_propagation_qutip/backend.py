@@ -3,15 +3,19 @@
 The sample-based phase protocol acts on the ket `|phi> (x) |psi>` of an ancilla register
 prepared in `|phi>` and the field: the partial phase multiplies the basis states where
 both registers agree by `e^(i delta)`, and projecting the ancilla back onto `<phi|` keeps
-the successful outcome of the cycle, see `python_wave_optics.phase_protocol`. The direct
+the successful outcome of the cycle, see `qiu_classical_simulation.wave_optics.phase_protocol`. The direct
 propagator is the operator `F^dagger e^(i f) F` of the orthonormal DFT `F`.
 """
 
 import numpy as np
 import qutip as qt
-from python_signals.algebraic_signal import QuadraticSignal, SampledSignal
-from python_wave_optics.phase_protocol import decompose, slice_phase
-from python_wave_optics.simulation import PhaseOperation, PropagationBackend, State
+from qiu_classical_simulation.wave_optics.phase_protocol import decompose, slice_phase
+from qiu_classical_simulation.wave_optics.simulation import (
+    PhaseOperation,
+    PropagationBackend,
+    State,
+)
+from qiu_signals.algebraic_signal import QuadraticSignal, SampledSignal
 
 
 def partial_phase_operator(delta: float, dimension: int) -> qt.Qobj:

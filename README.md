@@ -10,19 +10,18 @@ The documentation of all packages, with their guides, examples and API reference
 
 | Package | | Description |
 | --- | --- | --- |
-| **Shareable packages** (`shareable-packages/`): useful beyond quantum computing | | |
-| [`python-encore`](shareable-packages/python-encore/) | [![PyPI](https://img.shields.io/pypi/v/python-encore)](https://pypi.org/project/python-encore/) | Small enhancements of the Python standard library. |
-| [`python-signals`](shareable-packages/python-signals/) | [![PyPI](https://img.shields.io/pypi/v/python-signals)](https://pypi.org/project/python-signals/) | Uniformly sampled axes and signals on them, for classical and quantum numerics alike. |
-| [`python-wave-optics`](shareable-packages/python-wave-optics/) | [![PyPI](https://img.shields.io/pypi/v/python-wave-optics)](https://pypi.org/project/python-wave-optics/) | Paraxial wave optics of Gaussian beams through sliced lenses, with a simulation loop for any backend and classical references. |
-| **Packages** (`packages/`): quantum computing, with circuits of Qiskit | | |
-| [`qiskit-encore`](packages/qiskit-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-encore)](https://pypi.org/project/qiskit-encore/) | Robust state preparation, QFT and uniformly controlled rotations, each as a dense unitary, a Qiskit gate or a decomposed circuit. |
-| [`qiskit-aer-encore`](packages/qiskit-aer-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-aer-encore)](https://pypi.org/project/qiskit-aer-encore/) | Aer simulators configured for the available hardware, CPU or GPU. |
-| [`qiskit-phase-propagator`](packages/qiskit-phase-propagator/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-phase-propagator)](https://pypi.org/project/qiskit-phase-propagator/) | Circuits applying phases `e^(i f(x))` of sampled signals to qubit registers, directly or sample-based. |
-| [`qiskit-hamiltonian-simulation`](packages/qiskit-hamiltonian-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-hamiltonian-simulation)](https://pypi.org/project/qiskit-hamiltonian-simulation/) | Time evolution under potentials and kinetic energies given as sampled signals. |
-| [`qiskit-mps-initializer`](packages/qiskit-mps-initializer/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-mps-initializer)](https://pypi.org/project/qiskit-mps-initializer/) | Approximate state preparation with layers of one- and two-qubit gates from matrix product states. |
-| **Development packages** (`dev-packages/`): test helpers of this monorepo, not published | | |
-| [`python-pytest-helper`](dev-packages/python-pytest-helper/) | | Floating-point comparisons and Hypothesis strategies of numbers, axes and signals. |
-| [`qiskit-pytest-helper`](dev-packages/qiskit-pytest-helper/) | | Strategies of quantum states and qubit axes, assertions with Qiskit's equality, and circuit helpers. |
+| **Packages** (`packages/`): published on PyPI | | |
+| [`qiu-python-encore`](packages/qiu-python-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-python-encore)](https://pypi.org/project/qiu-python-encore/) | Small enhancements of the Python standard library. |
+| [`qiu-qiskit-encore`](packages/qiu-qiskit-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-qiskit-encore)](https://pypi.org/project/qiu-qiskit-encore/) | Improvements of the native types of Qiskit: validated statevectors and the synthesis methods of circuit building blocks. |
+| [`qiu-qiskit-aer-encore`](packages/qiu-qiskit-aer-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-qiskit-aer-encore)](https://pypi.org/project/qiu-qiskit-aer-encore/) | Qiskit Aer simulators configured for the available hardware, CPU or GPU. |
+| [`qiu-signals`](packages/qiu-signals/) | [![PyPI](https://img.shields.io/pypi/v/qiu-signals)](https://pypi.org/project/qiu-signals/) | Uniformly sampled axes and signals on them, for classical and quantum numerics alike. |
+| [`qiu-quantum-computing`](packages/qiu-quantum-computing/) | [![PyPI](https://img.shields.io/pypi/v/qiu-quantum-computing)](https://pypi.org/project/qiu-quantum-computing/) | Generic computations with the amplitudes of a quantum computer, as Qiskit circuits: state preparation, QFT, uniformly controlled rotations and diagonal phase operators `e^(i f(x))` of sampled signals. |
+| [`qiu-hamiltonian-simulation`](packages/qiu-hamiltonian-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiu-hamiltonian-simulation)](https://pypi.org/project/qiu-hamiltonian-simulation/) | Unitary time evolution under a given Hamiltonian: Qiskit circuits of potentials and kinetic energies given as sampled signals. |
+| [`qiu-mps-initializer`](packages/qiu-mps-initializer/) | [![PyPI](https://img.shields.io/pypi/v/qiu-mps-initializer)](https://pypi.org/project/qiu-mps-initializer/) | Quantum state preparation for Qiskit with layers of one- and two-qubit gates from matrix product states. |
+| [`qiu-classical-simulation`](packages/qiu-classical-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiu-classical-simulation)](https://pypi.org/project/qiu-classical-simulation/) | Tools for classical simulations: paraxial wave optics of Gaussian beams through sliced lenses, with a simulation loop for any backend and classical references. |
+| **Development packages** (`packages-dev/`): test helpers of this monorepo, not published | | |
+| [`python-pytest-helper`](packages-dev/python-pytest-helper/) | | Floating-point comparisons and Hypothesis strategies of numbers, axes and signals. |
+| [`qiskit-pytest-helper`](packages-dev/qiskit-pytest-helper/) | | Strategies of quantum states and qubit axes, assertions with Qiskit's equality, and circuit helpers. |
 | **Applications** (`apps/`): projects built on the packages, not published | | |
 | [`wave_optics_propagation`](apps/wave_optics_propagation/) | | The lens experiments of the paper simulated with Qiskit: the simulation run on the cluster and the analyses of the paper. |
 | [`wave_optics_propagation_qutip`](apps/wave_optics_propagation_qutip/) | | The same lens experiments simulated with QuTiP. |
@@ -30,14 +29,14 @@ The documentation of all packages, with their guides, examples and API reference
 The other directories:
 
 - `docs/`: The shared configuration, the landing page and the build of the documentation.
-- `cluster/`: The SLURM jobs running the simulations of `apps/wave_optics_propagation`.
+- `scripts/`: The scripts of the repository: in `scripts/cluster/`, the SLURM jobs running the simulations of `apps/wave_optics_propagation`.
 
 ## Installation
 
 The published packages install from PyPI, e.g.
 
 ```sh
-pip install qiskit-encore
+pip install qiu-quantum-computing
 ```
 
 For development, clone the repository and install all packages of the [uv](https://docs.astral.sh/uv/) workspace, editable:
@@ -49,7 +48,7 @@ uv sync --all-packages
 uv run pytest -n auto
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions of the monorepo and how to contribute.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions of the monorepo and how to contribute, and [ROADMAP.md](ROADMAP.md) for the packages planned next.
 
 ## Documentation
 
@@ -67,7 +66,7 @@ The GitHub Actions workflows in `.github/workflows/`:
 
 - `ci.yml`: lints (`ruff`) and type checks (`pyright`) the monorepo, tests all packages on Python 3.11 to 3.14, builds and checks all packages (`twine check`), and builds the documentation, on pushes to `master` and on pull requests.
 - `docs.yml`: builds the documentation and deploys it to GitHub Pages on pushes to `master`.
-- `publish-<package>.yml`: publishes a package to PyPI when it changes on `master`, or when run by hand, for the libraries in `packages/` and `shareable-packages/`. They share the composite action `.github/actions/publish-package`: it tests the package with only the dependencies it declares, builds it, checks that its release is installable from PyPI, i.e. that its dependencies of this monorepo are published, and publishes it as a trusted publisher unless its version is already on PyPI.
+- `publish-<package>.yml`: publishes a package to PyPI when it changes on `master`, or when run by hand, for the libraries in `packages/`. They share the composite action `.github/actions/publish-package`: it tests the package with only the dependencies it declares, builds it, checks that its release is installable from PyPI, i.e. that its dependencies of this monorepo are published, and publishes it as a trusted publisher unless its version is already on PyPI.
 
 The tests on GitHub Actions use the built-in Hypothesis profile `ci`, derandomized and without deadlines per example. Dependabot (`.github/dependabot.yml`) proposes updates of the actions and the locked dependencies quarterly.
 

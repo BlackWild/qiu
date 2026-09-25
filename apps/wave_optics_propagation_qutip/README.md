@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/wave_optics_propagation_qutip/)
 
-The lens experiments of [`wave_optics_propagation`](https://github.com/BlackWild/qiu/blob/master/apps/wave_optics_propagation/README.md), simulated with QuTiP instead of Qiskit. The experiment, its simulation loop and its analysis live in [`python-wave-optics`](https://github.com/BlackWild/qiu/blob/master/shareable-packages/python-wave-optics/README.md); this app adds the QuTiP backend and the scripts.
+The lens experiments of [`wave_optics_propagation`](https://github.com/BlackWild/qiu/blob/master/apps/wave_optics_propagation/README.md), simulated with QuTiP instead of Qiskit. The experiment, its simulation loop and its analysis live in [`qiu-classical-simulation`](https://github.com/BlackWild/qiu/blob/master/packages/qiu-classical-simulation/README.md); this app adds the QuTiP backend and the scripts.
 
 ## QuTiP backend
 

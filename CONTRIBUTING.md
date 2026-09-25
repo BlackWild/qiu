@@ -28,14 +28,23 @@ The tools are configured in their own files at the repository root, so that `pyp
 
 ## Layout
 
-| Directory             | Contains                                                           | May depend on                           |
-| --------------------- | ------------------------------------------------------------------ | --------------------------------------- |
-| `shareable-packages/` | Libraries useful beyond quantum computing, e.g. `python-signals`   | each other                              |
-| `packages/`           | Libraries for quantum computing, with circuits of Qiskit           | shareable packages, each other          |
-| `dev-packages/`       | Test helpers, never published                                      | shareable packages and packages         |
-| `apps/`               | Applications, e.g. the simulations of a paper, never published     | everything above                        |
+| Directory       | Contains                                                             | May depend on    |
+| --------------- | -------------------------------------------------------------------- | ---------------- |
+| `packages/`     | The published libraries, e.g. `qiu-signals` and `qiu-quantum-computing` | each other       |
+| `packages-dev/` | Test helpers, never published                                        | packages         |
+| `apps/`         | Applications, e.g. the simulations of a paper, never published       | everything above |
 
-Dependencies point down this table only: a shareable package never imports a quantum computing framework such as Qiskit or QuTiP, and no library imports an app. Before writing new functionality, check whether a package already provides it; reuse it, or extend the package it belongs in.
+Dependencies point down this table only, and no library imports an app. Among the packages, they point from the foundations to their uses:
+
+- `qiu-python-encore`, `qiu-qiskit-encore` and `qiu-qiskit-aer-encore` add to Python, Qiskit and Qiskit Aer only what improves them and their native types; `qiu-signals` treats signals in general.
+- `qiu-quantum-computing` computes with the amplitudes of a quantum computer, without reference to the physical dynamics they may simulate, e.g. the diagonal phase operators of its `phase_propagator`.
+- `qiu-hamiltonian-simulation` builds on it to implement the unitary time evolution under a given Hamiltonian, without simulating an actual physical experiment, and `qiu-mps-initializer` prepares states with matrix product states.
+- `qiu-quantum-simulation`, planned in the [roadmap](ROADMAP.md), is to build on them to simulate complete physical dynamical systems.
+- `qiu-classical-simulation` holds the tools of classical simulations, e.g. its `wave_optics`.
+
+`qiu-python-encore`, `qiu-signals` and `qiu-classical-simulation` never import a quantum computing framework such as Qiskit or QuTiP. Before writing new functionality, check whether a package already provides it; reuse it, or extend the package it belongs in.
+
+The published packages share the namespace `qiu`, and are imported as their name with underscores, e.g. `qiu_quantum_computing`. A package improving a library is named `qiu-<library>-encore`, e.g. `qiu-qiskit-encore`; the others are named after their field, e.g. `qiu-quantum-computing` or `qiu-classical-simulation`, and hold a subpackage per topic, e.g. `qiu_quantum_computing.phase_propagator` or `qiu_classical_simulation.wave_optics`. The packages of `packages-dev/` and `apps/`, never published, are named freely.
 
 Each package has the same layout:
 
@@ -57,13 +66,13 @@ Each package has the same layout:
 - Every module, class and public function has a Google-style docstring: a summary line, then `Args:`, `Returns:` and `Raises:` where applicable; a one-line docstring, e.g. `"""Return the norm of the state."""`, needs no sections. Ruff checks them (the rules `D` of pydocstyle and `DOC` of pydoclint), and the API reference of the documentation is generated from them.
 - Annotate the types of all arguments and results: accept `npt.ArrayLike` (or `Statevector | npt.ArrayLike`) as input where any array-like works, and return the most precise type, e.g. `npt.NDArray[np.complex128]`.
 - Name things by what they are, in full words; physical conventions (units, index orderings, signs, global phases) are stated in the docstrings.
-- Choices between implementations are enums checked exhaustively: every member has its own branch, and unknown ones raise `NotImplementedError` (see `qiskit_encore.synthesis_method.SynthesisMethod`).
+- Choices between implementations are enums checked exhaustively: every member has its own branch, and unknown ones raise `NotImplementedError` (see `qiu_qiskit_encore.synthesis_method.SynthesisMethod`).
 - No hidden constants: tolerances and similar parameters are arguments, or follow the standard of the library at hand, e.g. Qiskit's `Statevector` equality.
 - Scripts of the apps are section-based (`# %%`) Python files, not notebooks.
 
 ## Tests
 
-- Tests live in `tests/<import_name>/test_<module>.py`, one test class per unit, with a docstring saying what is tested. Run them with `uv run pytest -n auto`, or for one package, e.g. `uv run pytest packages/qiskit-encore`.
+- Tests live in `tests/<import_name>/test_<module>.py`, one test class per unit, with a docstring saying what is tested. Run them with `uv run pytest -n auto`, or for one package, e.g. `uv run pytest packages/qiu-quantum-computing`.
 - Prefer property-based tests with [Hypothesis](https://hypothesis.readthedocs.io/), using the shared strategies of `python-pytest-helper` (numbers, axes, signals) and `qiskit-pytest-helper` (quantum states, qubit axes).
 - Compare floating-point results with the shared assertions, never with a tolerance chosen per test: `python_pytest_helper.assertions.assert_close` for numbers and arrays (relative tolerance, with an absolute floor at the underflow), `assert_close_in_norm` for vectors computed as a whole, and `qiskit_pytest_helper.assertions.assert_equal_states` and `assert_equal_operators` for states and operators (Qiskit's equality, global phase included).
 - Approximations are tested against bounds derived from the approximation, and exact results exactly.
@@ -79,7 +88,7 @@ Each package has the same layout:
 
 ## Adding a package
 
-1. Create `<group>/<package>/` with the layout above; the workspace picks up every directory of the groups.
+1. Create `<group>/<package>/` with the layout above, a published package named as described there; the workspace picks up every directory of the groups.
 2. Write its `pyproject.toml` like the existing ones: the metadata (description, `license = "MIT"`, `license-files`, authors, keywords, classifiers including the supported Python versions, and the `project.urls` of its source, documentation, repository, issues and changelog), `uv_build` as the build backend, its dependencies, a `test` dependency group with what its tests need, and `tool.uv.sources` of the workspace packages it uses. Packages that are not published get the classifier `Private :: Do Not Upload`.
 3. Add it to the root `README.md` and to the landing page `docs/landing/index.md`.
 4. For a published package, add `.github/workflows/publish-<package>.yml` like the existing ones, and a trusted publisher on PyPI (see "Releasing").

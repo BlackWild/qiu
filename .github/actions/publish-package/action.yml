@@ -10,10 +10,10 @@ description: >
 
 inputs:
   package:
-    description: The name of the package, e.g. `python-encore`.
+    description: The name of the package, e.g. `qiu-python-encore`.
     required: true
   path:
-    description: The directory of the package, e.g. `shareable-packages/python-encore`.
+    description: The directory of the package, e.g. `packages/qiu-python-encore`.
     required: true
 
 runs:

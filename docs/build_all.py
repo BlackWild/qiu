@@ -2,7 +2,7 @@
 
 The landing page (`mkdocs.yml` at the root) is built into the site's root, and the
 documentation of each package with a `mkdocs.yml` into a directory of the site named as
-the package's directory, e.g. `site/python-signals/`. Every build is strict, so broken
+the package's directory, e.g. `site/qiu-signals/`. Every build is strict, so broken
 references fail it, and afterwards every relative link of the site must point to a page
 or file of it, e.g. the links between the packages, which MkDocs cannot check.
 
@@ -18,7 +18,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 REPOSITORY = Path(__file__).resolve().parents[1]
-PACKAGE_GROUPS = ["packages", "shareable-packages", "dev-packages", "apps"]
+PACKAGE_GROUPS = ["packages", "packages-dev", "apps"]
 
 
 def documented_packages() -> list[Path]:

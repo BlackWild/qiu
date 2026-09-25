@@ -8,9 +8,11 @@ The parameters are given directly as an `ExperimentParameters`, those of the pap
 
 ```python
 import numpy as np
-from python_wave_optics.classical_numerics import classical_numerics_simulation
-from python_wave_optics.parameters import ExperimentParameters
-from python_wave_optics.simulation import ExactBackend, simulate
+from qiu_classical_simulation.wave_optics.classical_numerics import (
+    classical_numerics_simulation,
+)
+from qiu_classical_simulation.wave_optics.parameters import ExperimentParameters
+from qiu_classical_simulation.wave_optics.simulation import ExactBackend, simulate
 from wave_optics_propagation.backend import QiskitBackend
 
 parameters = ExperimentParameters(
@@ -58,10 +60,15 @@ The batch analysis of the paper compares, for runs over `max_delta`, the field t
 from pathlib import Path
 
 import numpy as np
-from python_wave_optics.classical_numerics import classical_numerics_simulation
-from python_wave_optics.cli import argument_parser, parameters_from_arguments
-from python_wave_optics.result import free_space_snapshot_name
-from python_wave_optics.simulation import simulate
+from qiu_classical_simulation.wave_optics.classical_numerics import (
+    classical_numerics_simulation,
+)
+from qiu_classical_simulation.wave_optics.cli import (
+    argument_parser,
+    parameters_from_arguments,
+)
+from qiu_classical_simulation.wave_optics.result import free_space_snapshot_name
+from qiu_classical_simulation.wave_optics.simulation import simulate
 from wave_optics_propagation.backend import QiskitBackend
 
 parser = argument_parser("Simulate the lens experiment with Qiskit.", Path(".result"))
@@ -109,9 +116,9 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-from python_wave_optics.cli import parse_parameters
-from python_wave_optics.simulation import simulate
-from python_wave_optics.storage import (
+from qiu_classical_simulation.wave_optics.cli import parse_parameters
+from qiu_classical_simulation.wave_optics.simulation import simulate
+from qiu_classical_simulation.wave_optics.storage import (
     load_experiment,
     load_stored_values,
     run_folders,
@@ -163,14 +170,14 @@ The loaded parameters, uuid and time included, equal the stored ones, and the sn
 from pathlib import Path
 
 import numpy as np
-from python_wave_optics.analysis import (
+from qiu_classical_simulation.wave_optics.analysis import (
     beam_waist,
     principal_plane_position,
     propagation_distances,
     thin_lens_reference_states,
 )
-from python_wave_optics.cli import parse_parameters
-from python_wave_optics.simulation import simulate
+from qiu_classical_simulation.wave_optics.cli import parse_parameters
+from qiu_classical_simulation.wave_optics.simulation import simulate
 from wave_optics_propagation.backend import QiskitBackend
 
 parameters, _ = parse_parameters(
@@ -211,7 +218,7 @@ The beam narrows from its waist of 21.2 um to about 10 um at 250 um behind the e
 
 ## Running the simulation script
 
-`simulate.py` runs the same experiments from the command line, from any working directory, and stores the run in the app's `.result/` or in `--results-dir`; the defaults are the experiment of the paper. A small run, and the single run of `cluster/run.slurm`:
+`simulate.py` runs the same experiments from the command line, from any working directory, and stores the run in the app's `.result/` or in `--results-dir`; the defaults are the experiment of the paper. A small run, and the single run of `scripts/cluster/run.slurm`:
 
 ```sh
 uv run python apps/wave_optics_propagation/scripts/simulate.py --help

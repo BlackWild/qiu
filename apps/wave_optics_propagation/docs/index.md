@@ -2,7 +2,7 @@
 
 The lens experiments of the paper, simulated with Qiskit: a Gaussian beam passes a plano-convex lens, sliced along the optical axis into thin transparent plates, and then free space behind it. The phase of each lens slice, and optionally of each free propagation, is applied with the sample-based phase protocol, simulated on statevectors and post-selected on its success; the result is compared with the classical numerics and with an ideal thin lens.
 
-The experiment itself, i.e. its parameters, its simulation loop, its storage and its analysis, lives in [python-wave-optics](../python-wave-optics/) and is shared with the QuTiP simulation, [wave_optics_propagation_qutip](../wave_optics_propagation_qutip/). This app adds the Qiskit backend, [`QiskitBackend`][wave_optics_propagation.backend.QiskitBackend], built on the circuits of [qiskit-phase-propagator](../qiskit-phase-propagator/) and [qiskit-hamiltonian-simulation](../qiskit-hamiltonian-simulation/), and the section-based (`# %%`) scripts in `scripts/`: the simulation, run on a SLURM cluster by the jobs in `cluster/`, and the analyses producing the figures of the paper.
+The experiment itself, i.e. its parameters, its simulation loop, its storage and its analysis, lives in [qiu-classical-simulation](../qiu-classical-simulation/) and is shared with the QuTiP simulation, [wave_optics_propagation_qutip](../wave_optics_propagation_qutip/). This app adds the Qiskit backend, [`QiskitBackend`][wave_optics_propagation.backend.QiskitBackend], built on the circuits of [qiu-quantum-computing](../qiu-quantum-computing/) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/), and the section-based (`# %%`) scripts in `scripts/`: the simulation, run on a SLURM cluster by the jobs in `scripts/cluster/`, and the analyses producing the figures of the paper.
 
 ## Installation
 
@@ -22,8 +22,8 @@ A small version of the experiment of the paper, 32 transverse samples (5 qubits)
 from pathlib import Path
 
 import numpy as np
-from python_wave_optics.cli import parse_parameters
-from python_wave_optics.simulation import ExactBackend, simulate
+from qiu_classical_simulation.wave_optics.cli import parse_parameters
+from qiu_classical_simulation.wave_optics.simulation import ExactBackend, simulate
 from wave_optics_propagation.backend import QiskitBackend
 
 parameters, _ = parse_parameters(

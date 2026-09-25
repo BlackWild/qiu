@@ -9,14 +9,16 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from python_wave_optics.analysis import (
+from qiu_classical_simulation.wave_optics.analysis import (
     beam_waist,
     propagation_distances,
     thin_lens_reference_states,
 )
-from python_wave_optics.classical_numerics import classical_numerics_simulation
-from python_wave_optics.storage import load_experiment
-from python_wave_optics.visualization import plot_wavefunction
+from qiu_classical_simulation.wave_optics.classical_numerics import (
+    classical_numerics_simulation,
+)
+from qiu_classical_simulation.wave_optics.storage import load_experiment
+from qiu_classical_simulation.wave_optics.visualization import plot_wavefunction
 
 APP_DIR = Path(__file__).resolve().parents[1]
 RESULTS_DIR = APP_DIR / ".result"

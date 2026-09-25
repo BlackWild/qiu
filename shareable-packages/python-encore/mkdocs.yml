@@ -1,3 +1,0 @@
-INHERIT: ../../docs/mkdocs.base.yml
-site_name: python-encore
-site_url: https://blackwild.github.io/qiu/python-encore/

@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 REPOSITORY = Path(__file__).resolve().parents[2]
-PACKAGE_GROUPS = ["packages", "shareable-packages", "dev-packages", "apps"]
+PACKAGE_GROUPS = ["packages", "packages-dev", "apps"]
 BLOCK = re.compile(r"(<!-- no-test -->\s*\n)?```python\n(.*?)```", re.DOTALL)
 
 

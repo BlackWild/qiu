@@ -2,20 +2,20 @@
 
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/wave_optics_propagation/)
 
-The lens experiments of the paper, simulated with Qiskit: a Gaussian beam through a plano-convex lens, sliced into thin plates whose phases the sample-based phase protocol applies, and through free space behind it. The experiment, its simulation loop and its analysis live in [`python-wave-optics`](https://github.com/BlackWild/qiu/blob/master/shareable-packages/python-wave-optics/README.md); this app adds the Qiskit backend and the scripts.
+The lens experiments of the paper, simulated with Qiskit: a Gaussian beam through a plano-convex lens, sliced into thin plates whose phases the sample-based phase protocol applies, and through free space behind it. The experiment, its simulation loop and its analysis live in [`qiu-classical-simulation`](https://github.com/BlackWild/qiu/blob/master/packages/qiu-classical-simulation/README.md); this app adds the Qiskit backend and the scripts.
 
 ## Qiskit backend
 
 `wave_optics_propagation.backend.QiskitBackend` applies
 
-- the phase of each lens slice, and of each free space step with the sample-based propagator, with the statevector simulation of the circuits of [`qiskit-phase-propagator`](https://github.com/BlackWild/qiu/blob/master/packages/qiskit-phase-propagator/README.md), post-selected on the success of each cycle, with `|phi>` prepared by `SynthesisMethod.DENSE` by default;
-- the direct propagator with the circuit `MomentumDomainEvolutionQuadratic` of [`qiskit-hamiltonian-simulation`](https://github.com/BlackWild/qiu/blob/master/packages/qiskit-hamiltonian-simulation/README.md).
+- the phase of each lens slice, and of each free space step with the sample-based propagator, with the statevector simulation of the circuits of [`qiu-quantum-computing`](https://github.com/BlackWild/qiu/blob/master/packages/qiu-quantum-computing/README.md), post-selected on the success of each cycle, with `|phi>` prepared by `SynthesisMethod.DENSE` by default;
+- the direct propagator with the circuit `MomentumDomainEvolutionQuadratic` of [`qiu-hamiltonian-simulation`](https://github.com/BlackWild/qiu/blob/master/packages/qiu-hamiltonian-simulation/README.md).
 
 ## Scripts
 
 The scripts in `scripts/` are section-based (`# %%`), to run as a whole or cell by cell, e.g. in the interactive window of VS Code:
 
-- `simulate.py`: Simulates the experiment of the paper and stores the run in `.result/<uuid>/`; run on the cluster by `cluster/run.slurm` and `cluster/batch-run.slurm`. See `--help` for the options, e.g. `--max-delta`, `--reverse-order` and `--direct-propagator`.
+- `simulate.py`: Simulates the experiment of the paper and stores the run in `.result/<uuid>/`; run on the cluster by `scripts/cluster/run.slurm` and `scripts/cluster/batch-run.slurm`. See `--help` for the options, e.g. `--max-delta`, `--reverse-order` and `--direct-propagator`.
 - `forward_analysis.py`: The propagation figure of the paper of a single run: the beam waist against an ideal thin lens, and the intensity map with the lens, the focal point and the principal plane.
 - `batch_analysis.py`: The figures of the paper of the batch over `max_delta` in `.result/batch/`: the fidelity to the classical numerics and the success probability.
 - `parameter_validity.py`: An exploration of how well the phases of the lens slices and propagators are sampled.

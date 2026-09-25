@@ -4,23 +4,22 @@
 
 [tool.uv.workspace]
 members = [
-    "shareable-packages/*",
-    "packages/*",
-    "dev-packages/*",
     "apps/*",
+    "packages/*",
+    "packages-dev/*",
 ]
 
 [tool.uv.sources]
-python-encore = { workspace = true }
 python-pytest-helper = { workspace = true }
-python-signals = { workspace = true }
-python-wave-optics = { workspace = true }
-qiskit-aer-encore = { workspace = true }
-qiskit-encore = { workspace = true }
-qiskit-hamiltonian-simulation = { workspace = true }
-qiskit-mps-initializer = { workspace = true }
-qiskit-phase-propagator = { workspace = true }
 qiskit-pytest-helper = { workspace = true }
+qiu-classical-simulation = { workspace = true }
+qiu-hamiltonian-simulation = { workspace = true }
+qiu-mps-initializer = { workspace = true }
+qiu-python-encore = { workspace = true }
+qiu-qiskit-aer-encore = { workspace = true }
+qiu-qiskit-encore = { workspace = true }
+qiu-quantum-computing = { workspace = true }
+qiu-signals = { workspace = true }
 
 [dependency-groups]
 # `uv sync --all-packages` installs all groups; select some with `--no-default-groups`

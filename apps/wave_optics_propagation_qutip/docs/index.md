@@ -2,7 +2,7 @@
 
 The lens experiments of the paper, simulated with QuTiP instead of Qiskit: a Gaussian beam passes a plano-convex lens, sliced along the optical axis into thin transparent plates, and then free space behind it. The sample-based phase protocol acts on QuTiP kets of an ancilla register and the transverse field, post-selected on its success; the direct propagator is an operator conjugated by the discrete Fourier transform.
 
-The experiment itself, i.e. its parameters, its simulation loop, its storage and its analysis, lives in [python-wave-optics](../python-wave-optics/) and is shared with the Qiskit simulation, [wave_optics_propagation](../wave_optics_propagation/), which also documents the experiment, the scripts and the cluster runs in depth. This app adds the QuTiP backend, [`QutipBackend`][wave_optics_propagation_qutip.backend.QutipBackend], and two section-based (`# %%`) scripts in `scripts/`: the simulation and the analysis of a single run.
+The experiment itself, i.e. its parameters, its simulation loop, its storage and its analysis, lives in [qiu-classical-simulation](../qiu-classical-simulation/) and is shared with the Qiskit simulation, [wave_optics_propagation](../wave_optics_propagation/), which also documents the experiment, the scripts and the cluster runs in depth. This app adds the QuTiP backend, [`QutipBackend`][wave_optics_propagation_qutip.backend.QutipBackend], and two section-based (`# %%`) scripts in `scripts/`: the simulation and the analysis of a single run.
 
 ## Installation
 
@@ -22,8 +22,8 @@ A small version of the experiment of the paper, 32 transverse samples, 10 lens s
 from pathlib import Path
 
 import numpy as np
-from python_wave_optics.cli import parse_parameters
-from python_wave_optics.simulation import ExactBackend, simulate
+from qiu_classical_simulation.wave_optics.cli import parse_parameters
+from qiu_classical_simulation.wave_optics.simulation import ExactBackend, simulate
 from wave_optics_propagation_qutip.backend import QutipBackend
 
 parameters, _ = parse_parameters(

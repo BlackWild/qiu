@@ -4,17 +4,16 @@ Qiu is a monorepo of tools for quantum computing and quantum simulation, whose p
 
 | Package | | Description |
 | --- | --- | --- |
-| **Shareable packages** (`shareable-packages/`): useful beyond quantum computing | | |
-| [`python-encore`](python-encore/) | [![PyPI](https://img.shields.io/pypi/v/python-encore)](https://pypi.org/project/python-encore/) | Small enhancements of the Python standard library. |
-| [`python-signals`](python-signals/) | [![PyPI](https://img.shields.io/pypi/v/python-signals)](https://pypi.org/project/python-signals/) | Uniformly sampled axes and signals on them, for classical and quantum numerics alike. |
-| [`python-wave-optics`](python-wave-optics/) | [![PyPI](https://img.shields.io/pypi/v/python-wave-optics)](https://pypi.org/project/python-wave-optics/) | Paraxial wave optics of Gaussian beams through sliced lenses, with a simulation loop for any backend and classical references. |
-| **Packages** (`packages/`): quantum computing, with circuits of Qiskit | | |
-| [`qiskit-encore`](qiskit-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-encore)](https://pypi.org/project/qiskit-encore/) | Robust state preparation, QFT and uniformly controlled rotations, each as a dense unitary, a Qiskit gate or a decomposed circuit. |
-| [`qiskit-aer-encore`](qiskit-aer-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-aer-encore)](https://pypi.org/project/qiskit-aer-encore/) | Aer simulators configured for the available hardware, CPU or GPU. |
-| [`qiskit-phase-propagator`](qiskit-phase-propagator/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-phase-propagator)](https://pypi.org/project/qiskit-phase-propagator/) | Circuits applying phases `e^(i f(x))` of sampled signals to qubit registers, directly or sample-based. |
-| [`qiskit-hamiltonian-simulation`](qiskit-hamiltonian-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-hamiltonian-simulation)](https://pypi.org/project/qiskit-hamiltonian-simulation/) | Time evolution under potentials and kinetic energies given as sampled signals. |
-| [`qiskit-mps-initializer`](qiskit-mps-initializer/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-mps-initializer)](https://pypi.org/project/qiskit-mps-initializer/) | Approximate state preparation with layers of one- and two-qubit gates from matrix product states. |
-| **Development packages** (`dev-packages/`): test helpers of this monorepo, not published | | |
+| **Packages** (`packages/`): published on PyPI | | |
+| [`qiu-python-encore`](qiu-python-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-python-encore)](https://pypi.org/project/qiu-python-encore/) | Small enhancements of the Python standard library. |
+| [`qiu-qiskit-encore`](qiu-qiskit-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-qiskit-encore)](https://pypi.org/project/qiu-qiskit-encore/) | Improvements of the native types of Qiskit: validated statevectors and the synthesis methods of circuit building blocks. |
+| [`qiu-qiskit-aer-encore`](qiu-qiskit-aer-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-qiskit-aer-encore)](https://pypi.org/project/qiu-qiskit-aer-encore/) | Qiskit Aer simulators configured for the available hardware, CPU or GPU. |
+| [`qiu-signals`](qiu-signals/) | [![PyPI](https://img.shields.io/pypi/v/qiu-signals)](https://pypi.org/project/qiu-signals/) | Uniformly sampled axes and signals on them, for classical and quantum numerics alike. |
+| [`qiu-quantum-computing`](qiu-quantum-computing/) | [![PyPI](https://img.shields.io/pypi/v/qiu-quantum-computing)](https://pypi.org/project/qiu-quantum-computing/) | Generic computations with the amplitudes of a quantum computer, as Qiskit circuits: state preparation, QFT, uniformly controlled rotations and diagonal phase operators `e^(i f(x))` of sampled signals. |
+| [`qiu-hamiltonian-simulation`](qiu-hamiltonian-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiu-hamiltonian-simulation)](https://pypi.org/project/qiu-hamiltonian-simulation/) | Unitary time evolution under a given Hamiltonian: Qiskit circuits of potentials and kinetic energies given as sampled signals. |
+| [`qiu-mps-initializer`](qiu-mps-initializer/) | [![PyPI](https://img.shields.io/pypi/v/qiu-mps-initializer)](https://pypi.org/project/qiu-mps-initializer/) | Quantum state preparation for Qiskit with layers of one- and two-qubit gates from matrix product states. |
+| [`qiu-classical-simulation`](qiu-classical-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiu-classical-simulation)](https://pypi.org/project/qiu-classical-simulation/) | Tools for classical simulations: paraxial wave optics of Gaussian beams through sliced lenses, with a simulation loop for any backend and classical references. |
+| **Development packages** (`packages-dev/`): test helpers of this monorepo, not published | | |
 | [`python-pytest-helper`](python-pytest-helper/) | | Floating-point comparisons and Hypothesis strategies of numbers, axes and signals. |
 | [`qiskit-pytest-helper`](qiskit-pytest-helper/) | | Strategies of quantum states and qubit axes, assertions with Qiskit's equality, and circuit helpers. |
 | **Applications** (`apps/`): projects built on the packages, not published | | |
