@@ -1,10 +1,10 @@
-"""Build the documentation of the monorepo into one site.
+"""Build the documentation site of the monorepo, and check its links.
 
-The landing page (`mkdocs.yml` at the root) is built into the site's root, and the
-documentation of each package with a `mkdocs.yml` into a directory of the site named as
-the package's directory, e.g. `site/qiu-signals/`. Every build is strict, so broken
-references fail it, and afterwards every relative link of the site must point to a page
-or file of it, e.g. the links between the packages, which MkDocs cannot check.
+The site, configured by the root `mkdocs.yml`, holds the landing page and the
+documentation of every package in a section of its own, e.g. `site/qiu-signals/`,
+collected by `docs/gen_pages.py`. The build is strict, so broken references, links and
+anchors fail it, and afterwards every relative link of the site's pages must point to a
+page or file of it, including those MkDocs does not check, e.g. of the API references.
 
     uv run python docs/build_all.py [--site-dir site]
 """
@@ -18,19 +18,6 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 REPOSITORY = Path(__file__).resolve().parents[1]
-PACKAGE_GROUPS = ["packages", "packages-dev", "apps"]
-
-
-def documented_packages() -> list[Path]:
-    """Return the directories of the packages with documentation, sorted by name."""
-    return sorted(
-        (
-            config.parent
-            for group in PACKAGE_GROUPS
-            for config in (REPOSITORY / group).glob("*/mkdocs.yml")
-        ),
-        key=lambda package: package.name,
-    )
 
 
 def build(config: Path, site_dir: Path) -> None:
@@ -111,14 +98,12 @@ def broken_links(site_dir: Path, base_path: str = "/") -> list[str]:
 
 
 def main() -> None:
-    """Build the landing page and the documentation of every package."""
+    """Build the site of the monorepo, and exit with an error if any link is broken."""
     parser = argparse.ArgumentParser(description=(__doc__ or "").partition("\n")[0])
     parser.add_argument("--site-dir", type=Path, default=REPOSITORY / "site")
     site_dir = parser.parse_args().site_dir.resolve()
 
     build(REPOSITORY / "mkdocs.yml", site_dir)
-    for package in documented_packages():
-        build(package / "mkdocs.yml", site_dir / package.name)
 
     broken = broken_links(site_dir, site_base_path())
     if broken:

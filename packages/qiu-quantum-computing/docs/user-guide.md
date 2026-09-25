@@ -9,7 +9,7 @@
 | [`uniformly_controlled_rotation`][qiu_quantum_computing.uniformly_controlled_rotation]                                  | multiplexed `ry` and `rz` rotations                          |
 | [`phase_propagator`][qiu_quantum_computing.phase_propagator]                                                            | diagonal phase operators `e^(i f(x))` of sampled signals     |
 
-State preparation and the QFT are represented in their circuits as chosen by the `SynthesisMethod` of [qiu-qiskit-encore](../../qiu-qiskit-encore/): as a dense unitary, a high-level Qiskit gate or a decomposed circuit, see its [User Guide](../../qiu-qiskit-encore/user-guide/#synthesis-methods). The uniformly controlled rotations are always decomposed into elementary gates. The signals, axes and index orderings of the phase propagator are those of [qiu-signals](../../qiu-signals/).
+State preparation and the QFT are represented in their circuits as chosen by the `SynthesisMethod` of [qiu-qiskit-encore](../qiu-qiskit-encore/index.md): as a dense unitary, a high-level Qiskit gate or a decomposed circuit, see its [User Guide](../qiu-qiskit-encore/user-guide.md#synthesis-methods). The uniformly controlled rotations are always decomposed into elementary gates. The signals, axes and index orderings of the phase propagator are those of [qiu-signals](../qiu-signals/index.md).
 
 ## Conventions
 
@@ -23,7 +23,7 @@ Every circuit of this package implements its operation exactly, *including the g
 
 ### Input states
 
-The state preparation functions and [`PreparableState`][qiu_quantum_computing.preparable_state.PreparableState] accept a Qiskit `Statevector` or anything NumPy converts to an array of amplitudes. They validate it with `validated_statevector` of [qiu-qiskit-encore](../../qiu-qiskit-encore/), which returns a copy as a complex `Statevector` and raises a `ValueError` unless:
+The state preparation functions and [`PreparableState`][qiu_quantum_computing.preparable_state.PreparableState] accept a Qiskit `Statevector` or anything NumPy converts to an array of amplitudes. They validate it with `validated_statevector` of [qiu-qiskit-encore](../qiu-qiskit-encore/index.md), which returns a copy as a complex `Statevector` and raises a `ValueError` unless:
 
 - the dimension is a power of 2 of at least one qubit, i.e. `2, 4, 8, ...`, and
 - the state is normalized, as checked by `Statevector.is_valid`, i.e. up to Qiskit's tolerances `Statevector.atol` and `Statevector.rtol`.
@@ -59,7 +59,7 @@ The circuit holds a single Qiskit `StatePreparation` gate, named `state_preparat
     Qiskit's isometry synthesis prepares wrong states, with fidelity 0, when two of its intermediate single-qubit gates are close but not equal. The tests of this package document this with a state of 3 qubits found by `hypothesis`, on which it fails in qiskit 2.2 to 2.5. Whether the two gates are close depends on the rounding of the linear algebra: it fails with Apple's Accelerate as the LAPACK of NumPy, e.g. on macOS, and not with OpenBLAS, e.g. on Linux. With Accelerate, the test is marked as an expected failure, and alerts once Qiskit fixes it.
 
 !!! warning "Transpiling can fail for nearly uniform states"
-    With qiskit 2.2, the synthesis of the `StatePreparation` of a nearly uniform state, such as the state `sqrt(f / sum(f))` of a smooth signal `f`, can fail: Qiskit's decomposition of its uniformly controlled gates produces a single-qubit matrix that it then rejects as not unitary. Transpiling raises a `TranspilerError` (`HighLevelSynthesis is unable to synthesize "state_preparation"`), and building a `Statevector` of the circuit a `ValueError`. Which states are affected is hard to predict. This is why the [sample-based phases](#sample-based-phases) of this package and the circuits of [qiu-hamiltonian-simulation](../../qiu-hamiltonian-simulation/) are tested with `DECOMPOSED`.
+    With qiskit 2.2, the synthesis of the `StatePreparation` of a nearly uniform state, such as the state `sqrt(f / sum(f))` of a smooth signal `f`, can fail: Qiskit's decomposition of its uniformly controlled gates produces a single-qubit matrix that it then rejects as not unitary. Transpiling raises a `TranspilerError` (`HighLevelSynthesis is unable to synthesize "state_preparation"`), and building a `Statevector` of the circuit a `ValueError`. Which states are affected is hard to predict. This is why the [sample-based phases](#sample-based-phases) of this package and the circuits of [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/index.md) are tested with `DECOMPOSED`.
 
 Use `DECOMPOSED` wherever these failures matter, and `GATE` where a hardware-aware synthesis by Qiskit is more important than robustness.
 
@@ -134,7 +134,7 @@ The QFT maps the basis state `|j>` to `sum_k e^(2 pi i j k / N) |k> / sqrt(N)` w
 The swap gates at the end of `synth_qft_full` are part of the transform, so all three methods implement the same unitary, without a reversal of the qubits left to the user.
 
 !!! note "Transpiling the swaps away"
-    From optimization level 2, the default of `transpile`, Qiskit may elide the final swaps of the QFT into a relabeling of the qubits, the `final_layout` of the transpiled circuit. Measurements account for it, but a statevector saved by a simulator, e.g. with Aer's `save_statevector`, then has its qubits permuted. Transpile with `optimization_level=1` where the statevector matters, see [qiu-qiskit-aer-encore](../../qiu-qiskit-aer-encore/user-guide/#exact-statevectors-of-transpiled-circuits).
+    From optimization level 2, the default of `transpile`, Qiskit may elide the final swaps of the QFT into a relabeling of the qubits, the `final_layout` of the transpiled circuit. Measurements account for it, but a statevector saved by a simulator, e.g. with Aer's `save_statevector`, then has its qubits permuted. Transpile with `optimization_level=1` where the statevector matters, see [qiu-qiskit-aer-encore](../qiu-qiskit-aer-encore/user-guide.md#exact-statevectors-of-transpiled-circuits).
 
 ## Uniformly controlled rotations
 

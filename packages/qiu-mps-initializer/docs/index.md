@@ -2,7 +2,7 @@
 
 `qiu-mps-initializer` prepares quantum states approximately with layers of one- and two-qubit gates obtained from matrix product states (MPS), following Ran, "Encoding of matrix product states into quantum circuits of one- and two-qubit gates", Phys. Rev. A 101, 032310 (2020). Each layer acts on neighboring qubits only and costs at most `3 (n - 1)` CNOT gates on `n` qubits, so a few layers give circuits much shallower than exact state preparation, whose CNOT count grows as `2**n`, at the cost of an approximation. Every preparation reports its error.
 
-Within the monorepo, it builds on [qiu-qiskit-encore](../qiu-qiskit-encore/), which validates its states, and on [qiu-quantum-computing](../qiu-quantum-computing/), which prepares single-qubit states exactly and provides the states of intensity signals of [qiu-signals](../qiu-signals/); it complements the exact state preparation there. Version 0.3 carries the functionality of version 0.2 over onto these packages, see the [User Guide](user-guide.md#changes-from-version-02).
+Within the monorepo, it builds on [qiu-qiskit-encore](../qiu-qiskit-encore/index.md), which validates its states, and on [qiu-quantum-computing](../qiu-quantum-computing/index.md), which prepares single-qubit states exactly and provides the states of intensity signals of [qiu-signals](../qiu-signals/index.md); it complements the exact state preparation there. Version 0.3 carries the functionality of version 0.2 over onto these packages, see the [User Guide](user-guide.md#changes-from-version-02).
 
 ## Installation
 

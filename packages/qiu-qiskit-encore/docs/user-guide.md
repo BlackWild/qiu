@@ -7,7 +7,7 @@
 | [`statevector`][qiu_qiskit_encore.statevector]           | statevectors validated as normalized states of qubits         |
 | [`synthesis_method`][qiu_qiskit_encore.synthesis_method] | the ways a circuit building block is represented in a circuit |
 
-The circuit building blocks using them, e.g. the state preparation, the QFT and the phase operators, are in [qiu-quantum-computing](../../qiu-quantum-computing/).
+The circuit building blocks using them, e.g. the state preparation, the QFT and the phase operators, are in [qiu-quantum-computing](../qiu-quantum-computing/index.md).
 
 ## Validated statevectors
 
@@ -41,7 +41,7 @@ States are never normalized silently: normalize them yourself, e.g. with `state 
 
 ## Synthesis methods
 
-[`SynthesisMethod`][qiu_qiskit_encore.synthesis_method.SynthesisMethod] chooses how a circuit building block, e.g. the state preparation or the QFT of [qiu-quantum-computing](../../qiu-quantum-computing/), is represented in the circuit it creates, by the `method` parameter of the function creating it:
+[`SynthesisMethod`][qiu_qiskit_encore.synthesis_method.SynthesisMethod] chooses how a circuit building block, e.g. the state preparation or the QFT of [qiu-quantum-computing](../qiu-quantum-computing/index.md), is represented in the circuit it creates, by the `method` parameter of the function creating it:
 
 | method       | the circuit contains                                                    | use it for                                                                     |
 | ------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
@@ -55,9 +55,9 @@ Some guidelines for the choice:
 - `GATE` keeps the circuit abstract until it is transpiled, so Qiskit can choose a synthesis for the target, and the circuit stays small and readable. Its quality is the quality of Qiskit's synthesis, including its bugs.
 - `DECOMPOSED` gives a circuit of elementary gates of known structure and gate counts. For state preparation, it is synthesized by qiu-quantum-computing, independently of the Qiskit version, and is the choice wherever Qiskit's synthesis fails; for the QFT, it is Qiskit's standard textbook circuit.
 
-All three methods are exact: they implement the same unitary, up to floating-point rounding, and differ only in their representation. For approximate state preparation with shallower circuits, see [qiu-mps-initializer](../../qiu-mps-initializer/).
+All three methods are exact: they implement the same unitary, up to floating-point rounding, and differ only in their representation. For approximate state preparation with shallower circuits, see [qiu-mps-initializer](../qiu-mps-initializer/index.md).
 
-`SynthesisMethod` is an `ExtendedEnum` of [qiu-python-encore](../../qiu-python-encore/), whose members compare equal to their raw values. Every function of the monorepo taking a `method` also accepts the raw values `"dense"`, `"gate"` and `"decomposed"`, and converts them to the members:
+`SynthesisMethod` is an `ExtendedEnum` of [qiu-python-encore](../qiu-python-encore/index.md), whose members compare equal to their raw values. Every function of the monorepo taking a `method` also accepts the raw values `"dense"`, `"gate"` and `"decomposed"`, and converts them to the members:
 
 ```python
 from qiu_qiskit_encore.synthesis_method import SynthesisMethod

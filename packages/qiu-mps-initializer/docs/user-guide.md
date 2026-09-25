@@ -19,7 +19,7 @@ All preparations of this package are exact for the states they target, i.e. the 
 
 [`bond2_mps_approximation(state)`][qiu_mps_initializer.mps.bond2_mps_approximation] truncates a state of 2 qubits or more to a `quimb` `MatrixProductState` of bond dimension at most 2:
 
-- The state is validated by `validated_statevector` of [qiu-qiskit-encore](../../qiu-qiskit-encore/): a Qiskit `Statevector` or its amplitudes, normalized, of a power-of-2 dimension. Single-qubit states raise a `ValueError`, since they have no MPS of 2 sites or more.
+- The state is validated by `validated_statevector` of [qiu-qiskit-encore](../qiu-qiskit-encore/index.md): a Qiskit `Statevector` or its amplitudes, normalized, of a power-of-2 dimension. Single-qubit states raise a `ValueError`, since they have no MPS of 2 sites or more.
 - The MPS is built by successive singular value decompositions, keeping the 2 largest singular values at each bond. This is the standard truncation, not necessarily the closest MPS of bond dimension 2 to the state.
 - It is normalized, right-canonical, and has its tensor indices in the order left, physical, right (`"lpr"`), as the next step expects.
 
@@ -125,7 +125,7 @@ Some practical guidelines:
 
 ## Intensity signals
 
-To load a real signal `f` of one sign, e.g. an intensity profile of [qiu-signals](../../qiu-signals/), into the amplitudes of a register, split it into its sum `alpha` and the state `|psi> = sqrt(f / alpha)`, such that `f = alpha |psi|**2`, with `sample_based_decomposition` of [qiu-quantum-computing](../../qiu-quantum-computing/), and prepare `|psi>`:
+To load a real signal `f` of one sign, e.g. an intensity profile of [qiu-signals](../qiu-signals/index.md), into the amplitudes of a register, split it into its sum `alpha` and the state `|psi> = sqrt(f / alpha)`, such that `f = alpha |psi|**2`, with `sample_based_decomposition` of [qiu-quantum-computing](../qiu-quantum-computing/index.md), and prepare `|psi>`:
 
 ```python
 import numpy as np
@@ -165,4 +165,4 @@ Besides:
 - `max_layers` is required and bounds the number of layers; formerly, one layer more than asked for could be added, and without a maximum the construction could run forever.
 - Single-qubit states are supported.
 - States are no longer normalized for you: pass normalized states, e.g. `data / numpy.linalg.norm(data)`.
-- The package no longer depends on `pydantic`, `pydantic-numpy` and `qiskit-aer`; simulate the circuits with `Statevector(circuit)` or with [qiu-qiskit-aer-encore](../../qiu-qiskit-aer-encore/).
+- The package no longer depends on `pydantic`, `pydantic-numpy` and `qiskit-aer`; simulate the circuits with `Statevector(circuit)` or with [qiu-qiskit-aer-encore](../qiu-qiskit-aer-encore/index.md).

@@ -2,7 +2,7 @@
 
 `qiu-classical-simulation` provides tools for classical simulations. Its subpackage `wave_optics` models the paraxial wave optics of a Gaussian beam through a plano-convex lens, sliced along the optical axis into thin transparent plates, and through free space behind it. It holds everything about this lens experiment that does not depend on how the phases are applied: the optical elements as phase signals, the parameters of an experiment and everything derived from them, the simulation loop for any backend, the classical references (exact split-step numerics and thin lens analytics), the storage of runs and their analysis.
 
-The simulations of the monorepo share it: [wave_optics_propagation](../wave_optics_propagation/) applies the phases with Qiskit circuits and [wave_optics_propagation_qutip](../wave_optics_propagation_qutip/) with QuTiP operators, each implementing a `PropagationBackend`. The fields and phases are signals of [qiu-signals](../qiu-signals/). It depends on NumPy, Matplotlib and `qiu-signals`.
+The simulations of the monorepo share it: [wave_optics_propagation](../wave_optics_propagation/index.md) applies the phases with Qiskit circuits and [wave_optics_propagation_qutip](../wave_optics_propagation_qutip/index.md) with QuTiP operators, each implementing a `PropagationBackend`. The fields and phases are signals of [qiu-signals](../qiu-signals/index.md). It depends on NumPy, Matplotlib and `qiu-signals`.
 
 ## Installation
 

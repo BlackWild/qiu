@@ -116,7 +116,7 @@ Only the two GHZ outcomes of 40 bits occur. Aer supports the `matrix_product_sta
 
 ## Simulating a building block of qiu-quantum-computing
 
-The circuits of [qiu-quantum-computing](../../qiu-quantum-computing/) run on these simulators like any other circuit. This example prepares a random state of 4 qubits with the `DECOMPOSED` synthesis, applies the QFT as a high-level `QFTGate`, which the transpiler synthesizes for the simulator, and checks the simulated statevector against NumPy's orthonormal inverse DFT. It transpiles with `optimization_level=1`, which keeps the saved statevector exact (see the [User Guide](user-guide.md#exact-statevectors-of-transpiled-circuits)).
+The circuits of [qiu-quantum-computing](../qiu-quantum-computing/index.md) run on these simulators like any other circuit. This example prepares a random state of 4 qubits with the `DECOMPOSED` synthesis, applies the QFT as a high-level `QFTGate`, which the transpiler synthesizes for the simulator, and checks the simulated statevector against NumPy's orthonormal inverse DFT. It transpiles with `optimization_level=1`, which keeps the saved statevector exact (see the [User Guide](user-guide.md#exact-statevectors-of-transpiled-circuits)).
 
 ```python
 import numpy as np

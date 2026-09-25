@@ -17,7 +17,7 @@ The subpackage [`wave_optics`][qiu_classical_simulation.wave_optics] of `qiu-cla
 
 ## The physical model
 
-The transverse field `psi(x)` is sampled on `2**num_qubits` points of a window of length `transverse_length`, a position axis of [qiu-signals](../../qiu-signals/) in the `NATURAL` ordering, from `0` to `transverse_length - delta_x`. The beam is centered in the window, and the lens fills it: its diameter is `transverse_length`. The window is periodic, as the discrete Fourier transform makes it, so a field reaching its edges reenters from the other side.
+The transverse field `psi(x)` is sampled on `2**num_qubits` points of a window of length `transverse_length`, a position axis of [qiu-signals](../qiu-signals/index.md) in the `NATURAL` ordering, from `0` to `transverse_length - delta_x`. The beam is centered in the window, and the lens fills it: its diameter is `transverse_length`. The window is periodic, as the discrete Fourier transform makes it, so a field reaching its edges reenters from the other side.
 
 The lens is sliced along the optical axis into `lens_slices` slices of equal thickness `dz`. Each slice is a thin transparent plate of the radius of the lens at the depth of the slice's midpoint. The beam passes a slice in two steps:
 

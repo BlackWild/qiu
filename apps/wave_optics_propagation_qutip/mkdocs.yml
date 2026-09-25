@@ -1,3 +1,19 @@
+# The documentation of wave_optics_propagation_qutip alone, to preview it with
+#   uv run mkdocs serve -f apps/wave_optics_propagation_qutip/mkdocs.yml
+# The site of the monorepo, with all packages, is built from the root mkdocs.yml (see
+# docs/gen_pages.py).
 INHERIT: ../../docs/mkdocs.base.yml
 site_name: wave_optics_propagation_qutip
-site_url: https://blackwild.github.io/qiu/wave_optics_propagation_qutip/
+
+plugins:
+  gen-files:
+    scripts:
+      - ../../docs/gen_pages.py
+
+# the other packages are not part of the preview, so links to them are not found
+validation:
+  links:
+    not_found: info
+
+watch:
+  - src

@@ -4,7 +4,7 @@ Each example is a complete test, called directly at the end of its block as pyte
 
 ## A property-based test of a state preparation
 
-The robust state preparation of [qiu-quantum-computing](../../qiu-quantum-computing/) must prepare every state exactly, including its global phase, whichever way it is synthesized. `valid_qiskit_statevector` generates normalized states of 2 to 4 qubits, here at most 3 to keep the decomposed circuits small, and `assert_equal_states` compares the state the circuit prepares from `|0...0>` with the generated one.
+The robust state preparation of [qiu-quantum-computing](../qiu-quantum-computing/index.md) must prepare every state exactly, including its global phase, whichever way it is synthesized. `valid_qiskit_statevector` generates normalized states of 2 to 4 qubits, here at most 3 to keep the decomposed circuits small, and `assert_equal_states` compares the state the circuit prepares from `|0...0>` with the generated one.
 
 ```python
 from hypothesis import given
@@ -118,7 +118,7 @@ The exactly transpiled circuit keeps its `rx` gate and its unitary, while level 
 
 ## A sample-based propagator against its closed form
 
-A sample-based propagator of [qiu-quantum-computing](../../qiu-quantum-computing/) is simulated on Aer by `run_propagator`, which returns whether all cycles succeeded and the final amplitudes of the `psi` register. Successful runs must match `exact_cycles` exactly, global phase included; failed ones are discarded with `assume`. `state_pairs_with_equal_qubits` generates `psi` and `phi` of the same number of qubits.
+A sample-based propagator of [qiu-quantum-computing](../qiu-quantum-computing/index.md) is simulated on Aer by `run_propagator`, which returns whether all cycles succeeded and the final amplitudes of the `psi` register. Successful runs must match `exact_cycles` exactly, global phase included; failed ones are discarded with `assume`. `state_pairs_with_equal_qubits` generates `psi` and `phi` of the same number of qubits.
 
 ```python
 from hypothesis import assume, given, settings
@@ -159,7 +159,7 @@ With small `delta`s the cycles almost always succeed, and the simulated amplitud
 
 ## A phase signal on a qubit axis
 
-Signals on qubit axes combine `qubit_axes` with the signal strategies of [python-pytest-helper](../../python-pytest-helper/). The direct phase circuit of a polynomial signal must multiply each basis state `|k>` by `e^(i f(x_k))`, so the state it prepares from the uniform superposition is known exactly. `moderate_alphas` keeps the phases of the monomials moderate.
+Signals on qubit axes combine `qubit_axes` with the signal strategies of [python-pytest-helper](../python-pytest-helper/index.md). The direct phase circuit of a polynomial signal must multiply each basis state `|k>` by `e^(i f(x_k))`, so the state it prepares from the uniform superposition is known exactly. `moderate_alphas` keeps the phases of the monomials moderate.
 
 ```python
 import numpy as np

@@ -117,7 +117,7 @@ else:
     raise AssertionError("expected a ValueError")
 ```
 
-The classes of [qiu-signals](../../qiu-signals/) normalize their enum arguments this way, so that e.g. an axis can be created with the ordering `"fft"` instead of `IndexOrdering.FFT`.
+The classes of [qiu-signals](../qiu-signals/index.md) normalize their enum arguments this way, so that e.g. an axis can be created with the ordering `"fft"` instead of `IndexOrdering.FFT`.
 
 ## Listing the values
 

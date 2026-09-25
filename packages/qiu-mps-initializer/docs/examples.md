@@ -35,7 +35,7 @@ The fidelity grows from about `0.73` with one layer to above `0.99` with 8 layer
 
 ## Shallow preparation of a smooth state
 
-Smooth functions sampled on a grid are weakly entangled, which is where MPS layers pay off. This example prepares a Gaussian on 6 qubits with a tolerance on the error, and compares the CNOT count after transpiling with the exact `DECOMPOSED` preparation of [qiu-quantum-computing](../../qiu-quantum-computing/).
+Smooth functions sampled on a grid are weakly entangled, which is where MPS layers pay off. This example prepares a Gaussian on 6 qubits with a tolerance on the error, and compares the CNOT count after transpiling with the exact `DECOMPOSED` preparation of [qiu-quantum-computing](../qiu-quantum-computing/index.md).
 
 ```python
 import numpy as np
@@ -70,7 +70,7 @@ A single layer reaches the error `0.05`, a fidelity above `0.998`, with at most 
 
 ## Preparing the state of an intensity signal
 
-An intensity profile `f >= 0` is loaded into a register as the state `|psi> = sqrt(f / alpha)` with `alpha = sum(f)`, so that `f = alpha |psi|**2`. This example samples a Gaussian intensity on a centered position axis of [qiu-signals](../../qiu-signals/), splits it with `sample_based_decomposition` of [qiu-quantum-computing](../../qiu-quantum-computing/), and reconstructs the intensity from the approximately prepared state.
+An intensity profile `f >= 0` is loaded into a register as the state `|psi> = sqrt(f / alpha)` with `alpha = sum(f)`, so that `f = alpha |psi|**2`. This example samples a Gaussian intensity on a centered position axis of [qiu-signals](../qiu-signals/index.md), splits it with `sample_based_decomposition` of [qiu-quantum-computing](../qiu-quantum-computing/index.md), and reconstructs the intensity from the approximately prepared state.
 
 ```python
 import numpy as np

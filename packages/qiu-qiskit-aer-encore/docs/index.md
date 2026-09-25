@@ -2,7 +2,7 @@
 
 `qiu-qiskit-aer-encore` creates Qiskit Aer simulators configured for the available hardware. A single call, [`aer_simulator`][qiu_qiskit_aer_encore.simulator.aer_simulator], returns an `AerSimulator` on a GPU if one is available and on the CPU otherwise, with options tuned for multi-GPU simulations, so the same code runs on a laptop and on a GPU cluster node.
 
-Within the monorepo, the tests of the quantum packages, e.g. of [qiu-quantum-computing](../qiu-quantum-computing/), [qiu-mps-initializer](../qiu-mps-initializer/) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/), run their circuits on the simulators of this package, directly or through the helpers of [qiskit-pytest-helper](../qiskit-pytest-helper/). It depends only on `qiskit-aer` and [qiu-python-encore](../qiu-python-encore/).
+Within the monorepo, the tests of the quantum packages, e.g. of [qiu-quantum-computing](../qiu-quantum-computing/index.md), [qiu-mps-initializer](../qiu-mps-initializer/index.md) and [qiu-hamiltonian-simulation](../qiu-hamiltonian-simulation/index.md), run their circuits on the simulators of this package, directly or through the helpers of [qiskit-pytest-helper](../qiskit-pytest-helper/index.md). It depends only on `qiskit-aer` and [qiu-python-encore](../qiu-python-encore/index.md).
 
 ## Installation
 

@@ -2,7 +2,7 @@
 
 ## Comparing the synthesis methods
 
-The three [synthesis methods](../../qiu-qiskit-encore/user-guide/#synthesis-methods) prepare the same state, but transpile into very different circuits. This example prepares a random complex state of 4 qubits with each method, transpiles the circuits into CNOT and single-qubit gates, and compares their CNOT counts.
+The three [synthesis methods](../qiu-qiskit-encore/user-guide.md#synthesis-methods) prepare the same state, but transpile into very different circuits. This example prepares a random complex state of 4 qubits with each method, transpiles the circuits into CNOT and single-qubit gates, and compares their CNOT counts.
 
 ```python
 import numpy as np
@@ -67,7 +67,7 @@ All three methods agree with `numpy.fft.ifft(state, norm="ortho")`, and the stat
 
 ## Measuring the overlap of two states
 
-A [`PreparableState`][qiu_quantum_computing.preparable_state.PreparableState] provides both the preparation and the un-preparation of a state, which is what a compute-uncompute overlap test needs: preparing `|psi>` and then applying the inverse preparation of `|phi>` leaves `|0...0>` with the probability `|<phi|psi>|**2`. This example builds the circuit, samples it on Aer's CPU simulator with [qiu-qiskit-aer-encore](../../qiu-qiskit-aer-encore/), and compares the estimate with the exact overlap.
+A [`PreparableState`][qiu_quantum_computing.preparable_state.PreparableState] provides both the preparation and the un-preparation of a state, which is what a compute-uncompute overlap test needs: preparing `|psi>` and then applying the inverse preparation of `|phi>` leaves `|0...0>` with the probability `|<phi|psi>|**2`. This example builds the circuit, samples it on Aer's CPU simulator with [qiu-qiskit-aer-encore](../qiu-qiskit-aer-encore/index.md), and compares the estimate with the exact overlap.
 
 ```python
 import numpy as np

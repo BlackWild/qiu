@@ -8,27 +8,28 @@ The documentation of all packages, with their guides, examples and API reference
 
 ## Packages
 
-| Package | | Description |
+| Package | PyPI | Description |
 | --- | --- | --- |
-| **Packages** (`packages/`): published on PyPI | | |
-| [`qiu-python-encore`](packages/qiu-python-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-python-encore)](https://pypi.org/project/qiu-python-encore/) | Small enhancements of the Python standard library. |
-| [`qiu-qiskit-encore`](packages/qiu-qiskit-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-qiskit-encore)](https://pypi.org/project/qiu-qiskit-encore/) | Improvements of the native types of Qiskit: validated statevectors and the synthesis methods of circuit building blocks. |
-| [`qiu-qiskit-aer-encore`](packages/qiu-qiskit-aer-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-qiskit-aer-encore)](https://pypi.org/project/qiu-qiskit-aer-encore/) | Qiskit Aer simulators configured for the available hardware, CPU or GPU. |
-| [`qiu-signals`](packages/qiu-signals/) | [![PyPI](https://img.shields.io/pypi/v/qiu-signals)](https://pypi.org/project/qiu-signals/) | Uniformly sampled axes and signals on them, for classical and quantum numerics alike. |
-| [`qiu-quantum-computing`](packages/qiu-quantum-computing/) | [![PyPI](https://img.shields.io/pypi/v/qiu-quantum-computing)](https://pypi.org/project/qiu-quantum-computing/) | Generic computations with the amplitudes of a quantum computer, as Qiskit circuits: state preparation, QFT, uniformly controlled rotations and diagonal phase operators `e^(i f(x))` of sampled signals. |
-| [`qiu-hamiltonian-simulation`](packages/qiu-hamiltonian-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiu-hamiltonian-simulation)](https://pypi.org/project/qiu-hamiltonian-simulation/) | Unitary time evolution under a given Hamiltonian: Qiskit circuits of potentials and kinetic energies given as sampled signals. |
-| [`qiu-mps-initializer`](packages/qiu-mps-initializer/) | [![PyPI](https://img.shields.io/pypi/v/qiu-mps-initializer)](https://pypi.org/project/qiu-mps-initializer/) | Quantum state preparation for Qiskit with layers of one- and two-qubit gates from matrix product states. |
-| [`qiu-classical-simulation`](packages/qiu-classical-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiu-classical-simulation)](https://pypi.org/project/qiu-classical-simulation/) | Tools for classical simulations: paraxial wave optics of Gaussian beams through sliced lenses, with a simulation loop for any backend and classical references. |
-| **Development packages** (`packages-dev/`): test helpers of this monorepo, not published | | |
-| [`python-pytest-helper`](packages-dev/python-pytest-helper/) | | Floating-point comparisons and Hypothesis strategies of numbers, axes and signals. |
-| [`qiskit-pytest-helper`](packages-dev/qiskit-pytest-helper/) | | Strategies of quantum states and qubit axes, assertions with Qiskit's equality, and circuit helpers. |
-| **Applications** (`apps/`): projects built on the packages, not published | | |
-| [`wave_optics_propagation`](apps/wave_optics_propagation/) | | The lens experiments of the paper simulated with Qiskit: the simulation run on the cluster and the analyses of the paper. |
-| [`wave_optics_propagation_qutip`](apps/wave_optics_propagation_qutip/) | | The same lens experiments simulated with QuTiP. |
+| **Packages** | | |
+| [`qiu-signals`](packages/qiu-signals/) | [![PyPI](https://img.shields.io/pypi/v/qiu-signals?style=for-the-badge&label=PyPI)](https://pypi.org/project/qiu-signals/) | Sampled axes and signals, for classical and quantum numerics alike |
+| [`qiu-quantum-computing`](packages/qiu-quantum-computing/) | [![PyPI](https://img.shields.io/pypi/v/qiu-quantum-computing?style=for-the-badge&label=PyPI)](https://pypi.org/project/qiu-quantum-computing/) | Computations on the amplitudes of a quantum computer: state preparation, QFT, controlled rotations and diagonal phase operators |
+| [`qiu-mps-initializer`](packages/qiu-mps-initializer/) | [![PyPI](https://img.shields.io/pypi/v/qiu-mps-initializer?style=for-the-badge&label=PyPI)](https://pypi.org/project/qiu-mps-initializer/) | State preparation with layers of gates from matrix product states |
+| [`qiu-hamiltonian-simulation`](packages/qiu-hamiltonian-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiu-hamiltonian-simulation?style=for-the-badge&label=PyPI)](https://pypi.org/project/qiu-hamiltonian-simulation/) | The unitary time evolution under a given Hamiltonian |
+| [`qiu-classical-simulation`](packages/qiu-classical-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiu-classical-simulation?style=for-the-badge&label=PyPI)](https://pypi.org/project/qiu-classical-simulation/) | Classical simulations: paraxial wave optics of Gaussian beams through lenses |
+| **Applications, not published** | | |
+| [`wave_optics_propagation`](apps/wave_optics_propagation/) |  | The lens experiments of the paper, simulated with Qiskit, and their analyses |
+| [`wave_optics_propagation_qutip`](apps/wave_optics_propagation_qutip/) |  | The same lens experiments, simulated with QuTiP |
+| **Encore packages: improvements of Python, Qiskit and Qiskit Aer** | | |
+| [`qiu-python-encore`](packages/qiu-python-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-python-encore?style=for-the-badge&label=PyPI)](https://pypi.org/project/qiu-python-encore/) | Small enhancements of the Python standard library |
+| [`qiu-qiskit-encore`](packages/qiu-qiskit-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-qiskit-encore?style=for-the-badge&label=PyPI)](https://pypi.org/project/qiu-qiskit-encore/) | Validated statevectors and the synthesis methods of circuit building blocks |
+| [`qiu-qiskit-aer-encore`](packages/qiu-qiskit-aer-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiu-qiskit-aer-encore?style=for-the-badge&label=PyPI)](https://pypi.org/project/qiu-qiskit-aer-encore/) | Aer simulators configured for the available hardware, CPU or GPU |
+| **Development packages: test helpers, not published** | | |
+| [`python-pytest-helper`](packages-dev/python-pytest-helper/) |  | Floating-point assertions and Hypothesis strategies of numbers, axes and signals |
+| [`qiskit-pytest-helper`](packages-dev/qiskit-pytest-helper/) |  | Strategies of quantum states, Qiskit assertions and circuit helpers |
 
 The other directories:
 
-- `docs/`: The shared configuration, the landing page and the build of the documentation.
+- `docs/`: The configuration shared by the documentation of all packages, the landing page, and the generation and build of the documentation site.
 - `scripts/`: The scripts of the repository: in `scripts/cluster/`, the SLURM jobs running the simulations of `apps/wave_optics_propagation`.
 
 ## Installation
@@ -52,10 +53,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions of the monorepo and h
 
 ## Documentation
 
-Every package has its documentation in `docs/`: a home page, a user guide, worked examples and the API reference, generated from the docstrings of its `src` by `docs/gen_reference.py`. Its `mkdocs.yml` inherits the shared configuration `docs/mkdocs.base.yml`, and `docs/build_all.py` builds all packages, with the landing page `mkdocs.yml`, into one site:
+The documentation is one [MkDocs](https://www.mkdocs.org/) site, configured by the root `mkdocs.yml`: the landing page, and a section per package with its home page, user guide and worked examples from its `docs/`, and its API reference, generated from the docstrings of its `src` by [mkdocstrings](https://mkdocstrings.github.io/). `docs/gen_pages.py` collects the pages and writes the navigation, which lists every package on every page. Build or serve it with:
 
 ```sh
-uv run python docs/build_all.py  # into site/
+uv run python docs/build_all.py  # into site/, strictly, and checks its links
+uv run mkdocs serve              # at http://127.0.0.1:8000/qiu/
 ```
 
 The Python examples of the documentation and the READMEs run as part of the tests (`docs/tests/test_examples.py`).

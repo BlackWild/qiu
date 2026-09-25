@@ -1,10 +1,10 @@
 # qiu-hamiltonian-simulation
 
-Circuits of the time evolution `e^(-i t H / hbar)` under a time-independent potential `V(x)` or kinetic energy `T(p)`, given as [`qiu-signals`](../qiu-signals/) signals on axes of `2**n` samples. A potential acts diagonally on the position amplitudes of a register, a kinetic energy on its momentum amplitudes, between Fourier transforms.
+Circuits of the time evolution `e^(-i t H / hbar)` under a time-independent potential `V(x)` or kinetic energy `T(p)`, given as [`qiu-signals`](../qiu-signals/index.md) signals on axes of `2**n` samples. A potential acts diagonally on the position amplitudes of a register, a kinetic energy on its momentum amplitudes, between Fourier transforms.
 
-Quadratic potentials and kinetic energies, e.g. harmonic potentials, free particles or paraxial diffraction, are applied exactly by the direct phase circuits of [`qiu-quantum-computing`](../qiu-quantum-computing/). Arbitrary ones of one sign, sampled or algebraic, are applied by its sample-based phase propagator, sliced into small phases. The Fourier transforms are its QFT circuits.
+Quadratic potentials and kinetic energies, e.g. harmonic potentials, free particles or paraxial diffraction, are applied exactly by the direct phase circuits of [`qiu-quantum-computing`](../qiu-quantum-computing/index.md). Arbitrary ones of one sign, sampled or algebraic, are applied by its sample-based phase propagator, sliced into small phases. The Fourier transforms are its QFT circuits.
 
-In the monorepo, the direct momentum-domain evolution is the free-space propagator of the Qiskit backend of the lens experiments in [`wave_optics_propagation`](../wave_optics_propagation/), which runs the simulation loop of [`qiu-classical-simulation`](../qiu-classical-simulation/).
+In the monorepo, the direct momentum-domain evolution is the free-space propagator of the Qiskit backend of the lens experiments in [`wave_optics_propagation`](../wave_optics_propagation/index.md), which runs the simulation loop of [`qiu-classical-simulation`](../qiu-classical-simulation/index.md).
 
 ## Installation
 

@@ -5,9 +5,9 @@ The package has two modules:
 | module                  | contents                                                                        |
 | ----------------------- | ------------------------------------------------------------------------------- |
 | `assertions`            | the floating-point comparisons of numbers and arrays                            |
-| `hypothesis_strategies` | Hypothesis strategies of numbers, axes and signals of [`qiu-signals`](../../qiu-signals/) |
+| `hypothesis_strategies` | Hypothesis strategies of numbers, axes and signals of [`qiu-signals`](../qiu-signals/index.md) |
 
-Quantum states and operators are compared with Qiskit's equality instead, and the strategies of quantum states and qubit axes live in [`qiskit-pytest-helper`](../../qiskit-pytest-helper/).
+Quantum states and operators are compared with Qiskit's equality instead, and the strategies of quantum states and qubit axes live in [`qiskit-pytest-helper`](../qiskit-pytest-helper/index.md).
 
 ## Floating-point comparisons
 
