@@ -13,13 +13,24 @@ repos:
         args: [--markdown-linebreak-ext=md]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.0 # the version of the lock file
+    rev: v0.16.9 # the version of the lock file
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
+        types_or: [python, pyi, markdown] # also the code blocks of the documentation
 
   - repo: https://github.com/astral-sh/uv-pre-commit
     rev: 0.12.18
     hooks:
       - id: uv-lock # the lock file matches the pyproject.toml files
+
+  # the environment of `uv sync --all-packages`, which pyright checks against
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: uv run --no-sync pyright
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false # the whole workspace, as files depend on each other

@@ -147,6 +147,9 @@ def physical_axes(
             axes the Fourier ones are conjugate to.
         orderings: The index orderings, kept by the Fourier axes.
         hbar: The reduced Planck constant of momentum axes.
+
+    Returns:
+        The strategy, of the position axes themselves for the position domain.
     """
     x_axes = position_axes(sizes=sizes, spacings=spacings, orderings=orderings)
     if domain == AxisDomain.POSITION:
@@ -192,6 +195,10 @@ def positive_polynomial_signals(
     """A strategy for non-negative signals, absolute values of polynomials.
 
     The signals are scaled such that their samples sum up to `total`.
+
+    Returns:
+        The drawn signal, the scaled absolute value of a polynomial of degree 1 to
+        `max_degree` with coefficients drawn from `coefficients`.
     """
     axis = draw(axes)
     degree = draw(st.integers(min_value=1, max_value=max_degree))

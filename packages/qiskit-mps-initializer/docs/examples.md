@@ -57,7 +57,8 @@ assert fidelity > 0.998
 
 def cnot_count(circuit) -> int:
     """The number of CNOT gates of the circuit transpiled to CNOT and U gates."""
-    return transpile(circuit, basis_gates=["cx", "u"], seed_transpiler=0).count_ops()["cx"]
+    transpiled = transpile(circuit, basis_gates=["cx", "u"], seed_transpiler=0)
+    return transpiled.count_ops()["cx"]
 
 
 exact = state_preparation_circuit(state, method=SynthesisMethod.DECOMPOSED)

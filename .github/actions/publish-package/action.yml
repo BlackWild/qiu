@@ -29,13 +29,11 @@ runs:
     # only the dependencies the package declares, so that missing ones fail the tests
     - name: Install the package and its dependencies
       shell: bash
-      run: uv sync --package "${{ inputs.package }}" --locked
+      run: uv sync --package "${{ inputs.package }}" --group test --locked # its own group `test`
 
     - name: Test
       shell: bash
       run: uv run --package "${{ inputs.package }}" --no-sync pytest "${{ inputs.path }}"
-      env:
-        HYPOTHESIS_PROFILE: ci # see conftest.py
 
     - name: Build
       shell: bash

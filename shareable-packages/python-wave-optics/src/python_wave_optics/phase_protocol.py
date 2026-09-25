@@ -23,6 +23,9 @@ def decompose(signal: SampledSignal) -> tuple[float, npt.NDArray[np.float64]]:
 
     Returns:
         The sum `alpha` of the samples and the amplitudes `sqrt(f / alpha)`.
+
+    Raises:
+        ValueError: If the signal is not real, has samples of both signs, or vanishes.
     """
     data = np.asarray(signal.data)
     if np.iscomplexobj(data):

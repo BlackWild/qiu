@@ -74,7 +74,7 @@ assert abs(np.vdot(simulated.data, np.exp(1j * potential.data) * psi.data)) > 0.
 The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/qiskit-phase-propagator/>. To serve it locally, from the repository root:
 
 ```sh
-uv run --group docs mkdocs serve -f packages/qiskit-phase-propagator/mkdocs.yml
+uv run mkdocs serve -f packages/qiskit-phase-propagator/mkdocs.yml
 ```
 
 ## Tests

@@ -62,6 +62,10 @@ def mps_state_preparation(
 
     Returns:
         The circuit, its layers and the error of the prepared state.
+
+    Raises:
+        ValueError: If `max_layers` is smaller than 1, or if the state is not a
+            normalized state of at least one qubit.
     """
     if max_layers < 1:
         raise ValueError(f"The max_layers must be at least 1, got {max_layers}.")

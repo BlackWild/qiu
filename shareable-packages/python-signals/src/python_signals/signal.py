@@ -36,6 +36,10 @@ class Signal(ArithmeticOperators):
             axis: The axis the signal is sampled on.
             data: The sampled values, a one-dimensional numeric array with one value
                 per axis sample.
+
+        Raises:
+            ValueError: If the data does not have the shape `(axis.size,)` of the axis,
+                or if it is not numeric.
         """
         data = np.asarray(data)
         if data.shape != (axis.size,):

@@ -40,6 +40,9 @@ class IntegerAxis:
         Args:
             size: Number of samples, at least 1.
             ordering: Ordering of the integer indices of the samples.
+
+        Raises:
+            ValueError: If the size is smaller than 1.
         """
         if size < 1:
             raise ValueError(f"The size must be at least 1, got {size}.")
@@ -61,6 +64,10 @@ class IntegerAxis:
         """Whether both axes have the same samples, i.e. equal defining attributes.
 
         Axes of different kinds, e.g. an integer and a physical axis, are not equal.
+
+        Returns:
+            Whether the defining attributes are equal, or `NotImplemented` if the other
+            object is not an axis.
         """
         if not isinstance(other, IntegerAxis):
             return NotImplemented

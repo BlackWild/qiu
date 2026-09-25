@@ -59,9 +59,10 @@ requires = ["uv_build>=0.12.18,<0.13"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = [
+# the tests of the package, run with only its declared dependencies on publishing
+test = [
     "hypothesis>=6.140.3",
-    "pytest>=8.4.2",
+    "pytest>=9.0.0",
     "python-pytest-helper",
     "sympy>=1.14.0",
 ]

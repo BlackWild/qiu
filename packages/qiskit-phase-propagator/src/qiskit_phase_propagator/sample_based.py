@@ -31,6 +31,10 @@ def sample_based_decomposition(signal: SampledSignal) -> tuple[float, Statevecto
     Returns:
         The sum `alpha` of the samples and the state `sqrt(f / alpha)`, such that
         `f = alpha |state|^2`.
+
+    Raises:
+        ValueError: If the axis does not have `2**n` samples with `n >= 1`, or if the
+            signal is not real, has samples of both signs, or vanishes.
     """
     num_qubits_of(signal.axis)
     data = np.asarray(signal.data)
@@ -58,6 +62,9 @@ def slice_alpha_to_deltas_evenly(alpha: float, max_delta: float) -> npt.NDArray:
 
     Returns:
         The equal deltas summing up to `alpha`, none if `alpha` is 0.
+
+    Raises:
+        ValueError: If `max_delta` is not positive.
     """
     if max_delta <= 0:
         raise ValueError(f"The max_delta must be positive, got {max_delta}.")

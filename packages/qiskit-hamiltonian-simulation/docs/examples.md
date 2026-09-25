@@ -114,7 +114,10 @@ x_axis = PositionAxis(size=8, delta_x=0.5, ordering=IndexOrdering.CENTERED)
 V = AlgebraicSignal(x_axis, lambda x: np.where(x >= 0, 0.2, 0.0))
 
 evolution = PotentialEvolutionSampleBased(
-    V, t=t, hbar=hbar, max_delta=0.02,
+    V,
+    t=t,
+    hbar=hbar,
+    max_delta=0.02,
     state_preparation_method=SynthesisMethod.DECOMPOSED,
 )
 assert evolution.num_of_cycles == 20  # t * 4 * 0.2 / hbar = 0.4, in phases of 0.02
@@ -167,7 +170,10 @@ T = QuadraticSignal(p_axis, alpha=1 / (2 * mass))
 dt, steps = 0.1, 4
 
 potential_step = PotentialEvolutionSampleBased(
-    V, t=dt, hbar=hbar, max_delta=0.01,
+    V,
+    t=dt,
+    hbar=hbar,
+    max_delta=0.01,
     state_preparation_method=SynthesisMethod.DECOMPOSED,
 )
 kinetic_step = MomentumDomainEvolutionQuadratic((-dt / hbar) * T)
@@ -233,7 +239,10 @@ T = AlgebraicSignal(
 )
 
 evolution = KineticEvolutionSampleBased(
-    T, t=t, hbar=hbar, max_delta=0.05,
+    T,
+    t=t,
+    hbar=hbar,
+    max_delta=0.05,
     state_preparation_method=SynthesisMethod.DECOMPOSED,
     fourier_method=SynthesisMethod.DECOMPOSED,
 )

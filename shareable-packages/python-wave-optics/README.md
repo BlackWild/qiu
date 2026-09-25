@@ -54,7 +54,7 @@ assert abs(abs(result.snapshots["final"] @ reference.conj()) - 1) < 1e-9
 The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/python-wave-optics/>. To serve it locally, from the repository root:
 
 ```sh
-uv run --group docs mkdocs serve -f shareable-packages/python-wave-optics/mkdocs.yml
+uv run mkdocs serve -f shareable-packages/python-wave-optics/mkdocs.yml
 ```
 
 ## Tests

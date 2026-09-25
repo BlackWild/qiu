@@ -31,6 +31,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: uv.lock
 
+      # all groups, as pyright also checks the tests, the documentation build and the scripts
       - name: Install all packages of the workspace
         run: uv sync --all-packages --locked # Python from .python-version
 
@@ -40,7 +41,7 @@ jobs:
           uv run ruff format --check .
 
       - name: Type check
-        run: uvx pyright@1.1.414 --pythonpath .venv/bin/python apps shareable-packages dev-packages packages
+        run: uv run pyright # configured in pyrightconfig.json, like Pylance in VS Code
 
   test:
     name: "Test on Python ${{ matrix.python-version }}"
@@ -63,13 +64,11 @@ jobs:
           enable-cache: true
           cache-dependency-glob: uv.lock
 
-      - name: Install all packages of the workspace
-        run: uv sync --all-packages --locked --python ${{ matrix.python-version }}
+      - name: Install all packages of the workspace and the test tools
+        run: uv sync --all-packages --no-default-groups --group test --locked --python ${{ matrix.python-version }}
 
       - name: Test, including the examples of the documentation, with coverage
-        run: uv run --python ${{ matrix.python-version }} pytest -n auto --cov
-        env:
-          HYPOTHESIS_PROFILE: ci # see conftest.py
+        run: uv run --no-sync pytest -n auto --cov # Hypothesis loads its profile `ci`
 
   packaging:
     name: "Build and check the packages"
@@ -108,7 +107,7 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Install all packages of the workspace and the documentation tools
-        run: uv sync --all-packages --group docs --locked
+        run: uv sync --all-packages --no-default-groups --group docs --locked
 
       - name: Build, strictly
-        run: uv run python docs/build_all.py --site-dir site
+        run: uv run --no-sync python docs/build_all.py --site-dir site

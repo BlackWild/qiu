@@ -51,6 +51,9 @@ def aer_simulator(
 
     Returns:
         The configured simulator.
+
+    Raises:
+        AerError: If a GPU is requested, but none is available.
     """
     device = AerDevice(device)
     gpu_available = "GPU" in available_aer_devices()

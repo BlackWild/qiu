@@ -6,7 +6,7 @@ the package's directory, e.g. `site/python-signals/`. Every build is strict, so 
 references fail it, and afterwards every relative link of the site must point to a page
 or file of it, e.g. the links between the packages, which MkDocs cannot check.
 
-    uv run --group docs python docs/build_all.py [--site-dir site]
+    uv run python docs/build_all.py [--site-dir site]
 """
 
 import argparse
@@ -112,7 +112,7 @@ def broken_links(site_dir: Path, base_path: str = "/") -> list[str]:
 
 def main() -> None:
     """Build the landing page and the documentation of every package."""
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=(__doc__ or "").partition("\n")[0])
     parser.add_argument("--site-dir", type=Path, default=REPOSITORY / "site")
     site_dir = parser.parse_args().site_dir.resolve()
 

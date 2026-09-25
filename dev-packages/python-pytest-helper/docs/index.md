@@ -8,19 +8,19 @@ The package is used by the tests of `python-signals`, `python-wave-optics` and t
 
 ## Installation
 
-The package is not published on PyPI. It is a member of the uv workspace and part of the `dev` dependency group of the repository root, so it is installed from the repository root by
+The package is not published on PyPI. It is a member of the uv workspace and part of the `test` dependency group of the repository root, so it is installed from the repository root by
 
 ```sh
 uv sync --all-packages
 ```
 
-A package of the workspace whose tests use it declares it as a development dependency, taken from the workspace, in its `pyproject.toml`:
+A package of the workspace whose tests use it declares it in its `test` dependency group, taken from the workspace, in its `pyproject.toml`:
 
 ```toml
 [dependency-groups]
-dev = [
+test = [
     "hypothesis>=6.140.3",
-    "pytest>=8.4.2",
+    "pytest>=9.0.0",
     "python-pytest-helper",
 ]
 

@@ -41,7 +41,7 @@ signals = monomial_signals(
 The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/python-pytest-helper/>. To serve it locally, from the repository root:
 
 ```sh
-uv run --group docs mkdocs serve -f dev-packages/python-pytest-helper/mkdocs.yml
+uv run mkdocs serve -f dev-packages/python-pytest-helper/mkdocs.yml
 ```
 
 ## Tests

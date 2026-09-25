@@ -91,17 +91,17 @@ Whether the cycles succeed is random, so tests discard failed runs with `hypothe
 
 The `MAX_MAGNITUDE` of this package bounds amplitudes and coefficients; it is not the `MAX_MAGNITUDE` of `python_pytest_helper.hypothesis_strategies` (`1e3`), which bounds generated numbers.
 
-## The Hypothesis profile of the monorepo
+## The Hypothesis profiles
 
-The `conftest.py` at the repository root, shared by the tests of all packages, registers the Hypothesis profile `ci` and loads the profile named by the environment variable `HYPOTHESIS_PROFILE`, `default` if it is unset:
+Hypothesis loads its built-in profile `ci` when it runs on CI, i.e. when the environment variable `CI` is set, as on GitHub Actions, and its profile `default` otherwise:
 
 - `ci` has no deadline per example: the first examples of a run in a fresh environment, e.g. importing and compiling Qiskit and Aer, can exceed any deadline.
-- It prints how to reproduce a failing example (`print_blob=True`), as runs on CI start without the example database of earlier runs.
+- It is derandomized and has no example database, so that each run of CI tests the same examples, and it prints how to reproduce a failing example (`print_blob=True`).
 
-The GitHub Actions workflows set `HYPOTHESIS_PROFILE=ci`. To run the tests of a package as CI does, from the repository root:
+To run the tests of a package as CI does, from the repository root:
 
 ```sh
-HYPOTHESIS_PROFILE=ci uv run pytest packages/qiskit-phase-propagator
+CI=true uv run pytest packages/qiskit-phase-propagator
 ```
 
 With the `default` profile, local runs keep Hypothesis' default deadline of 200 ms per example; tests whose examples simulate circuits set `@settings(deadline=None)` and, where each example is expensive, fewer examples, e.g. `max_examples=10`.

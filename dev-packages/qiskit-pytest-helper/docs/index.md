@@ -12,13 +12,13 @@ The package is a member of the uv workspace and is installed with all others, fr
 uv sync --all-packages
 ```
 
-The `dev` dependency group of the root `pyproject.toml` includes it. A package whose tests use it declares it as a development dependency in its own `pyproject.toml`, together with `python-pytest-helper`, and takes both from the workspace:
+The `test` dependency group of the root `pyproject.toml` includes it. A package whose tests use it declares it in its own `test` dependency group, together with `python-pytest-helper`, and takes both from the workspace:
 
 ```toml
 [dependency-groups]
-dev = [
+test = [
     "hypothesis>=6.140.3",
-    "pytest>=8.4.2",
+    "pytest>=9.0.0",
     "python-pytest-helper",
     "qiskit-pytest-helper",
 ]
@@ -28,7 +28,7 @@ python-pytest-helper = { workspace = true }
 qiskit-pytest-helper = { workspace = true }
 ```
 
-The workflow publishing a package tests it with only the dependencies it declares (`uv sync --package <name>`, which includes its `dev` group), so a missing declaration fails there. As a development dependency, it is not a dependency of the published package.
+The workflow publishing a package tests it with only the dependencies it declares (`uv sync --package <name> --group test`), so a missing declaration fails there. Declared in a dependency group, it is not a dependency of the published package.
 
 ## Quick start
 
@@ -55,6 +55,6 @@ test_prepares_the_state()
 
 ## Where next
 
-- The [User Guide](user-guide.md) explains the strategies, the assertions and why they compare as they do, the circuit and propagator helpers, the constants and the Hypothesis profile of the monorepo.
+- The [User Guide](user-guide.md) explains the strategies, the assertions and why they compare as they do, the circuit and propagator helpers, the constants and the Hypothesis profiles on CI and locally.
 - The [Examples](examples.md) are complete tests of state preparations, operators, transpiled circuits and sample-based propagators.
 - The [API Reference](reference/qiskit_pytest_helper/index.md) documents every module.

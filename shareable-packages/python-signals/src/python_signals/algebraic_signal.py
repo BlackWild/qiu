@@ -88,6 +88,13 @@ class AlgebraicSignal(ArithmeticOperators):
 
         Returns:
             The signal, evaluating the expression with NumPy.
+
+        Raises:
+            ImportError: If SymPy is not installed.
+            TypeError: If the expression is not an algebraic SymPy expression.
+            ValueError: If the expression has free symbols other than `symbol`, or,
+                with `symbol` omitted, more than one free symbol or a free symbol
+                that is not a plain SymPy symbol.
         """
         try:
             import sympy
@@ -143,6 +150,9 @@ class AlgebraicSignal(ArithmeticOperators):
         """Evaluate the signal at arbitrary axis values.
 
         Constant expressions are broadcast to the shape of the values.
+
+        Returns:
+            The signal values, an array of the shape of the axis values.
         """
         values = np.asarray(values)
         result = np.asarray(self.function(values))

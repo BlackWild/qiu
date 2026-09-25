@@ -37,7 +37,7 @@ The analyses typeset with LaTeX and save their figures to `.output/`.
 The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/wave_optics_propagation/>. To serve it locally, from the repository root:
 
 ```sh
-uv run --group docs mkdocs serve -f apps/wave_optics_propagation/mkdocs.yml
+uv run mkdocs serve -f apps/wave_optics_propagation/mkdocs.yml
 ```
 
 ## Tests

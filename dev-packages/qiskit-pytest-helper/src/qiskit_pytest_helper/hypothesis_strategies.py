@@ -179,6 +179,9 @@ def qubit_axes(
     Fourier axes are conjugate to a position axis, momenta with `hbar = 1`, see
     `python_pytest_helper.hypothesis_strategies.physical_axes`. The position spacings
     are at most 1, keeping the phases of polynomial signals moderate.
+
+    Returns:
+        The strategy of the axes.
     """
     return physical_axes(
         domain,

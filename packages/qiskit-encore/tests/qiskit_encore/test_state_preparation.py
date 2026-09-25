@@ -52,6 +52,9 @@ def structured_states(draw, max_qubits: int = 4) -> npt.NDArray[np.complex128]:
     """A strategy for normalized states with exact zeros and (nearly) equal entries.
 
     Such states hit the degenerate cases of state preparation synthesis.
+
+    Returns:
+        The drawn state of 1 to `max_qubits` qubits.
     """
     num_qubits = draw(st.integers(min_value=1, max_value=max_qubits))
     base = draw(st.sampled_from([1.0, -1.0, 1j, -1j, (1 + 1j) / np.sqrt(2)]))

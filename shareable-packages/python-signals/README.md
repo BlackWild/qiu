@@ -106,7 +106,7 @@ assert (2 * symbolic + 1).expression == 2 * sympy.exp(-(x**2)) + 1
 The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/python-signals/>. To serve it locally, from the repository root:
 
 ```sh
-uv run --group docs mkdocs serve -f shareable-packages/python-signals/mkdocs.yml
+uv run mkdocs serve -f shareable-packages/python-signals/mkdocs.yml
 ```
 
 ## Tests

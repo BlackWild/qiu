@@ -10,7 +10,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."           # the repository root, where .venv and uv.lock are
-uv sync --all-packages --locked   # the environment all tasks share
+uv sync --all-packages --no-default-groups --inexact --locked  # the packages all tasks share
 mkdir -p cluster/.result          # SLURM does not create the directory of the logs
 
 cd cluster                        # the jobs expect to be submitted from cluster/

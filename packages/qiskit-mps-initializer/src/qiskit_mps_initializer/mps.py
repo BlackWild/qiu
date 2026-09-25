@@ -31,6 +31,9 @@ def bond2_mps_approximation(
 
     Returns:
         The approximating MPS.
+
+    Raises:
+        ValueError: If the state is not a normalized state of 2 qubits or more.
     """
     statevector = validated_statevector(state)
     if statevector.num_qubits is None or statevector.num_qubits < 2:
@@ -61,6 +64,10 @@ def disentangler_matrices(
 
     Returns:
         The unitaries, from the first site to the last.
+
+    Raises:
+        ValueError: If the MPS has fewer than 2 sites, or if its bond dimension is
+            larger than 2.
     """
     max_bond = mps.max_bond()
     if max_bond is None or mps.num_tensors < 2:

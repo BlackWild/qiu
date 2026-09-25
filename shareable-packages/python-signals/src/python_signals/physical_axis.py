@@ -53,6 +53,10 @@ def reciprocal_period(
 
     Returns:
         The spacing between the samples of the conjugate axis.
+
+    Raises:
+        ValueError: If `hbar` is omitted for the momentum domain or given for another
+            one, or if the domain is not a Fourier conjugate domain.
     """
 
     if (domain == AxisDomain.MOMENTUM) != (hbar is not None):
@@ -97,6 +101,10 @@ class PhysicalAxis(IntegerAxis):
             period: Spacing between neighboring samples, positive and finite.
             ordering: Ordering of the integer indices of the samples.
             domain: Physical domain the axis lives in.
+
+        Raises:
+            ValueError: If the size is smaller than 1, or if the period is not positive
+                and finite.
         """
         super().__init__(size=size, ordering=ordering)
 

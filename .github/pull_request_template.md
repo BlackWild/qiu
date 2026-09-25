@@ -5,6 +5,6 @@
 ## Checklist
 
 - [ ] Tests cover the change, and `uv run pytest -n auto` passes.
-- [ ] `uv run ruff check .`, `uv run ruff format --check .` and `pyright` pass.
-- [ ] The docstrings, READMEs and `docs/` of the changed packages are up to date, and `uv run --group docs python docs/build_all.py` passes.
+- [ ] `uv run ruff check .`, `uv run ruff format --check .` and `uv run pyright` pass.
+- [ ] The docstrings, READMEs and `docs/` of the changed packages are up to date, and `uv run python docs/build_all.py` passes.
 - [ ] The `CHANGELOG.md` of each changed published package has an entry under `Unreleased`.

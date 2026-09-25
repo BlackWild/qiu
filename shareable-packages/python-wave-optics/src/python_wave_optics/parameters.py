@@ -237,6 +237,10 @@ class ExperimentParameters:
 
         Returns:
             The parameters.
+
+        Raises:
+            KeyError: If parameters are missing in `values`, `defaults` and
+                `LEGACY_DEFAULTS`.
         """
         renamed = {LEGACY_KEYS.get(key, key): value for key, value in values.items()}
         merged = {**LEGACY_DEFAULTS, **(defaults or {}), **renamed}

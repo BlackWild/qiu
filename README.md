@@ -31,7 +31,6 @@ The other directories:
 
 - `docs/`: The shared configuration, the landing page and the build of the documentation.
 - `cluster/`: The SLURM jobs running the simulations of `apps/wave_optics_propagation`.
-- `project-diary/`: Notes on the development of the project.
 
 ## Installation
 
@@ -46,7 +45,7 @@ For development, clone the repository and install all packages of the [uv](https
 ```sh
 git clone https://github.com/BlackWild/qiu.git
 cd qiu
-uv sync --all-packages --group docs
+uv sync --all-packages
 uv run pytest -n auto
 ```
 
@@ -57,7 +56,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions of the monorepo and h
 Every package has its documentation in `docs/`: a home page, a user guide, worked examples and the API reference, generated from the docstrings of its `src` by `docs/gen_reference.py`. Its `mkdocs.yml` inherits the shared configuration `docs/mkdocs.base.yml`, and `docs/build_all.py` builds all packages, with the landing page `mkdocs.yml`, into one site:
 
 ```sh
-uv run --group docs python docs/build_all.py  # into site/
+uv run python docs/build_all.py  # into site/
 ```
 
 The Python examples of the documentation and the READMEs run as part of the tests (`docs/tests/test_examples.py`).
@@ -70,7 +69,7 @@ The GitHub Actions workflows in `.github/workflows/`:
 - `docs.yml`: builds the documentation and deploys it to GitHub Pages on pushes to `master`.
 - `publish-<package>.yml`: publishes a package to PyPI when it changes on `master`, or when run by hand, for the libraries in `packages/` and `shareable-packages/`. They share the composite action `.github/actions/publish-package`: it tests the package with only the dependencies it declares, builds it, checks that its release is installable from PyPI, i.e. that its dependencies of this monorepo are published, and publishes it as a trusted publisher unless its version is already on PyPI.
 
-The tests on GitHub Actions use the Hypothesis profile `ci` of `conftest.py`, without deadlines per example. Dependabot (`.github/dependabot.yml`) proposes updates of the actions and the locked dependencies quarterly.
+The tests on GitHub Actions use the built-in Hypothesis profile `ci`, derandomized and without deadlines per example. Dependabot (`.github/dependabot.yml`) proposes updates of the actions and the locked dependencies quarterly.
 
 ## Citation
 

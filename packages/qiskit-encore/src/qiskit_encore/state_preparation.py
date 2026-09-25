@@ -21,6 +21,10 @@ def validated_statevector(state: Statevector | npt.ArrayLike) -> Statevector:
 
     Returns:
         The state as a Qiskit statevector.
+
+    Raises:
+        ValueError: If the state is not a state of at least one qubit, i.e. its
+            dimension is not a power of 2 larger than 1, or if it is not normalized.
     """
     data = state.data if isinstance(state, Statevector) else state
     statevector = Statevector(np.array(data, dtype=np.complex128))

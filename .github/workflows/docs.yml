@@ -28,10 +28,10 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Install all packages of the workspace and the documentation tools
-        run: uv sync --all-packages --group docs --locked
+        run: uv sync --all-packages --no-default-groups --group docs --locked
 
       - name: Build
-        run: uv run python docs/build_all.py --site-dir site
+        run: uv run --no-sync python docs/build_all.py --site-dir site
 
       - name: Upload the site
         uses: actions/upload-pages-artifact@v5

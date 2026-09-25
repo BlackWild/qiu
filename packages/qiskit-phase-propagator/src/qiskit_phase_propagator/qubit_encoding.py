@@ -22,6 +22,9 @@ def num_qubits_of(axis: IntegerAxis) -> int:
 
     Returns:
         The number of qubits `n`.
+
+    Raises:
+        ValueError: If the axis does not have `2**n` samples with `n >= 1`.
     """
     num_qubits = axis.size.bit_length() - 1
     if num_qubits < 1 or axis.size != 2**num_qubits:
@@ -37,6 +40,9 @@ def is_msb_flipped(ordering: IndexOrdering) -> bool:
 
     For such orderings, circuits built from the bit weights must flip the most
     significant qubit before and after applying them.
+
+    Returns:
+        True for the `CENTERED` ordering, False otherwise.
     """
     return IndexOrdering(ordering) == IndexOrdering.CENTERED
 

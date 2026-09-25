@@ -51,6 +51,9 @@ def qft_circuit(
 
     Returns:
         The quantum Fourier transform circuit.
+
+    Raises:
+        ValueError: If the number of qubits is smaller than 1.
     """
     if num_qubits < 1:
         raise ValueError(f"The number of qubits must be at least 1, got {num_qubits}.")

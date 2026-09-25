@@ -158,13 +158,16 @@ An exploration of how well the phases of the lens slices and of the propagators 
 
 ## Running on the cluster
 
-The SLURM jobs in `cluster/` at the repository root run `simulate.py` on a cluster with a clone of the repository. Both change from the submission directory to its parent, the repository root, activate the workspace's `.venv`, synchronize it with `uv sync --all-packages` and run the script with `uv run`. They request 8 CPUs, 50 GB of memory and up to 120 hours on the partitions `long`, `standard`, `gpu` and `gpu-test`, and write the log to `.result/slurm-<job id>.out` relative to the submission directory, which SLURM does not create. They are thus submitted from `cluster/`:
+The SLURM jobs in `cluster/` at the repository root run `simulate.py` on a cluster with a clone of the repository. Both change from the submission directory to its parent, the repository root, activate the workspace's `.venv` and run the script with `uv run --no-sync`. The environment holds the packages only, without the dependency groups of development (`uv sync --all-packages --no-default-groups --inexact`, which keeps anything else installed). They request 8 CPUs, 50 GB of memory and up to 120 hours on the partitions `long`, `standard`, `gpu` and `gpu-test`, and write the log to `.result/slurm-<job id>.out` relative to the submission directory, which SLURM does not create.
+
+The single run synchronizes the environment itself and is submitted from `cluster/`. The tasks of the batch run concurrently and would race on the same `.venv`, so `cluster/submit-batch.sh` synchronizes it once and then submits the batch:
 
 ```sh
 cd cluster
 mkdir -p .result
 sbatch run.slurm        # the single run of the paper
-sbatch batch-run.slurm  # the batch over max_delta
+cd ..
+bash cluster/submit-batch.sh  # the batch over max_delta
 ```
 
 | Job | Runs | Stores into |

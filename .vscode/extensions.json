@@ -1,0 +1,13 @@
+{
+  // the extensions for this repository, as in .devcontainer/devcontainer.json
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "ms-toolsai.jupyter",
+    "EditorConfig.EditorConfig",
+    "tamasfe.even-better-toml",
+    "redhat.vscode-yaml",
+    "github.vscode-github-actions"
+  ]
+}

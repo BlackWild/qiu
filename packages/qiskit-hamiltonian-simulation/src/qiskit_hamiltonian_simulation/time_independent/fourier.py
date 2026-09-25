@@ -19,6 +19,10 @@ def require_momentum_domain_axis(axis: PhysicalAxis) -> None:
 
     Only then does the basis state `|k>` after `to_momentum_basis` hold the sample
     `k` of a signal on the axis.
+
+    Raises:
+        ValueError: If the axis is not a Fourier domain axis, or if it is not in the
+            `FFT` ordering.
     """
     if not axis.is_fourier_domain:
         raise ValueError(f"The axis must be a Fourier domain axis, got {axis!r}.")

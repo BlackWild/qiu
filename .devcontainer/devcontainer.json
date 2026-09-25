@@ -7,7 +7,7 @@
     "dockerfile": "Dockerfile"
   },
   // install the workspace with the documentation tools, and the pre-commit hooks
-  "postCreateCommand": "uv sync --all-packages --group docs && uvx pre-commit install",
+  "postCreateCommand": "uv sync --all-packages && uvx pre-commit install",
   "customizations": {
     "vscode": {
       "extensions": [

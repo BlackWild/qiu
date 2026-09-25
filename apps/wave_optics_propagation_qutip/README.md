@@ -42,7 +42,7 @@ The folder also holds the runs of 2025-12-09, which did not store their order ei
 The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/wave_optics_propagation_qutip/>. To serve it locally, from the repository root:
 
 ```sh
-uv run --group docs mkdocs serve -f apps/wave_optics_propagation_qutip/mkdocs.yml
+uv run mkdocs serve -f apps/wave_optics_propagation_qutip/mkdocs.yml
 ```
 
 ## Tests

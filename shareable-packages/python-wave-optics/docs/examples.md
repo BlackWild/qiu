@@ -172,14 +172,18 @@ parameters = ExperimentParameters(
     direct_propagator=True,
 )
 # a variant of the experiment, with its own ID so that it gets its own folder
-reverse = dataclasses.replace(parameters, lens_reverse_order=True, uuid=uuid.uuid4().hex)
+reverse = dataclasses.replace(
+    parameters, lens_reverse_order=True, uuid=uuid.uuid4().hex
+)
 
 with tempfile.TemporaryDirectory() as results_dir:
     for run in [parameters, reverse]:
         save_experiment(results_dir, run, simulate(run, ExactBackend()))
 
     folders = run_folders(results_dir)
-    assert sorted(folder.name for folder in folders) == sorted([parameters.uuid, reverse.uuid])
+    assert sorted(folder.name for folder in folders) == sorted(
+        [parameters.uuid, reverse.uuid]
+    )
 
     folder = Path(results_dir) / parameters.uuid
     loaded_parameters, loaded_result = load_experiment(folder)

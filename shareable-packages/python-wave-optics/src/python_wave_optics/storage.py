@@ -23,11 +23,14 @@ def save_experiment(
 ) -> Path:
     """Store a run in the folder `<results_dir>/<uuid>`, and return the folder.
 
+    Returns:
+        The folder of the run, `<results_dir>/<uuid>`.
+
     Raises:
         FileExistsError: If a run of the same uuid is stored already, e.g. of parameters
             copied with `dataclasses.replace`, which keeps the uuid; give the copy a new
             one, e.g. `replace(parameters, ..., uuid=uuid.uuid4().hex)`.
-    """
+    """  # noqa: DOC502 (raised by Path.mkdir)
     folder = Path(results_dir) / parameters.uuid
     folder.parent.mkdir(parents=True, exist_ok=True)
     folder.mkdir()  # never overwrite a stored run

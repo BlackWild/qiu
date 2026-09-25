@@ -52,7 +52,8 @@ from qiskit_encore.synthesis_method import SynthesisMethod
 
 state = np.array([0.5, 0.5j, -0.5, -0.5j])
 
-circuit = state_preparation_circuit(state)  # a gate description, synthesized by Qiskit later on
+# a gate description, synthesized by Qiskit later on
+circuit = state_preparation_circuit(state)
 assert np.allclose(Statevector(circuit).data, state)
 
 # elementary ry, rz and cx gates of our own, robust synthesis
@@ -73,7 +74,7 @@ assert np.allclose(
 The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/qiskit-encore/>. To serve it locally, from the repository root:
 
 ```sh
-uv run --group docs mkdocs serve -f packages/qiskit-encore/mkdocs.yml
+uv run mkdocs serve -f packages/qiskit-encore/mkdocs.yml
 ```
 
 ## Tests

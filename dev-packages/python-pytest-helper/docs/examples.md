@@ -124,7 +124,9 @@ from python_pytest_helper.hypothesis_strategies import (
 )
 from python_signals.signal import Signal
 
-signals = sampled_signals(physical_axes(sizes=power_of_two_sizes()), dtype=np.complex128)
+signals = sampled_signals(
+    physical_axes(sizes=power_of_two_sizes()), dtype=np.complex128
+)
 
 
 @given(signal=signals)

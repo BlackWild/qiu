@@ -32,6 +32,10 @@ def uniformly_controlled_rotation(
 
     Returns:
         The circuit of `ry` or `rz` rotations and `cx` gates.
+
+    Raises:
+        ValueError: If the axis is not `"y"` or `"z"`, or if the angles are not a 1D
+            array whose size is a power of 2.
     """
     if axis not in ("y", "z"):
         raise ValueError(f"The rotation axis must be 'y' or 'z', got {axis!r}.")

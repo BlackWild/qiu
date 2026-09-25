@@ -23,19 +23,24 @@ qiskit-phase-propagator = { workspace = true }
 qiskit-pytest-helper = { workspace = true }
 
 [dependency-groups]
-# the tools of development, installed by `uv sync`
+# `uv sync --all-packages` installs all groups; select some with `--no-default-groups`
+# and `--group <name>`, e.g. on CI
+# the tools of development: linting, formatting and type checking
 dev = [
+    "pyright[nodejs]>=1.1.414", # with Node.js, which pyright runs on
+    "ruff>=0.16.9",
+]
+# the tests of all packages, configured in pytest.toml and .coveragerc.toml
+test = [
+    "coverage>=7.13.0", # reads .coveragerc.toml
     "hypothesis>=6.140.3",
-    "ipykernel>=6.30.1", # to run the `# %%` cells of the scripts interactively
-    "pytest>=8.4.2",
+    "pytest>=9.0.0", # reads pytest.toml
     "pytest-cov>=7.0.0",
     "pytest-xdist[psutil]>=3.8.0",
     "python-pytest-helper",
     "qiskit-pytest-helper",
-    "qiskit[visualization]>=2.2.1", # to draw circuits
-    "ruff>=0.14.0",
 ]
-# the tools of the documentation, installed by `uv sync --group docs`
+# the documentation, built by docs/build_all.py
 docs = [
     "mkdocs>=1.6.1",
     "mkdocs-gen-files>=0.5.0",
@@ -44,21 +49,11 @@ docs = [
     "mkdocs-section-index>=0.3.10",
     "mkdocstrings-python>=1.16.12",
 ]
-
-[tool.pytest.ini_options]
-# test modules of different packages share basenames, e.g. test_assertions.py
-addopts = ["--import-mode=importlib"]
-testpaths = ["shareable-packages", "packages", "dev-packages", "apps", "docs"]
-xfail_strict = true
-
-[tool.coverage.run]
-omit = [
-    "**/tests/*",
-    "**/__init__.py",
+# the `# %%` scripts of the apps and the examples, run cell by cell, and their figures
+demo = [
+    "ipykernel>=6.30.1",
+    "matplotlib>=3.10.0",
 ]
 
-[tool.coverage.report]
-fail_under = 95
-show_missing = true
-skip_covered = true
-skip_empty = true
+[tool.uv]
+default-groups = "all"

@@ -131,7 +131,7 @@ The strategies of `qiskit-pytest-helper` plug in the same way, e.g. `positive_po
 - Compare with `assert_close`, `is_close` or `assert_close_in_norm`, and pass `scale` where values were scaled up after they could underflow. A tolerance chosen for a test is a sign that the test compares a quantity that is ideally 0, or entries of a vector computed as a whole.
 - Bound the inputs with the strategies' parameters rather than filtering, e.g. `axis_sizes(max_size=4)` or `reals(10.0)`, so that Hypothesis generates few invalid examples.
 - Exclude degenerate inputs with `hypothesis.assume`, e.g. an all-zero signal where a normalization is tested.
-- Tests that simulate circuits or run long computations set `@settings(max_examples=..., deadline=None)`. The `ci` profile of the shared `conftest.py` at the repository root, loaded with `HYPOTHESIS_PROFILE=ci`, disables the deadline for all tests.
+- Tests that simulate circuits or run long computations set `@settings(max_examples=..., deadline=None)`. On CI, Hypothesis' built-in profile `ci` disables the deadline for all tests.
 
 ## Pitfalls
 
