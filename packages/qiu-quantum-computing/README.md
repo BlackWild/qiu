@@ -14,7 +14,7 @@ pip install qiu-quantum-computing
 
 `state_preparation.state_preparation_circuit(state, *, method=..., inverse=False)` returns a circuit `U` with `U|0...0> = |state>` exactly, global phase included, or with `inverse=True` the circuit mapping the state back to `|0...0>`.
 
-- `GATE` (default) appends Qiskit's `StatePreparation`. **Caveat:** Qiskit's isometry synthesis prepares wrong states (fidelity 0) when two of its intermediate single-qubit gates are close but not equal. A test documents this with a state found by `hypothesis`, and alerts once Qiskit fixes it. Use `DECOMPOSED` where this matters.
+- `GATE` (default) appends Qiskit's `StatePreparation`. **Caveat:** Qiskit's isometry synthesis prepares wrong states (fidelity 0) when two of its intermediate single-qubit gates are close but not equal. A test documents this with a state found by `hypothesis`, on which it fails with Apple's Accelerate as the LAPACK of NumPy, e.g. on macOS, but not with OpenBLAS, e.g. on Linux; it alerts once Qiskit fixes it. Use `DECOMPOSED` where this matters.
 - `DECOMPOSED` uses `decomposed_state_preparation`, the synthesis of Möttönen et al. (2005) with uniformly controlled `ry` and `rz` rotations: at most `2**(n+1) - 4` CNOT gates, and no `rz` gates at all for real non-negative states. All angles come from `arctan2` and sums, so it is numerically robust for any state.
 - `DENSE` appends the unitary of `state_preparation_unitary`, a Householder reflection with the state as its first column: exact, stable and `O(4**n)`.
 

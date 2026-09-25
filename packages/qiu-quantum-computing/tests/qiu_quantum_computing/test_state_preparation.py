@@ -31,10 +31,13 @@ from qiu_quantum_computing.state_preparation import (
 
 # A state found by hypothesis, whose preparation by Qiskit's `StatePreparation`
 # (qiskit 2.2 to 2.5) has fidelity 0: its isometry synthesis fails when two
-# intermediate single-qubit gates are close but not equal.
+# intermediate single-qubit gates are close but not equal. Whether they are depends on
+# the rounding of the linear algebra: the synthesis fails with Apple's Accelerate as
+# the LAPACK of NumPy, e.g. on macOS, and succeeds with OpenBLAS, e.g. on Linux.
 _A = float.fromhex("0x1.6a09e667f3bc7p-2")
 _EPS = float.fromhex("0x1.6a09e667f3bc7p-25")
 QISKIT_FAILING_STATE = np.array([_A, 1j * _A, _EPS + 1j * _A] + [1j * _A] * 5)
+NUMPY_LAPACK = np.show_config(mode="dicts")["Build Dependencies"]["lapack"]["name"]
 
 
 class FutureSynthesisMethod(ExtendedEnum):
@@ -192,12 +195,17 @@ class TestGate:
         assert set(gate_counts(transpiled)) <= {"cx", "u"}
 
     @pytest.mark.xfail(
+        NUMPY_LAPACK == "accelerate",
         strict=True,
-        reason="Qiskit's StatePreparation synthesis is wrong for this state. If "
-        "this passes, Qiskit fixed it; remove this marker.",
+        reason="Qiskit's StatePreparation synthesis is wrong for this state with "
+        "Accelerate as the LAPACK. If this passes, Qiskit fixed it; remove this marker.",
     )
     def test_state_qiskit_fails_on(self):
-        """Document the Qiskit bug that the decomposed method works around."""
+        """Document the Qiskit bug that the decomposed method works around.
+
+        The bug depends on the LAPACK of NumPy: with Accelerate, the test is an expected
+        failure, and with others, e.g. OpenBLAS, the preparation is correct.
+        """
         circuit = state_preparation_circuit(
             QISKIT_FAILING_STATE, method=SynthesisMethod.GATE
         )
