@@ -1,6 +1,14 @@
 # Qiskit Encore
 
+[![PyPI](https://img.shields.io/pypi/v/qiskit-encore)](https://pypi.org/project/qiskit-encore/) [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/qiskit-encore/)
+
 Circuit building blocks on top of Qiskit, used by the other packages of this monorepo. The contributors to this package believe that such tools should be part of the standard Qiskit library, or at least they can envision them being so.
+
+## Installation
+
+```sh
+pip install qiskit-encore
+```
 
 ## Synthesis methods
 
@@ -14,7 +22,7 @@ Every building block can be represented in its circuit in three ways, chosen by 
 
 ## State preparation
 
-`state_preparation.state_preparation_circuit(state, method=..., inverse=False)` returns a circuit `U` with `U|0...0> = |state>` exactly, global phase included, or with `inverse=True` the circuit mapping the state back to `|0...0>`.
+`state_preparation.state_preparation_circuit(state, *, method=..., inverse=False)` returns a circuit `U` with `U|0...0> = |state>` exactly, global phase included, or with `inverse=True` the circuit mapping the state back to `|0...0>`.
 
 - `GATE` (default) appends Qiskit's `StatePreparation`. **Caveat:** Qiskit's isometry synthesis prepares wrong states (fidelity 0) when two of its intermediate single-qubit gates are close but not equal. A test documents this with a state found by `hypothesis`, and alerts once Qiskit fixes it. Use `DECOMPOSED` where this matters.
 - `DECOMPOSED` uses `decomposed_state_preparation`, the synthesis of Möttönen et al. (2005) with uniformly controlled `ry` and `rz` rotations: at most `2**(n+1) - 4` CNOT gates, and no `rz` gates at all for real non-negative states. All angles come from `arctan2` and sums, so it is numerically robust for any state.
@@ -58,6 +66,14 @@ assert np.allclose(Statevector(state).evolve(phi.inverse_circuit).data, [1, 0, 0
 assert np.allclose(
     Statevector(state).evolve(qft_circuit(2)).data, np.fft.ifft(state, norm="ortho")
 )
+```
+
+## Documentation
+
+The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/qiskit-encore/>. To serve it locally, from the repository root:
+
+```sh
+uv run --group docs mkdocs serve -f packages/qiskit-encore/mkdocs.yml
 ```
 
 ## Tests

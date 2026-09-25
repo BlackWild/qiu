@@ -20,6 +20,9 @@ wheels/
 # Temporary files, such as Jupyter Notebook tryouts
 # temp
 
+# documentation site, built by docs/build_all.py
+site/
+
 # simulation results
 .result
 .output

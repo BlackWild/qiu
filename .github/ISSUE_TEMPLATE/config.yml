@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://blackwild.github.io/qiu/
+    about: The documentation of all packages, with their guides, examples and API references.

@@ -1,0 +1,3 @@
+INHERIT: ../../docs/mkdocs.base.yml
+site_name: qiskit-hamiltonian-simulation
+site_url: https://blackwild.github.io/qiu/qiskit-hamiltonian-simulation/

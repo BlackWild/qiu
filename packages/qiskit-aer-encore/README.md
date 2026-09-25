@@ -1,6 +1,14 @@
 # Qiskit Aer Encore
 
-Aer simulators configured for the available hardware, used by the tests and applications of this monorepo.
+[![PyPI](https://img.shields.io/pypi/v/qiskit-aer-encore)](https://pypi.org/project/qiskit-aer-encore/) [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/qiskit-aer-encore/)
+
+Aer simulators configured for the available hardware, used by the tests of this monorepo.
+
+## Installation
+
+```sh
+pip install qiskit-aer-encore
+```
 
 ## Usage
 
@@ -26,6 +34,14 @@ circuit.measure_all()
 simulator = aer_simulator(device="cpu", method="statevector")
 counts = simulator.run(transpile(circuit, simulator), shots=100).result().get_counts()
 assert set(counts) <= {"00", "11"}
+```
+
+## Documentation
+
+The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/qiskit-aer-encore/>. To serve it locally, from the repository root:
+
+```sh
+uv run --group docs mkdocs serve -f packages/qiskit-aer-encore/mkdocs.yml
 ```
 
 ## Tests

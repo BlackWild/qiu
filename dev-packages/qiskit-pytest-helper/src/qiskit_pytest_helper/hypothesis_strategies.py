@@ -115,7 +115,7 @@ def valid_qiskit_statevector(
     min_magnitude=MIN_MAGNITUDE,
     max_magnitude=MAX_MAGNITUDE,
 ) -> Statevector:
-    """A strategy for generating valid quantum states as a NumPy array."""
+    """A strategy for normalized quantum states as Qiskit `Statevector`s."""
     state = draw(
         normalized_quantum_state_array(
             min_qubits=min_qubits,

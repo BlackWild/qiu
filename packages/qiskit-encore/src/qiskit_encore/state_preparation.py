@@ -54,7 +54,7 @@ def state_preparation_circuit(
         method: How the preparation is represented in the circuit:
             - `GATE` (default): a single Qiskit `StatePreparation` gate, synthesized
               by Qiskit when transpiling. Note that Qiskit's synthesis prepares
-              wrong states for some inputs (qiskit 2.5), see
+              wrong states for some inputs (qiskit 2.2 to 2.5), see
               `decomposed_state_preparation`.
             - `DECOMPOSED`: elementary `ry`, `rz` and `cx` gates, synthesized by
               `decomposed_state_preparation`.

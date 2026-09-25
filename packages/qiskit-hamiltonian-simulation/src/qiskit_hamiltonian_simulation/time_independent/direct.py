@@ -3,14 +3,15 @@
 from python_signals.algebraic_signal import QuadraticSignal
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit_encore.synthesis_method import SynthesisMethod
+from qiskit_phase_propagator.direct import polynomial_phase_circuit
+from qiskit_phase_propagator.qubit_encoding import num_qubits_of
+
 from qiskit_hamiltonian_simulation.time_independent.fourier import (
     require_momentum_domain_axis,
     require_position_domain_axis,
     to_momentum_basis,
     to_position_basis,
 )
-from qiskit_phase_propagator.direct import polynomial_phase_circuit
-from qiskit_phase_propagator.qubit_encoding import num_qubits_of
 
 
 class PositionDomainEvolutionQuadratic(QuantumCircuit):

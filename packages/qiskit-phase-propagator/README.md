@@ -1,6 +1,14 @@
 # Qiskit Phase Propagator
 
-Circuits applying the phase `e^(i f(x))` of a signal `f` to the basis states of a qubit register, where the signal is a [`python-signals`](../../shareable-packages/python-signals/README.md) signal on an axis of `2**n` samples.
+[![PyPI](https://img.shields.io/pypi/v/qiskit-phase-propagator)](https://pypi.org/project/qiskit-phase-propagator/) [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/qiskit-phase-propagator/)
+
+Circuits applying the phase `e^(i f(x))` of a signal `f` to the basis states of a qubit register, where the signal is a [`python-signals`](https://github.com/BlackWild/qiu/blob/master/shareable-packages/python-signals/README.md) signal on an axis of `2**n` samples.
+
+## Installation
+
+```sh
+pip install qiskit-phase-propagator
+```
 
 ## Encoding of the axis in qubits
 
@@ -26,7 +34,7 @@ Circuits applying the phase `e^(i f(x))` of a signal `f` to the basis states of 
 
 `QuadraticSignalSampleBasedPhasePropagator(signal, max_delta, method)` combines these, with `|phi>` prepared by `qiskit-encore` using the given `SynthesisMethod`. The lower-level `GenericIterativeSampleBasedPhasePropagator` (one cycle per delta, each conditioned on the previous successes) and `GenericIterativeSampleBasedPhasePropagatorWithConstantDelta` (a loop that breaks at the first failure) take the preparation circuits directly.
 
-The `method` defaults to `GATE`, a Qiskit `StatePreparation` synthesized when transpiling. Qiskit's synthesis is unreliable for the nearly uniform `|phi>` of smooth signals (qiskit 2.2): transpiling can fail in its two-qubit decomposition, and it can prepare wrong states (see `qiskit-encore`). Pass `DECOMPOSED` for the Möttönen synthesis of `qiskit-encore`, or `DENSE` for exact results on few qubits.
+The `method` defaults to `GATE`, a Qiskit `StatePreparation` synthesized when transpiling. Qiskit's synthesis is unreliable for the nearly uniform `|phi>` of smooth signals (qiskit 2.2): transpiling or simulating it can fail, e.g. in its two-qubit decompositions or its uniformly controlled gates, and it can prepare wrong states (see `qiskit-encore`). Pass `DECOMPOSED` for the Möttönen synthesis of `qiskit-encore`, or `DENSE` for exact results on few qubits.
 
 `sample_based_manual` simulates the same protocol on statevectors, post-selected on success, applying the partial phase as its diagonal (`partial_phase_diagonal`), which is much faster than simulating its multi-controlled phase gate, e.g. `phase_propagate_state_with_arbitrary_signal(psi, signal, max_delta)`; `phase_propagation_cycle` also returns the success probability of a cycle.
 
@@ -59,6 +67,14 @@ potential = AlgebraicSignal(x_axis, lambda x: 0.02 * (1 + np.cos(x)))
 propagator = QuadraticSignalSampleBasedPhasePropagator(potential, max_delta=0.01)
 simulated = phase_propagate_state_with_arbitrary_signal(psi, potential, max_delta=0.01)
 assert abs(np.vdot(simulated.data, np.exp(1j * potential.data) * psi.data)) > 0.9999
+```
+
+## Documentation
+
+The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/qiskit-phase-propagator/>. To serve it locally, from the repository root:
+
+```sh
+uv run --group docs mkdocs serve -f packages/qiskit-phase-propagator/mkdocs.yml
 ```
 
 ## Tests

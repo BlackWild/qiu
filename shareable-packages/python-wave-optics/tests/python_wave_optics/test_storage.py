@@ -1,6 +1,7 @@
 """Unit tests for storage.py, result.py and analysis.py."""
 
 import json
+from dataclasses import replace
 
 import numpy as np
 import pytest
@@ -41,6 +42,16 @@ class TestStorage:
         assert list(loaded_result.snapshots) == list(result.snapshots)
         for name, state in result.snapshots.items():
             np.testing.assert_array_equal(loaded_result.snapshots[name], state)
+
+    def test_never_overwrites_a_run(self, small_experiment, tmp_path):
+        """Test that a run of the same uuid, e.g. of copied parameters, is refused."""
+        params = small_experiment()
+        result = simulate(params, ExactBackend())
+        save_experiment(tmp_path, params, result)
+        with pytest.raises(FileExistsError):
+            save_experiment(tmp_path, replace(params, max_delta=0.1), result)
+        save_experiment(tmp_path, replace(params, uuid="another"), result)
+        assert len(run_folders(tmp_path)) == 2
 
     def test_legacy_column_snapshots(self, small_experiment, tmp_path):
         """Test that snapshots stored as column vectors load flattened."""
@@ -85,7 +96,7 @@ class TestAnalysis:
         assert_close(beam_waist(np.exp(-(x**2) / 4.0**2), x), 4.0)
 
     def test_principal_plane(self, small_experiment):
-        """Test that the principal plane is at the convex vertex."""
+        """Test the principal plane: at `t - t / n` forward, at the convex vertex reversed."""
         forward, reverse = small_experiment(), small_experiment(lens_reverse_order=True)
         t, n = forward.lens_thickness, forward.refractive_index
         assert_close(principal_plane_position(forward), t - t / n)

@@ -1,39 +1,55 @@
-[tool.uv.sources]
-qiskit-encore = { workspace = true }
-qiskit-aer-encore = { workspace = true }
-qiskit-phase-propagator = { workspace = true }
-qiskit-hamiltonian-simulation = { workspace = true }
-qiskit-pytest-helper = { workspace = true }
-python-pytest-helper = { workspace = true }
-python-encore = { workspace = true }
-python-signals = { workspace = true }
-python-wave-optics = { workspace = true }
+# The root of the uv workspace of the monorepo: it is not a package itself, but holds the
+# workspace, the development tools shared by all packages, and their configuration.
+# See CONTRIBUTING.md.
 
 [tool.uv.workspace]
 members = [
+    "shareable-packages/*",
     "packages/*",
     "dev-packages/*",
     "apps/*",
-    "shareable-packages/*",
 ]
 
+[tool.uv.sources]
+python-encore = { workspace = true }
+python-pytest-helper = { workspace = true }
+python-signals = { workspace = true }
+python-wave-optics = { workspace = true }
+qiskit-aer-encore = { workspace = true }
+qiskit-encore = { workspace = true }
+qiskit-hamiltonian-simulation = { workspace = true }
+qiskit-mps-initializer = { workspace = true }
+qiskit-phase-propagator = { workspace = true }
+qiskit-pytest-helper = { workspace = true }
+
 [dependency-groups]
+# the tools of development, installed by `uv sync`
 dev = [
     "hypothesis>=6.140.3",
-    "ipykernel>=6.30.1",
+    "ipykernel>=6.30.1", # to run the `# %%` cells of the scripts interactively
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
     "pytest-xdist[psutil]>=3.8.0",
     "python-pytest-helper",
     "qiskit-pytest-helper",
-    "qiskit[visualization]>=2.2.1",
+    "qiskit[visualization]>=2.2.1", # to draw circuits
     "ruff>=0.14.0",
-    "tqdm>=4.67.1",
+]
+# the tools of the documentation, installed by `uv sync --group docs`
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-gen-files>=0.5.0",
+    "mkdocs-literate-nav>=0.6.2",
+    "mkdocs-material>=9.6.14",
+    "mkdocs-section-index>=0.3.10",
+    "mkdocstrings-python>=1.16.12",
 ]
 
 [tool.pytest.ini_options]
 # test modules of different packages share basenames, e.g. test_assertions.py
 addopts = ["--import-mode=importlib"]
+testpaths = ["shareable-packages", "packages", "dev-packages", "apps", "docs"]
+xfail_strict = true
 
 [tool.coverage.run]
 omit = [
@@ -42,4 +58,7 @@ omit = [
 ]
 
 [tool.coverage.report]
+fail_under = 95
+show_missing = true
+skip_covered = true
 skip_empty = true

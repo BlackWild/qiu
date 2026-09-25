@@ -1,0 +1,72 @@
+[project]
+name = "qiskit-mps-initializer"
+version = "0.3.0"
+description = "Approximate state preparation for Qiskit with layers of one- and two-qubit gates from matrix product states (MPS)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+maintainers = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+keywords = [
+    "matrix product states",
+    "mps",
+    "qiskit",
+    "quantum computing",
+    "state preparation",
+    "tensor networks",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Quantum Computing",
+]
+dependencies = [
+    "numpy>=2.2.6",
+    "qiskit>=2.2.1",
+    "qiskit-encore",
+    "quimb>=1.11.0",
+    "scipy>=1.15.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/BlackWild/qiu/tree/master/packages/qiskit-mps-initializer"
+Documentation = "https://blackwild.github.io/qiu/qiskit-mps-initializer/"
+Repository = "https://github.com/BlackWild/qiu"
+Issues = "https://github.com/BlackWild/qiu/issues"
+Changelog = "https://github.com/BlackWild/qiu/blob/master/packages/qiskit-mps-initializer/CHANGELOG.md"
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.140.3",
+    "pytest>=8.4.2",
+    "python-pytest-helper",
+    "python-signals",
+    "qiskit-phase-propagator",
+    "qiskit-pytest-helper",
+]
+
+[tool.uv.sources]
+python-pytest-helper = { workspace = true }
+python-signals = { workspace = true }
+qiskit-encore = { workspace = true }
+qiskit-phase-propagator = { workspace = true }
+qiskit-pytest-helper = { workspace = true }

@@ -1,6 +1,14 @@
 # Qiskit Hamiltonian Simulation
 
-Time evolution `e^(-i t H / hbar)` under potentials `V(x)` and kinetic energies `T(p)`, given as [`python-signals`](../../shareable-packages/python-signals/README.md) signals, built on the phase circuits of [`qiskit-phase-propagator`](../qiskit-phase-propagator/README.md).
+[![PyPI](https://img.shields.io/pypi/v/qiskit-hamiltonian-simulation)](https://pypi.org/project/qiskit-hamiltonian-simulation/) [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/qiskit-hamiltonian-simulation/)
+
+Time evolution `e^(-i t H / hbar)` under potentials `V(x)` and kinetic energies `T(p)`, given as [`python-signals`](https://github.com/BlackWild/qiu/blob/master/shareable-packages/python-signals/README.md) signals, built on the phase circuits of [`qiskit-phase-propagator`](https://github.com/BlackWild/qiu/blob/master/packages/qiskit-phase-propagator/README.md).
+
+## Installation
+
+```sh
+pip install qiskit-hamiltonian-simulation
+```
 
 ## Position and momentum domain
 
@@ -24,7 +32,7 @@ For the evolution under `V` or `T` over the time `t`, pass `f = (-t / hbar) * V`
 
 Both apply `e^(-i t V / hbar)` or `e^(-i t T / hbar)` with the sample-based phase propagator, sliced into phases of at most `max_delta`, and expose its `num_of_cycles`.
 
-All synthesis methods default to `GATE`, leaving the synthesis to Qiskit when transpiling; see the caveat on the state preparation in [`qiskit-phase-propagator`](../qiskit-phase-propagator/README.md#sample-based-phases).
+All synthesis methods default to `GATE`, leaving the synthesis to Qiskit when transpiling; see the caveat on the state preparation in [`qiskit-phase-propagator`](https://github.com/BlackWild/qiu/blob/master/packages/qiskit-phase-propagator/README.md#sample-based-phases).
 
 ## Usage
 
@@ -59,6 +67,14 @@ assert np.allclose(out.data, expected)
 ## Examples
 
 - `examples/free_space_double_slit.py`: The paraxial diffraction of a double slit over 1 km, with the direct propagator on 10 qubits, checked against NumPy's FFT.
+
+## Documentation
+
+The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/qiskit-hamiltonian-simulation/>. To serve it locally, from the repository root:
+
+```sh
+uv run --group docs mkdocs serve -f packages/qiskit-hamiltonian-simulation/mkdocs.yml
+```
 
 ## Tests
 

@@ -1,8 +1,16 @@
 # Python Signals
 
-Uniformly sampled axes and signals on them, for any kind of numerical application, classical or quantum. Only depends on NumPy.
+[![PyPI](https://img.shields.io/pypi/v/python-signals)](https://pypi.org/project/python-signals/) [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/python-signals/)
+
+Uniformly sampled axes and signals on them, for any kind of numerical application, classical or quantum. It depends on NumPy and `python-encore`, and optionally on SymPy.
 
 The quantum packages of this monorepo, e.g. `qiskit-phase-propagator`, encode these signals in the basis states of qubit registers, and `python-wave-optics` builds its optical elements on them.
+
+## Installation
+
+```sh
+pip install python-signals
+```
 
 ## Concepts
 
@@ -91,6 +99,14 @@ assert isinstance(phase, QuadraticSignal)
 beam = 2 * gaussian + symbolic
 assert beam.expression is None and np.allclose(beam.data, 3 * gaussian.data)
 assert (2 * symbolic + 1).expression == 2 * sympy.exp(-(x**2)) + 1
+```
+
+## Documentation
+
+The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/python-signals/>. To serve it locally, from the repository root:
+
+```sh
+uv run --group docs mkdocs serve -f shareable-packages/python-signals/mkdocs.yml
 ```
 
 ## Tests

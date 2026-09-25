@@ -189,7 +189,7 @@ def positive_polynomial_signals(
     coefficients: st.SearchStrategy[float] = _COEFFICIENTS,
     total: float = 1.0,
 ) -> AlgebraicSignal:
-    """A strategy for positive signals, absolute values of polynomials.
+    """A strategy for non-negative signals, absolute values of polynomials.
 
     The signals are scaled such that their samples sum up to `total`.
     """

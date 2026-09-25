@@ -1,6 +1,14 @@
 # Python Wave Optics
 
-Paraxial wave optics of a Gaussian beam through a plano-convex lens, sliced along the optical axis, and through free space behind it. It holds everything about this lens experiment that does not depend on how the phases are applied, so that the simulations with Qiskit (`apps/wave_optics_propagation`) and QuTiP (`apps/wave_optics_propagation_qutip`) share it. It depends on NumPy, Matplotlib and [`python-signals`](../python-signals/README.md).
+[![PyPI](https://img.shields.io/pypi/v/python-wave-optics)](https://pypi.org/project/python-wave-optics/) [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/python-wave-optics/)
+
+Paraxial wave optics of a Gaussian beam through a plano-convex lens, sliced along the optical axis, and through free space behind it. It holds everything about this lens experiment that does not depend on how the phases are applied, so that the simulations with Qiskit (`apps/wave_optics_propagation`) and QuTiP (`apps/wave_optics_propagation_qutip`) share it. It depends on NumPy, Matplotlib and [`python-signals`](https://github.com/BlackWild/qiu/blob/master/shareable-packages/python-signals/README.md).
+
+## Installation
+
+```sh
+pip install python-wave-optics
+```
 
 ## Modules
 
@@ -39,6 +47,14 @@ result = simulate(parameters, ExactBackend())
 behind_lens = parameters.step_size_after_lens * parameters.num_of_steps_after_lens
 reference = classical_numerics_simulation(parameters, behind_lens)
 assert abs(abs(result.snapshots["final"] @ reference.conj()) - 1) < 1e-9
+```
+
+## Documentation
+
+The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/python-wave-optics/>. To serve it locally, from the repository root:
+
+```sh
+uv run --group docs mkdocs serve -f shareable-packages/python-wave-optics/mkdocs.yml
 ```
 
 ## Tests

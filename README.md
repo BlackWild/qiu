@@ -1,31 +1,81 @@
 # Qiu
 
-Qiu is a monorepo holding various packages and projects related to quantum computing and quantum programming. The main focus is to provide better tools on top of the Qiskit framework.
+[![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://github.com/BlackWild/qiu/actions/workflows/docs.yml/badge.svg?branch=master)](https://blackwild.github.io/qiu/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE) [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv) [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) [![Checked with pyright](https://microsoft.github.io/pyright/img/pyright_badge.svg)](https://microsoft.github.io/pyright/)
 
-## Structure
+Qiu is a monorepo of tools for quantum computing and quantum simulation: building blocks of quantum circuits, the phases of sampled signals as circuits, Hamiltonian simulation and state preparation with matrix product states, the numerics of sampled signals and of paraxial wave optics they share, and applications built on them, such as the simulation of wave optics with quantum circuits. Its packages build on [Qiskit](https://www.ibm.com/quantum/qiskit) and [QuTiP](https://qutip.org/), and on NumPy for everything framework-independent.
 
-The repository is structured as follows:
+The documentation of all packages, with their guides, examples and API references, is at <https://blackwild.github.io/qiu/>.
 
-- `shareable-packages/`: Contains reusable libraries and tools for things not necessarily related to scientific computation or quantum computing. Think of them as packages that enhance standard python.
-  - `python-encore`: A package for enhancing standard Python functionalities.
-  - `python-signals`: A package for uniformly sampled axes and signals on them, for classical and quantum numerics alike.
-  - `python-wave-optics`: Paraxial wave optics of Gaussian beams through sliced lenses: optical elements, the lens experiment and its storage, its simulation loop for any backend, and its classical references.
+## Packages
 
-- `dev-packages/`: Contains packages which are not meant to be published for others but just to be used inside this monorepo for development purposes.
-  - `python-pytest-helper`: The floating-point comparisons and the `hypothesis` strategies of numbers, axes and signals shared by the unit tests, depending only on `python-signals`.
-  - `qiskit-pytest-helper`: The quantum counterparts on top of it: strategies of quantum states and qubit axes, assertions with Qiskit's equality, and typed circuit helpers.
+| Package | | Description |
+| --- | --- | --- |
+| **Shareable packages** (`shareable-packages/`): useful beyond quantum computing | | |
+| [`python-encore`](shareable-packages/python-encore/) | [![PyPI](https://img.shields.io/pypi/v/python-encore)](https://pypi.org/project/python-encore/) | Small enhancements of the Python standard library. |
+| [`python-signals`](shareable-packages/python-signals/) | [![PyPI](https://img.shields.io/pypi/v/python-signals)](https://pypi.org/project/python-signals/) | Uniformly sampled axes and signals on them, for classical and quantum numerics alike. |
+| [`python-wave-optics`](shareable-packages/python-wave-optics/) | [![PyPI](https://img.shields.io/pypi/v/python-wave-optics)](https://pypi.org/project/python-wave-optics/) | Paraxial wave optics of Gaussian beams through sliced lenses, with a simulation loop for any backend and classical references. |
+| **Packages** (`packages/`): quantum computing, with circuits of Qiskit | | |
+| [`qiskit-encore`](packages/qiskit-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-encore)](https://pypi.org/project/qiskit-encore/) | Robust state preparation, QFT and uniformly controlled rotations, each as a dense unitary, a Qiskit gate or a decomposed circuit. |
+| [`qiskit-aer-encore`](packages/qiskit-aer-encore/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-aer-encore)](https://pypi.org/project/qiskit-aer-encore/) | Aer simulators configured for the available hardware, CPU or GPU. |
+| [`qiskit-phase-propagator`](packages/qiskit-phase-propagator/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-phase-propagator)](https://pypi.org/project/qiskit-phase-propagator/) | Circuits applying phases `e^(i f(x))` of sampled signals to qubit registers, directly or sample-based. |
+| [`qiskit-hamiltonian-simulation`](packages/qiskit-hamiltonian-simulation/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-hamiltonian-simulation)](https://pypi.org/project/qiskit-hamiltonian-simulation/) | Time evolution under potentials and kinetic energies given as sampled signals. |
+| [`qiskit-mps-initializer`](packages/qiskit-mps-initializer/) | [![PyPI](https://img.shields.io/pypi/v/qiskit-mps-initializer)](https://pypi.org/project/qiskit-mps-initializer/) | Approximate state preparation with layers of one- and two-qubit gates from matrix product states. |
+| **Development packages** (`dev-packages/`): test helpers of this monorepo, not published | | |
+| [`python-pytest-helper`](dev-packages/python-pytest-helper/) | | Floating-point comparisons and Hypothesis strategies of numbers, axes and signals. |
+| [`qiskit-pytest-helper`](dev-packages/qiskit-pytest-helper/) | | Strategies of quantum states and qubit axes, assertions with Qiskit's equality, and circuit helpers. |
+| **Applications** (`apps/`): projects built on the packages, not published | | |
+| [`wave_optics_propagation`](apps/wave_optics_propagation/) | | The lens experiments of the paper simulated with Qiskit: the simulation run on the cluster and the analyses of the paper. |
+| [`wave_optics_propagation_qutip`](apps/wave_optics_propagation_qutip/) | | The same lens experiments simulated with QuTiP. |
 
-- `packages/`: Contains reusable libraries and tools for quantum computing.
-  - `qiskit-encore`: Circuit building blocks on top of Qiskit (robust state preparation, QFT, uniformly controlled rotations), each available as a dense unitary, a Qiskit gate or a decomposed circuit.
-  - `qiskit-aer-encore`: Aer simulators configured for the available hardware (CPU or GPU).
-  - `qiskit-phase-propagator`: Circuits applying phases `e^(i f(x))` of `python-signals` signals to qubit registers, directly or sample-based.
-  - `qiskit-hamiltonian-simulation`: Time evolution under potentials and kinetic energies given as `python-signals` signals.
+The other directories:
 
-- `apps/`: Contains standalone applications and projects that utilize the other packages, with section-based (`# %%`) scripts instead of notebooks.
-  - `wave_optics_propagation`: The lens experiments of the paper simulated with Qiskit: the simulation run on the cluster and the analyses of the paper.
-  - `wave_optics_propagation_qutip`: The same lens experiments simulated with QuTiP.
-
-There are then other directories which are very specific to some task and are not used very frequently:
+- `docs/`: The shared configuration, the landing page and the build of the documentation.
 - `cluster/`: The SLURM jobs running the simulations of `apps/wave_optics_propagation`.
-- `project-diary/`
-- and the other dot folders `.*/`
+- `project-diary/`: Notes on the development of the project.
+
+## Installation
+
+The published packages install from PyPI, e.g.
+
+```sh
+pip install qiskit-encore
+```
+
+For development, clone the repository and install all packages of the [uv](https://docs.astral.sh/uv/) workspace, editable:
+
+```sh
+git clone https://github.com/BlackWild/qiu.git
+cd qiu
+uv sync --all-packages --group docs
+uv run pytest -n auto
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions of the monorepo and how to contribute.
+
+## Documentation
+
+Every package has its documentation in `docs/`: a home page, a user guide, worked examples and the API reference, generated from the docstrings of its `src` by `docs/gen_reference.py`. Its `mkdocs.yml` inherits the shared configuration `docs/mkdocs.base.yml`, and `docs/build_all.py` builds all packages, with the landing page `mkdocs.yml`, into one site:
+
+```sh
+uv run --group docs python docs/build_all.py  # into site/
+```
+
+The Python examples of the documentation and the READMEs run as part of the tests (`docs/tests/test_examples.py`).
+
+## Continuous integration
+
+The GitHub Actions workflows in `.github/workflows/`:
+
+- `ci.yml`: lints (`ruff`) and type checks (`pyright`) the monorepo, tests all packages on Python 3.11 to 3.14, builds and checks all packages (`twine check`), and builds the documentation, on pushes to `master` and on pull requests.
+- `docs.yml`: builds the documentation and deploys it to GitHub Pages on pushes to `master`.
+- `publish-<package>.yml`: publishes a package to PyPI when it changes on `master`, or when run by hand, for the libraries in `packages/` and `shareable-packages/`. They share the composite action `.github/actions/publish-package`: it tests the package with only the dependencies it declares, builds it, checks that its release is installable from PyPI, i.e. that its dependencies of this monorepo are published, and publishes it as a trusted publisher unless its version is already on PyPI.
+
+The tests on GitHub Actions use the Hypothesis profile `ci` of `conftest.py`, without deadlines per example. Dependabot (`.github/dependabot.yml`) proposes updates of the actions and the locked dependencies quarterly.
+
+## Citation
+
+If you use this software in your research, please cite it with the metadata of [CITATION.cff](CITATION.cff).
+
+## License
+
+The monorepo and all its packages are licensed under the [MIT License](LICENSE).

@@ -1,10 +1,12 @@
 # Python Pytest Helper
 
-Shared helpers for the unit tests of this monorepo that need no quantum computing, not meant to be published. It only depends on NumPy, Hypothesis and [`python-signals`](../../shareable-packages/python-signals/README.md); the quantum helpers of [`qiskit-pytest-helper`](../qiskit-pytest-helper/README.md) build on it.
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/BlackWild/qiu/blob/master/LICENSE) [![CI](https://github.com/BlackWild/qiu/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/BlackWild/qiu/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://blackwild.github.io/qiu/python-pytest-helper/)
+
+Shared helpers for the unit tests of this monorepo that need no quantum computing, not meant to be published. It only depends on NumPy, Hypothesis and [`python-signals`](https://github.com/BlackWild/qiu/blob/master/shareable-packages/python-signals/README.md); the quantum helpers of [`qiskit-pytest-helper`](https://github.com/BlackWild/qiu/blob/master/dev-packages/qiskit-pytest-helper/README.md) build on it.
 
 ## Floating-point comparisons
 
-`assertions.assert_close(actual, expected, scale=1.0)` is the comparison of numbers and arrays of the monorepo, with `is_close` as its predicate:
+`assertions.assert_close(actual, expected, scale=1.0)` is the comparison of numbers and arrays of the monorepo, with `is_close` as its predicate, and `assert_close_in_norm(actual, expected)` the one of vectors computed as a whole, e.g. by FFTs, whose rounding errors are relative to their norm:
 
 - Values are compared relative to their magnitude, with the default relative tolerance of `numpy.testing.assert_allclose` (`RTOL`).
 - Below the smallest normal float, `numpy.finfo(dtype).tiny`, floats lose their relative precision: they underflow to subnormal numbers or zero. Such values agree absolutely at that scale (`underflow_atol`).
@@ -32,6 +34,14 @@ signals = monomial_signals(
     physical_axes(AxisDomain.MOMENTUM, orderings=st.just(IndexOrdering.FFT)),
     powers=st.just(2),
 )
+```
+
+## Documentation
+
+The documentation, with the API reference from the docstrings, is built from `docs/` with MkDocs and published at <https://blackwild.github.io/qiu/python-pytest-helper/>. To serve it locally, from the repository root:
+
+```sh
+uv run --group docs mkdocs serve -f dev-packages/python-pytest-helper/mkdocs.yml
 ```
 
 ## Tests

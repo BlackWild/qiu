@@ -1,0 +1,3 @@
+INHERIT: ../../docs/mkdocs.base.yml
+site_name: qiskit-aer-encore
+site_url: https://blackwild.github.io/qiu/qiskit-aer-encore/

@@ -9,7 +9,10 @@
 
 # ──────────────────────────────────────────────────────────────
 # 0. How to use this script:
-#    Submit this script to SLURM with: sbatch run.slurm
+#    Submit it with: bash cluster/submit-batch.sh
+#    which syncs the environment once, creates cluster/.result/ for the logs, and
+#    submits this array job. Its tasks run concurrently, so they do not sync the
+#    environment themselves, which would race on the same .venv.
 # ──────────────────────────────────────────────────────────────
 
 # ──────────────────────────────────────────────────────────────
@@ -25,13 +28,8 @@ cd ..
 source .venv/bin/activate
 
 # ──────────────────────────────────────────────────────────────
-# 3. (Optional) Ensure packages are installed within local .venv
-#    uv respects the active venv, so this installs locally
-# ──────────────────────────────────────────────────────────────
-uv sync --all-packages
-
-# ──────────────────────────────────────────────────────────────
-# 4. Run your Python script inside the venv using uv
+# 3. Run the simulation of this task's max_delta in the synced environment;
+#    --no-sync, as `uv run` would sync the environment otherwise
 # ──────────────────────────────────────────────────────────────
 
 DELTAS=($(python - << 'EOF'
@@ -43,4 +41,4 @@ EOF
 
 #    The runs are stored in apps/wave_optics_propagation/.result/batch/<uuid>, where
 #    apps/wave_optics_propagation/scripts/batch_analysis.py reads them
-uv run python apps/wave_optics_propagation/scripts/simulate.py --max-delta=${DELTAS[$SLURM_ARRAY_TASK_ID]} --reverse-order --results-dir=apps/wave_optics_propagation/.result/batch
+uv run --no-sync python apps/wave_optics_propagation/scripts/simulate.py --max-delta=${DELTAS[$SLURM_ARRAY_TASK_ID]} --reverse-order --results-dir=apps/wave_optics_propagation/.result/batch

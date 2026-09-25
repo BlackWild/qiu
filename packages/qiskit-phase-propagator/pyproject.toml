@@ -1,12 +1,39 @@
 [project]
 name = "qiskit-phase-propagator"
 version = "0.1.0"
-description = "Circuits applying phases e^(i f(x)) of signals to quantum states, directly or sample-based."
+description = "Qiskit circuits applying the phase e^(i f(x)) of a sampled signal to a qubit register, exactly or with a sample-based protocol."
 readme = "README.md"
-authors = [
-    { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
-]
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+maintainers = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+keywords = [
+    "phase",
+    "qiskit",
+    "quantum circuits",
+    "quantum computing",
+    "signal",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Quantum Computing",
+]
 dependencies = [
     "numpy>=2.2.6",
     "python-signals",
@@ -14,18 +41,29 @@ dependencies = [
     "qiskit-encore",
 ]
 
+[project.urls]
+Homepage = "https://github.com/BlackWild/qiu/tree/master/packages/qiskit-phase-propagator"
+Documentation = "https://blackwild.github.io/qiu/qiskit-phase-propagator/"
+Repository = "https://github.com/BlackWild/qiu"
+Issues = "https://github.com/BlackWild/qiu/issues"
+Changelog = "https://github.com/BlackWild/qiu/blob/master/packages/qiskit-phase-propagator/CHANGELOG.md"
+
 [build-system]
-requires = ["uv_build>=0.8.18,<0.9.0"]
+requires = ["uv_build>=0.12.18,<0.13"]
 build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.140.3",
+    "pytest>=8.4.2",
+    "python-pytest-helper",
     "qiskit-aer-encore",
     "qiskit-pytest-helper",
 ]
 
 [tool.uv.sources]
+python-pytest-helper = { workspace = true }
 python-signals = { workspace = true }
-qiskit-encore = { workspace = true }
 qiskit-aer-encore = { workspace = true }
+qiskit-encore = { workspace = true }
 qiskit-pytest-helper = { workspace = true }

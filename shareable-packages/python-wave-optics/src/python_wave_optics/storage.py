@@ -21,9 +21,16 @@ RESULTS_FILENAME = "results.npz"
 def save_experiment(
     results_dir: str | Path, parameters: ExperimentParameters, result: ExperimentResult
 ) -> Path:
-    """Store a run in the folder `<results_dir>/<uuid>`, and return the folder."""
+    """Store a run in the folder `<results_dir>/<uuid>`, and return the folder.
+
+    Raises:
+        FileExistsError: If a run of the same uuid is stored already, e.g. of parameters
+            copied with `dataclasses.replace`, which keeps the uuid; give the copy a new
+            one, e.g. `replace(parameters, ..., uuid=uuid.uuid4().hex)`.
+    """
     folder = Path(results_dir) / parameters.uuid
-    folder.mkdir(parents=True, exist_ok=True)
+    folder.parent.mkdir(parents=True, exist_ok=True)
+    folder.mkdir()  # never overwrite a stored run
     with open(folder / PARAMETERS_FILENAME, "w") as file:
         json.dump({**parameters.to_dict(), **result.summary()}, file)
     np.savez(folder / RESULTS_FILENAME, allow_pickle=False, **result.snapshots)

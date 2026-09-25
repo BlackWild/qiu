@@ -1,12 +1,39 @@
 [project]
 name = "qiskit-hamiltonian-simulation"
 version = "0.1.0"
-description = "Time evolution under potentials and kinetic energies given as signals."
+description = "Qiskit circuits of the time evolution under potentials and kinetic energies given as sampled signals."
 readme = "README.md"
-authors = [
-    { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
-]
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+maintainers = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+keywords = [
+    "hamiltonian simulation",
+    "qiskit",
+    "quantum circuits",
+    "quantum computing",
+    "time evolution",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Quantum Computing",
+]
 dependencies = [
     "python-signals",
     "qiskit>=2.2.1",
@@ -14,19 +41,30 @@ dependencies = [
     "qiskit-phase-propagator",
 ]
 
+[project.urls]
+Homepage = "https://github.com/BlackWild/qiu/tree/master/packages/qiskit-hamiltonian-simulation"
+Documentation = "https://blackwild.github.io/qiu/qiskit-hamiltonian-simulation/"
+Repository = "https://github.com/BlackWild/qiu"
+Issues = "https://github.com/BlackWild/qiu/issues"
+Changelog = "https://github.com/BlackWild/qiu/blob/master/packages/qiskit-hamiltonian-simulation/CHANGELOG.md"
+
 [build-system]
-requires = ["uv_build>=0.8.18,<0.9.0"]
+requires = ["uv_build>=0.12.18,<0.13"]
 build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.140.3",
+    "pytest>=8.4.2",
+    "python-pytest-helper",
     "qiskit-aer-encore",
     "qiskit-pytest-helper",
 ]
 
 [tool.uv.sources]
+python-pytest-helper = { workspace = true }
 python-signals = { workspace = true }
+qiskit-aer-encore = { workspace = true }
 qiskit-encore = { workspace = true }
 qiskit-phase-propagator = { workspace = true }
-qiskit-aer-encore = { workspace = true }
 qiskit-pytest-helper = { workspace = true }

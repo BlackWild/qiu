@@ -8,16 +8,17 @@ of one sign is applied by the sample-based phase propagator of
 from python_signals.algebraic_signal import SampledSignal
 from qiskit.circuit import QuantumCircuit
 from qiskit_encore.synthesis_method import SynthesisMethod
+from qiskit_phase_propagator.qubit_encoding import num_qubits_of
+from qiskit_phase_propagator.sample_based import (
+    QuadraticSignalSampleBasedPhasePropagator,
+    propagator_registers,
+)
+
 from qiskit_hamiltonian_simulation.time_independent.fourier import (
     require_momentum_domain_axis,
     require_position_domain_axis,
     to_momentum_basis,
     to_position_basis,
-)
-from qiskit_phase_propagator.qubit_encoding import num_qubits_of
-from qiskit_phase_propagator.sample_based import (
-    QuadraticSignalSampleBasedPhasePropagator,
-    propagator_registers,
 )
 
 

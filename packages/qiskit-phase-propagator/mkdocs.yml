@@ -1,0 +1,3 @@
+INHERIT: ../../docs/mkdocs.base.yml
+site_name: qiskit-phase-propagator
+site_url: https://blackwild.github.io/qiu/qiskit-phase-propagator/

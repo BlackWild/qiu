@@ -1,20 +1,53 @@
 [project]
 name = "python-pytest-helper"
 version = "0.1.0"
-description = "Floating-point comparisons and hypothesis strategies of numbers, axes and signals for the unit tests of this monorepo."
+description = "Floating-point comparisons and Hypothesis strategies of numbers, axes and signals for the unit tests of the qiu monorepo."
 readme = "README.md"
-authors = [
-    { name = "Siavash Davani", email = "siavash.davani@gmail.com" }
-]
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+maintainers = [
+    { name = "Siavash Davani", email = "siavash.davani@gmail.com" },
+]
+keywords = [
+    "hypothesis",
+    "pytest",
+    "testing",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+    "Framework :: Hypothesis",
+    "Framework :: Pytest",
+    "Private :: Do Not Upload",
+    "Topic :: Software Development :: Testing",
+]
 dependencies = [
     "hypothesis>=6.140.3",
     "numpy>=2.2.6",
     "python-signals",
 ]
 
+[project.urls]
+Homepage = "https://github.com/BlackWild/qiu/tree/master/dev-packages/python-pytest-helper"
+Documentation = "https://blackwild.github.io/qiu/python-pytest-helper/"
+Repository = "https://github.com/BlackWild/qiu"
+Issues = "https://github.com/BlackWild/qiu/issues"
+
 [build-system]
-requires = ["uv_build>=0.8.18,<0.9.0"]
+requires = ["uv_build>=0.12.18,<0.13"]
 build-backend = "uv_build"
 
 [tool.uv.sources]

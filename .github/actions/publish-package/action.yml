@@ -1,0 +1,55 @@
+name: Publish a package
+description: >
+  Test, build and publish a package of the workspace to PyPI as a trusted publisher.
+  The package is tested with only the dependencies it declares, the release is checked
+  to be installable from PyPI, and a version already on PyPI is skipped.
+
+  The job calling it needs the permission `id-token: write`, and the package a trusted
+  publisher on PyPI for the calling workflow. It is a composite action rather than a
+  reusable workflow, which PyPI does not accept as a trusted publisher.
+
+inputs:
+  package:
+    description: The name of the package, e.g. `python-encore`.
+    required: true
+  path:
+    description: The directory of the package, e.g. `shareable-packages/python-encore`.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v10.2.0 # no floating major tags
+      with:
+        version: "0.12.18"
+        enable-cache: true
+        cache-dependency-glob: uv.lock
+
+    # only the dependencies the package declares, so that missing ones fail the tests
+    - name: Install the package and its dependencies
+      shell: bash
+      run: uv sync --package "${{ inputs.package }}" --locked
+
+    - name: Test
+      shell: bash
+      run: uv run --package "${{ inputs.package }}" --no-sync pytest "${{ inputs.path }}"
+      env:
+        HYPOTHESIS_PROFILE: ci # see conftest.py
+
+    - name: Build
+      shell: bash
+      run: uv build --package "${{ inputs.package }}" --out-dir dist
+
+    # the dependencies of the release, e.g. packages of this monorepo, must be on PyPI,
+    # or the release could not be installed from it
+    - name: Check that the dependencies are on PyPI
+      shell: bash
+      run: |
+        uv venv /tmp/installability-check
+        uv pip install --python /tmp/installability-check/bin/python --dry-run --no-sources dist/*.whl
+
+    # a version already on PyPI is skipped, so only new versions are released
+    - name: Publish
+      shell: bash
+      run: uv publish --check-url https://pypi.org/simple/ dist/*

@@ -34,9 +34,10 @@ def convex_planar_lens_radius(
             `sqrt(R**2 - (R - depth)**2)`.
 
     Returns:
-        The radius of the lens at the depth, 0 outside the lens.
+        The radius of the lens at the depth, 0 outside the lens, i.e. outside
+        `0 <= depth < lens_thickness`.
     """
-    if not np.abs(depth) < lens_thickness:
+    if not 0 <= depth < lens_thickness:
         return 0.0
     if fresnel_approximation:
         return float(np.sqrt(2 * radius_of_curvature * depth))

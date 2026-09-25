@@ -5,8 +5,9 @@ focal length are sampled on the transverse or angular wavenumber grid. A smooth 
 like the propagators', aliases in `e^(i f)` once it changes by more than `pi` between
 neighboring samples; the phase of a lens slice is a step at the edge of the slice
 instead. Their spectra show where the energy sits. Two parameter sets are compared:
-the one of the paper at a length scale of 1.493, and one with fewer, thicker slices and
-unscaled phases.
+the experiment of the paper with its lengths scaled by 1.493 instead of `1e-3` and a beam
+FWHM of 20 instead of 25 length units, and one with fewer, thicker slices of a stronger
+lens and unscaled phases.
 """
 
 # %%

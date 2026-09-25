@@ -41,9 +41,10 @@ class TestConvexPlanarLensRadius:
         assert_close(radius**2 / (2 * curvature), depth)
 
     @pytest.mark.parametrize("fresnel_approximation", [False, True])
-    def test_outside_the_lens(self, fresnel_approximation: bool):
-        """Test that the lens has no radius beyond its thickness."""
-        assert convex_planar_lens_radius(5.0, 2.0, 2.0, fresnel_approximation) == 0.0
+    @pytest.mark.parametrize("depth", [2.0, 3.0, -0.5])
+    def test_outside_the_lens(self, fresnel_approximation: bool, depth: float):
+        """Test that the lens has no radius beyond its thickness or before its vertex."""
+        assert convex_planar_lens_radius(5.0, depth, 2.0, fresnel_approximation) == 0.0
 
 
 class TestTransparentPlatePhase:

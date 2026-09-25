@@ -79,6 +79,12 @@ class TestPolynomialPhaseCircuit:
         assert circuit.size() == 0
         assert_equal_operators(circuit, np.exp(0.3j) * np.eye(4))
 
+    def test_rejects_non_monomials(self):
+        """Test that sums of monomials are rejected, their circuits being composed."""
+        lens = PolynomialSignal(PositionAxis(4, 1.0, IndexOrdering.FFT), 0.3, 2)
+        with pytest.raises(TypeError, match="PolynomialSignal"):
+            polynomial_phase_circuit(lens + 1)  # type: ignore[arg-type]
+
     def test_higher_powers_are_not_implemented(self):
         """Test that powers above 3 are rejected."""
         signal = PolynomialSignal(PositionAxis(4, 1.0, IndexOrdering.FFT), 0.3, 4)

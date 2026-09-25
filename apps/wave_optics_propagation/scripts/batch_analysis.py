@@ -99,6 +99,12 @@ def quadratic_fit(x, a):
     return a * x**2 + 1
 
 
+# the range of max_delta of the points of the fits
+fit_range = (
+    rf"$\Delta_{{max}}\in[{max_deltas[0]:.3g}, "
+    rf"{max_deltas[NUMS_TO_KEEP_FOR_FITTING - 1]:.3g}]$"
+)
+
 (a_fidelity,), _ = curve_fit(
     quadratic_fit,
     max_deltas[:NUMS_TO_KEEP_FOR_FITTING],
@@ -113,7 +119,7 @@ ax.plot(
     quadratic_fit(x_fit, a_fidelity),
     c="C0",
     linestyle="--",
-    label=r"Quadratic fit, through $\Delta_{max}\in(0.001, 0.1)$",
+    label=f"Quadratic fit, through {fit_range}",
 )
 ax.set_xlabel(r"Maximum Delta $\Delta_{max}$")
 ax.set_ylabel(r"Fidelity to Classical Numerics $F$")
@@ -145,7 +151,7 @@ ax.plot(
     exponential_fit(x_fit, a_success),
     c="C0",
     linestyle="--",
-    label=r"Linear fit, through $\Delta_{max}\in(0.001, 0.1)$",
+    label=f"Linear fit, through {fit_range}",
 )
 ax.set_yscale("log")
 ax.set_xlabel(r"Maximum Delta $\Delta_{max}$")

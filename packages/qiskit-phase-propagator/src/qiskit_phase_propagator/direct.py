@@ -120,7 +120,17 @@ def polynomial_phase_circuit(signal: PolynomialSignal) -> QuantumCircuit:
 
     Returns:
         The phase circuit on `n` qubits.
+
+    Raises:
+        TypeError: If the signal is not a `PolynomialSignal`, e.g. a sum of monomials,
+            whose circuits are composed instead.
+        NotImplementedError: If its power is larger than 3.
     """
+    if not isinstance(signal, PolynomialSignal):
+        raise TypeError(
+            "Direct phase circuits need a PolynomialSignal, i.e. a monomial, got "
+            f"{type(signal).__name__}; compose the circuits of its monomials instead."
+        )
     num_qubits = num_qubits_of(signal.axis)
 
     if signal.power == 0:

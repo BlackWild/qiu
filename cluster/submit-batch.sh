@@ -1,0 +1,17 @@
+#!/bin/bash
+# ──────────────────────────────────────────────────────────────
+# Submit the batch of runs over max_delta (batch-run.slurm), from anywhere:
+#
+#    bash cluster/submit-batch.sh
+#
+# The environment is synced once here, before the array job, whose tasks run
+# concurrently: syncing the same .venv in each of them would race.
+# ──────────────────────────────────────────────────────────────
+set -euo pipefail
+
+cd "$(dirname "$0")/.."           # the repository root, where .venv and uv.lock are
+uv sync --all-packages --locked   # the environment all tasks share
+mkdir -p cluster/.result          # SLURM does not create the directory of the logs
+
+cd cluster                        # the jobs expect to be submitted from cluster/
+sbatch batch-run.slurm

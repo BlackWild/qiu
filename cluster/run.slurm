@@ -8,7 +8,8 @@
 
 # ──────────────────────────────────────────────────────────────
 # 0. How to use this script:
-#    Submit this script to SLURM with: sbatch run.slurm
+#    Submit this script to SLURM from cluster/ with: sbatch run.slurm
+#    The log goes to cluster/.result/, which SLURM does not create: mkdir -p .result
 # ──────────────────────────────────────────────────────────────
 
 # ──────────────────────────────────────────────────────────────
