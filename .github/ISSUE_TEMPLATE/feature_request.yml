@@ -1,0 +1,22 @@
+name: Feature request
+description: A new feature or an improvement of a package.
+labels: [enhancement]
+body:
+  - type: input
+    id: package
+    attributes:
+      label: Package
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: The use case
+      description: What would you like to do, and why is it not possible or convenient yet?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: A proposal
+      description: How could the API look like? Alternatives you considered?

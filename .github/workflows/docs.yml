@@ -1,0 +1,57 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# one deployment at a time, without cancelling a running one
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: "Build the documentation of all packages"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.2.0 # no floating major tags
+        with:
+          version: "0.12.18"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install all packages of the workspace and the documentation tools
+        run: uv sync --all-packages --no-default-groups --group docs --locked
+
+      - name: Build
+        run: uv run --no-sync python docs/build_all.py --site-dir site
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    name: "Deploy to GitHub Pages"
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write # to deploy to GitHub Pages
+      id-token: write # to verify the deployment's origin
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

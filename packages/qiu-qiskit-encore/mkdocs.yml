@@ -1,0 +1,3 @@
+INHERIT: ../../docs/mkdocs.base.yml
+site_name: qiu-qiskit-encore
+site_url: https://blackwild.github.io/qiu/qiu-qiskit-encore/

@@ -1,0 +1,8 @@
+# The configuration of pytest, for the tests of all packages run from the repository root.
+[pytest]
+minversion = "9.0"
+# test modules of different packages share basenames, e.g. test_assertions.py
+addopts = ["--import-mode=importlib"]
+testpaths = ["packages", "packages-dev", "apps", "docs"]
+# unknown options and markers are errors, and unexpectedly passing xfail tests fail
+strict = true

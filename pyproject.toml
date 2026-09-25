@@ -1,40 +1,58 @@
-[tool.uv.sources]
-qiskit-encore = { workspace = true }
-qiskit-signals = { workspace = true }
-qiskit-aer-encore = { workspace = true }
-qiskit-phase-propagator = { workspace = true }
-qiskit-hamiltonian-simulation = { workspace = true }
-qiskit-pytest-helper = { workspace = true }
+# The root of the uv workspace of the monorepo: it is not a package itself, but holds the
+# workspace, the development tools shared by all packages, and their configuration.
+# See CONTRIBUTING.md.
 
 [tool.uv.workspace]
 members = [
-    "packages/*",
-    "dev-packages/*",
     "apps/*",
-    "shareable-packages/*",
+    "packages/*",
+    "packages-dev/*",
 ]
+
+[tool.uv.sources]
+python-pytest-helper = { workspace = true }
+qiskit-pytest-helper = { workspace = true }
+qiu-classical-simulation = { workspace = true }
+qiu-hamiltonian-simulation = { workspace = true }
+qiu-mps-initializer = { workspace = true }
+qiu-python-encore = { workspace = true }
+qiu-qiskit-aer-encore = { workspace = true }
+qiu-qiskit-encore = { workspace = true }
+qiu-quantum-computing = { workspace = true }
+qiu-signals = { workspace = true }
 
 [dependency-groups]
+# `uv sync --all-packages` installs all groups; select some with `--no-default-groups`
+# and `--group <name>`, e.g. on CI
+# the tools of development: linting, formatting and type checking
 dev = [
+    "pyright[nodejs]>=1.1.414", # with Node.js, which pyright runs on
+    "ruff>=0.16.9",
+]
+# the tests of all packages, configured in pytest.toml and .coveragerc.toml
+test = [
+    "coverage>=7.13.0", # reads .coveragerc.toml
     "hypothesis>=6.140.3",
-    "ipykernel>=6.30.1",
-    "pytest>=8.4.2",
+    "pytest>=9.0.0", # reads pytest.toml
     "pytest-cov>=7.0.0",
     "pytest-xdist[psutil]>=3.8.0",
+    "python-pytest-helper",
     "qiskit-pytest-helper",
-    "qiskit[visualization]>=2.2.1",
-    "ruff>=0.14.0",
-    # "qiskit-aer-gpu-cu11>=0.17.2",
-    # "qiskit-aer-gpu>=0.17.0",
-    # "qiskit-aer[gpu]>=0.17.2",
-    "tqdm>=4.67.1",
+]
+# the documentation, built by docs/build_all.py
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-gen-files>=0.5.0",
+    "mkdocs-literate-nav>=0.6.2",
+    "mkdocs-material>=9.6.14",
+    "mkdocs-section-index>=0.3.10",
+    "mkdocstrings-python>=1.16.12",
+]
+# the `# %%` scripts of the apps and the examples, run cell by cell, and their figures
+demo = [
+    "ipykernel>=6.30.1",
+    "matplotlib>=3.10.0",
 ]
 
-[tool.coverage.run]
-omit = [
-    "**/tests/*",
-    "**/__init__.py",
-]
-
-[tool.coverage.report]
-skip_empty = true
+[tool.uv]
+default-groups = "all"

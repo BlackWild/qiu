@@ -21,8 +21,14 @@ select = [
   "SIM",
   # isort
   "I",
-  # pydoclint
-  "DOC",
+  # pydoclint, whose rules are all in preview: named one by one, see `preview` below
+  "DOC102", # documented parameter not in the signature
+  "DOC201", # `return` not documented
+  "DOC202", # "Returns" section of a function returning nothing
+  "DOC402", # `yield` not documented
+  "DOC403", # "Yields" section of a function yielding nothing
+  "DOC501", # raised exception not documented
+  "DOC502", # documented exception not raised
   # pydocstyle
   "D",
   # type-checking
@@ -42,6 +48,14 @@ unfixable = [
 
 # Specify the docstring style to be used for linting.
 pydocstyle.convention = "google"
+
+# The preview rules selected by their full codes above, and no others: `explicit-preview-rules`
+# keeps prefixes such as "E" or "D" to the stable rules.
+preview = true
+explicit-preview-rules = true
+
+# a one-line docstring, e.g. """Return the norm of the state.""", needs no sections
+pydoclint.ignore-one-line-docstrings = true
 
 # longer line limit for comments
 # pycodestyle.max-line-length = 100

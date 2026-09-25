@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "Qiu: tools for quantum computing and quantum simulation"
+type: software
+authors:
+  - family-names: Davani
+    given-names: Siavash
+    email: siavash.davani@gmail.com
+repository-code: https://github.com/BlackWild/qiu
+url: https://blackwild.github.io/qiu/
+license: MIT
+keywords:
+  - quantum computing
+  - quantum simulation
+  - qiskit
+  - qutip
+  - wave optics

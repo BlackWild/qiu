@@ -1,5 +1,6 @@
 # Base image
-FROM ghcr.io/astral-sh/uv:0.8-python3.13-bookworm-slim
+# uv of the version used on GitHub Actions, and the Python version of .python-version
+FROM ghcr.io/astral-sh/uv:0.12-python3.11-trixie-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 

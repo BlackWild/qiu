@@ -1,0 +1,13 @@
+# The landing page of the documentation, linking to the documentation of each package
+# (see docs/mkdocs.base.yml); docs/build_all.py builds them all into one site.
+site_name: Qiu
+site_url: https://blackwild.github.io/qiu/
+repo_url: https://github.com/BlackWild/qiu
+docs_dir: docs/landing
+
+theme:
+  name: material
+
+markdown_extensions:
+  - toc:
+      permalink: true

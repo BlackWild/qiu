@@ -1,0 +1,12 @@
+# The configuration of coverage.py, for `pytest --cov`.
+[run]
+omit = [
+    "**/tests/*",
+    "**/__init__.py",
+]
+
+[report]
+fail_under = 95
+show_missing = true
+skip_covered = true
+skip_empty = true

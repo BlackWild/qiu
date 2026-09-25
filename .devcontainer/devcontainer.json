@@ -6,9 +6,13 @@
     // Path is relative to the devcontainer.json file.
     "dockerfile": "Dockerfile"
   },
+  // install the workspace with the documentation tools, and the pre-commit hooks
+  "postCreateCommand": "uv sync --all-packages && uvx pre-commit install",
   "customizations": {
     "vscode": {
       "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
         "EditorConfig.EditorConfig",
         "charliermarsh.ruff",
         "tamasfe.even-better-toml",
